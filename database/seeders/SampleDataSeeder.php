@@ -76,11 +76,8 @@ class SampleDataSeeder extends Seeder
             'client_id' => $client1->id,
             'insurance_company_id' => $cardif->id,
             'liquidator_id' => $liquidator1->id,
-            'tax_amount' => 149957,
-            'total_parts_cost' => 100000,
-            'total_labor_cost' => 67800,
-            'total_surcharge' => 16000,
-            'total_amount' => 939124,
+            'tax_amount' => 34922,
+            'total_amount' => 218722,
             'notes' => 'Reparación de parachoques trasero según presupuesto original.'
         ]);
 
@@ -90,20 +87,49 @@ class SampleDataSeeder extends Seeder
             'status' => 'draft',
             'vehicle_id' => $vehicle2->id,
             'client_id' => $client2->id,
-            'total_amount' => 150000,
+            'tax_amount' => 28500,
+            'total_amount' => 178500,
             'notes' => 'Revision inicial por falla de pintura.'
         ]);
 
-        // 6. Add Items
+        // 6. Add Items (new 5-column schema)
         QuotationItem::create([
             'quotation_id' => $quote1->id,
-            'type' => 'dym',
-            'description' => 'PARACHOQUES TRASERO',
-            'parts_price' => 100000,
-            'labor_price' => 67800,
-            'others_price' => 16000,
-            'quantity' => 1,
-            'total' => 183800
+            'action'       => 'REP',
+            'description'  => 'PARACHOQUES TRASERO',
+            'repair_price' => 100000,
+            'paint_price'  => 67800,
+            'dm_price'     => 16000,
+            'parts_price'  => 0,
+            'other_price'  => 0,
+            'is_salvage'   => false,
+            'subtotal'     => 183800,
+        ]);
+
+        QuotationItem::create([
+            'quotation_id' => $quote1->id,
+            'action'       => 'REP',
+            'description'  => 'GUARDAFANGO PLASTICO TRASERO DERECHO',
+            'repair_price' => 55000,
+            'paint_price'  => 12000,
+            'dm_price'     => 3500,
+            'parts_price'  => 0,
+            'other_price'  => 0,
+            'is_salvage'   => false,
+            'subtotal'     => 70500,
+        ]);
+
+        QuotationItem::create([
+            'quotation_id' => $quote2->id,
+            'action'       => 'D/M',
+            'description'  => 'REVISIÓN GENERAL DE PINTURA',
+            'repair_price' => 0,
+            'paint_price'  => 150000,
+            'dm_price'     => 0,
+            'parts_price'  => 0,
+            'other_price'  => 0,
+            'is_salvage'   => false,
+            'subtotal'     => 150000,
         ]);
     }
 }

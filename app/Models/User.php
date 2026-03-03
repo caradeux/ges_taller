@@ -21,6 +21,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'active',
+        'branch_id',
     ];
 
     /**
@@ -44,5 +47,24 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
+    }
+
+    /**
+     * Returns the branch_id to use for query scoping.
+     * Admin: uses session-selected branch (null = all branches).
+     * Other roles: always their own branch_id.
+     */
+    public function activeBranchId(): ?int
+    {
+        if ($this->role === 'admin') {
+            return session('active_branch_id') ? (int) session('active_branch_id') : null;
+        }
+
+        return $this->branch_id ? (int) $this->branch_id : null;
     }
 }

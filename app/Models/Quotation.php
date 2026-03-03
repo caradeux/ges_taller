@@ -8,6 +8,9 @@ class Quotation extends Model
 {
     protected $fillable = [
         'folio',
+        'branch_id',
+        'claim_number',
+        'intake_number',
         'date',
         'status',
         'vehicle_id',
@@ -20,8 +23,13 @@ class Quotation extends Model
         'total_surcharge',
         'tax_amount',
         'total_amount',
-        'notes'
+        'notes',
     ];
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
+    }
 
     public function client()
     {
@@ -46,5 +54,31 @@ class Quotation extends Model
     public function items()
     {
         return $this->hasMany(QuotationItem::class);
+    }
+
+    public function getStatusLabelAttribute()
+    {
+        return match ($this->status) {
+            'draft' => 'Borrador',
+            'approved' => 'Aprobado',
+            'sent' => 'Pendiente',
+            'rejected' => 'Rechazado',
+            'finished' => 'Terminado',
+            'invoiced' => 'Facturado',
+            default => 'Pendiente'
+        };
+    }
+
+    public function getStatusColorAttribute()
+    {
+        return match ($this->status) {
+            'draft' => 'warning',
+            'approved' => 'success',
+            'sent' => 'info',
+            'rejected' => 'danger',
+            'finished' => 'primary',
+            'invoiced' => 'dark',
+            default => 'info'
+        };
     }
 }

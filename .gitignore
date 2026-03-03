@@ -27,3 +27,11 @@ Thumbs.db
 *.xlsx
 *.pdf
 /docs
+
+# Database (local data, not committed)
+database/*.sqlite
+database/*.sqlite-wal
+database/*.sqlite-shm
+
+# Claude Code internal memory
+.claude/
