@@ -1,14 +1,25 @@
 @extends('layouts.app')
 
-@section('title', 'Editar Presupuesto')
+@section('title', 'Editar Cotización')
 
 @section('styles')
 <style>
-    .items-table th, .items-table td { font-size: 0.8rem; padding: 0.4rem 0.35rem; vertical-align: middle; }
-    .items-table input[type="number"] { width: 90px; }
-    .items-table input[type="text"]   { min-width: 180px; }
-    .items-table select.action-sel    { width: 72px; }
-    .col-price input { width: 95px; }
+    .items-table th, .items-table td { font-size: 0.8rem; padding: 0.4rem 0.5rem; vertical-align: middle; }
+    .items-table select.un-sel { width: 120px; font-weight: 700; font-size: 0.78rem; }
+    .items-table input.desc-inp { min-width: 200px; }
+    .items-table input.price-inp { width: 110px; text-align: right; }
+
+    .ac-wrap { position: relative; }
+    .ac-dropdown {
+        display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 9999;
+        background: #fff; border: 1px solid #dee2e6;
+        border-radius: 0 0 .375rem .375rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,.1);
+        max-height: 200px; overflow-y: auto; list-style: none; padding: 0; margin: 0;
+    }
+    .ac-dropdown li { padding: .45rem .75rem; cursor: pointer; font-size: .84rem; border-bottom: 1px solid #f0f0f0; }
+    .ac-dropdown li:last-child { border-bottom: none; }
+    .ac-dropdown li:hover, .ac-dropdown li.ac-active { background: #f0f4ff; }
 </style>
 @endsection
 
@@ -18,7 +29,7 @@
         <a href="{{ route('quotations.show', $quotation) }}" class="text-decoration-none text-secondary small fw-medium">
             <i class="bi bi-arrow-left"></i> Volver al detalle
         </a>
-        <h2 class="fw-bold mt-2">Editar Presupuesto <span class="text-primary">#{{ $quotation->folio }}</span></h2>
+        <h2 class="fw-bold mt-2">Editar Cotización <span class="text-primary">#{{ $quotation->folio }}</span></h2>
     </div>
 
     <form action="{{ route('quotations.update', $quotation) }}" method="POST" id="quotationForm">
@@ -31,26 +42,28 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold small">Cliente <span class="text-danger">*</span></label>
-                        <select name="client_id" id="client_id" class="form-select form-select-sm" required>
-                            @foreach($clients as $client)
-                                <option value="{{ $client->id }}"
-                                    {{ old('client_id', $quotation->client_id) == $client->id ? 'selected' : '' }}>
-                                    {{ $client->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <div class="ac-wrap">
+                            <input type="text" id="client_text" class="form-control form-control-sm"
+                                autocomplete="off"
+                                value="{{ old('client_id') ? ($quotation->client->name ?? '') : ($quotation->client->name ?? '') }}">
+                            <input type="hidden" name="client_id" id="client_id"
+                                value="{{ old('client_id', $quotation->client_id) }}">
+                        </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold small">Vehículo <span class="text-danger">*</span></label>
-                        <select name="vehicle_id" id="vehicle_id" class="form-select form-select-sm" required>
-                            @foreach($vehicles as $vehicle)
-                                <option value="{{ $vehicle->id }}" data-client="{{ $vehicle->client_id }}"
-                                    {{ old('vehicle_id', $quotation->vehicle_id) == $vehicle->id ? 'selected' : '' }}>
-                                    {{ $vehicle->license_plate }} — {{ $vehicle->brand }} {{ $vehicle->model }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <div class="ac-wrap">
+                            @php
+                                $vLabel = $quotation->vehicle
+                                    ? $quotation->vehicle->license_plate . ' — ' . $quotation->vehicle->brand . ' ' . $quotation->vehicle->model
+                                    : '';
+                            @endphp
+                            <input type="text" id="vehicle_text" class="form-control form-control-sm"
+                                autocomplete="off" value="{{ $vLabel }}">
+                            <input type="hidden" name="vehicle_id" id="vehicle_id"
+                                value="{{ old('vehicle_id', $quotation->vehicle_id) }}">
+                        </div>
                     </div>
 
                     <div class="mb-3">
@@ -127,26 +140,18 @@
                         <table class="table table-borderless items-table align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th style="width:68px;">UN</th>
+                                    <th style="width:130px;">UN</th>
                                     <th>DESCRIPCIÓN</th>
-                                    <th class="text-end col-price">REPARAC.</th>
-                                    <th class="text-end col-price">PINTURA</th>
-                                    <th class="text-end col-price">D/M</th>
-                                    <th class="text-end col-price">REPUESTO</th>
-                                    <th class="text-end col-price">OTROS</th>
-                                    <th class="text-center" style="width:56px;">SALVAR</th>
+                                    <th class="text-end" style="width:120px;">PRECIO (CLP)</th>
+                                    <th class="text-center" style="width:60px;">SALVAR</th>
                                     <th style="width:36px;"></th>
                                 </tr>
                             </thead>
                             <tbody id="itemsBody"></tbody>
                             <tfoot>
                                 <tr class="fw-bold border-top">
-                                    <td colspan="2" class="text-end text-muted small">SUBTOTALES</td>
-                                    <td class="text-end" id="sub_repair">$0</td>
-                                    <td class="text-end" id="sub_paint">$0</td>
-                                    <td class="text-end" id="sub_dm">$0</td>
-                                    <td class="text-end" id="sub_parts">$0</td>
-                                    <td class="text-end" id="sub_other">$0</td>
+                                    <td colspan="2" class="text-end text-muted small">NETO</td>
+                                    <td class="text-end" id="netAmount">$0</td>
                                     <td colspan="2"></td>
                                 </tr>
                             </tfoot>
@@ -157,7 +162,7 @@
                         <div style="min-width:260px;">
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">Neto:</span>
-                                <span class="fw-semibold" id="netAmount">$0</span>
+                                <span class="fw-semibold" id="netoDisplay">$0</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">IVA (19%):</span>
@@ -186,75 +191,150 @@
 @section('scripts')
 <script>
 const CLP = v => new Intl.NumberFormat('es-CL', {style:'currency',currency:'CLP',maximumFractionDigits:0}).format(v);
+
+// ── Autocomplete ───────────────────────────────────────────────
+function initAC({ textId, hiddenId, url, render, label, onSelect }) {
+    const txt  = document.getElementById(textId);
+    const hid  = document.getElementById(hiddenId);
+    const wrap = txt.closest('.ac-wrap');
+    const ul   = document.createElement('ul');
+    ul.className = 'ac-dropdown';
+    wrap.appendChild(ul);
+    let timer;
+
+    txt.addEventListener('input', () => {
+        hid.value = '';
+        const q = txt.value.trim();
+        if (!q) { ul.style.display = 'none'; return; }
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            const base = typeof url === 'function' ? url() : url;
+            fetch(`${base}${base.includes('?') ? '&' : '?'}q=${encodeURIComponent(q)}`, {
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(r => r.json())
+            .then(items => {
+                ul.innerHTML = '';
+                if (!items.length) { ul.style.display = 'none'; return; }
+                items.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerHTML   = render(item);
+                    li.dataset.lbl = label(item);
+                    li.dataset.id  = item.id;
+                    li.addEventListener('mousedown', e => {
+                        e.preventDefault();
+                        txt.value = li.dataset.lbl;
+                        hid.value = li.dataset.id;
+                        ul.style.display = 'none';
+                        if (onSelect) onSelect(item);
+                    });
+                    ul.appendChild(li);
+                });
+                ul.style.display = 'block';
+            })
+            .catch(() => ul.style.display = 'none');
+        }, 220);
+    });
+
+    txt.addEventListener('blur', () => setTimeout(() => ul.style.display = 'none', 180));
+    txt.addEventListener('keydown', e => {
+        const items  = [...ul.querySelectorAll('li')];
+        const active = ul.querySelector('li.ac-active');
+        const idx    = active ? items.indexOf(active) : -1;
+        if (e.key === 'ArrowDown')  { e.preventDefault(); active?.classList.remove('ac-active'); (items[idx + 1] ?? items[0])?.classList.add('ac-active'); }
+        if (e.key === 'ArrowUp')    { e.preventDefault(); active?.classList.remove('ac-active'); (items[idx - 1] ?? items[items.length - 1])?.classList.add('ac-active'); }
+        if (e.key === 'Enter' && active) { e.preventDefault(); active.dispatchEvent(new MouseEvent('mousedown')); }
+        if (e.key === 'Escape')     { ul.style.display = 'none'; }
+    });
+}
+
+let selectedClientId = '{{ $quotation->client_id }}';
+
+initAC({
+    textId:   'client_text',
+    hiddenId: 'client_id',
+    url:      '{{ route("clients.search") }}',
+    render:   c => `<strong>${c.name}</strong> <span style="color:#888;font-size:.8rem;">${c.rut_dni ?? ''}</span>`,
+    label:    c => c.name + (c.rut_dni ? ' — ' + c.rut_dni : ''),
+    onSelect: c => {
+        selectedClientId = c.id;
+        document.getElementById('vehicle_text').value = '';
+        document.getElementById('vehicle_id').value   = '';
+    }
+});
+
+initAC({
+    textId:   'vehicle_text',
+    hiddenId: 'vehicle_id',
+    url:      () => '{{ route("vehicles.search") }}' + (selectedClientId ? `?client_id=${selectedClientId}` : ''),
+    render:   v => `<strong>${v.license_plate}</strong> <span style="color:#888;font-size:.8rem;">${v.brand} ${v.model}</span>`,
+    label:    v => `${v.license_plate} — ${v.brand} ${v.model}`,
+});
+
+// ── Tabla de ítems ─────────────────────────────────────────────
+const UN_TYPES      = @json($unTypes->map(fn($u) => ['id' => $u->id, 'code' => $u->code, 'name' => $u->name]));
 const existingItems = @json($quotation->items);
 let rowIdx = 0;
 
+function buildUnOptions(selectedId = null) {
+    return UN_TYPES.map(u =>
+        `<option value="${u.id}" ${u.id == selectedId ? 'selected' : ''}>${u.code} — ${u.name}</option>`
+    ).join('');
+}
+
 function addRow(data = {}) {
-    const i = rowIdx++;
-    const action  = data.action       || 'REP';
-    const desc    = (data.description || '').replace(/"/g,'&quot;');
-    const repair  = data.repair_price ?? '';
-    const paint   = data.paint_price  ?? '';
-    const dm      = data.dm_price     ?? '';
-    const parts   = data.parts_price  ?? '';
-    const other   = data.other_price  ?? '';
-    const salvage = data.is_salvage   ? 'checked' : '';
+    const i       = rowIdx++;
+    const unId    = data.un_type_id  || (UN_TYPES[0]?.id ?? '');
+    const desc    = (data.description || '').replace(/"/g, '&quot;');
+    const price   = data.price ?? '';
+    const salvage = data.is_salvage ? 'checked' : '';
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
-        <td><select name="items[${i}][action]" class="form-select form-select-sm action-sel">
-            <option value="REP" ${action==='REP'?'selected':''}>REP</option>
-            <option value="D/M" ${action==='D/M'?'selected':''}>D/M</option>
-            <option value="C"   ${action==='C'  ?'selected':''}>C</option>
-            <option value="MAT" ${action==='MAT'?'selected':''}>MAT</option>
-        </select></td>
-        <td><input type="text" name="items[${i}][description]" class="form-control form-control-sm" value="${desc}" required></td>
-        <td class="col-price"><input type="number" name="items[${i}][repair_price]" class="form-control form-control-sm price-input text-end" value="${repair}" min="0" step="1" placeholder="0"></td>
-        <td class="col-price"><input type="number" name="items[${i}][paint_price]"  class="form-control form-control-sm price-input text-end" value="${paint}"  min="0" step="1" placeholder="0"></td>
-        <td class="col-price"><input type="number" name="items[${i}][dm_price]"     class="form-control form-control-sm price-input text-end" value="${dm}"     min="0" step="1" placeholder="0"></td>
-        <td class="col-price"><input type="number" name="items[${i}][parts_price]"  class="form-control form-control-sm price-input text-end" value="${parts}"  min="0" step="1" placeholder="0"></td>
-        <td class="col-price"><input type="number" name="items[${i}][other_price]"  class="form-control form-control-sm price-input text-end" value="${other}"  min="0" step="1" placeholder="0"></td>
-        <td class="text-center"><input type="checkbox" name="items[${i}][is_salvage]" value="1" class="form-check-input" ${salvage}></td>
-        <td><button type="button" class="btn btn-sm btn-outline-danger border-0 rm-row"><i class="bi bi-x-lg"></i></button></td>
+        <td>
+            <select name="items[${i}][un_type_id]" class="form-select form-select-sm un-sel fw-bold" required>
+                ${buildUnOptions(unId)}
+            </select>
+        </td>
+        <td>
+            <input type="text" name="items[${i}][description]" class="form-control form-control-sm desc-inp"
+                value="${desc}" placeholder="Descripción del trabajo..." required>
+        </td>
+        <td>
+            <input type="number" name="items[${i}][price]" class="form-control form-control-sm price-inp"
+                value="${price}" min="0" step="1" placeholder="0">
+        </td>
+        <td class="text-center">
+            <input type="checkbox" name="items[${i}][is_salvage]" value="1" class="form-check-input" ${salvage}>
+        </td>
+        <td>
+            <button type="button" class="btn btn-sm btn-outline-danger border-0 rm-row">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </td>
     `;
-    tr.querySelectorAll('.price-input').forEach(el => el.addEventListener('input', recalc));
+
+    tr.querySelector('.price-inp').addEventListener('input', recalc);
     tr.querySelector('.rm-row').addEventListener('click', () => { tr.remove(); recalc(); });
     document.getElementById('itemsBody').appendChild(tr);
     recalc();
 }
 
 function recalc() {
-    let [sRepair, sPaint, sDm, sParts, sOther] = [0,0,0,0,0];
-    document.querySelectorAll('#itemsBody tr').forEach(row => {
-        const inputs = row.querySelectorAll('.price-input');
-        sRepair += parseFloat(inputs[0].value)||0;
-        sPaint  += parseFloat(inputs[1].value)||0;
-        sDm     += parseFloat(inputs[2].value)||0;
-        sParts  += parseFloat(inputs[3].value)||0;
-        sOther  += parseFloat(inputs[4].value)||0;
+    let neto = 0;
+    document.querySelectorAll('#itemsBody .price-inp').forEach(inp => {
+        neto += parseFloat(inp.value) || 0;
     });
-    document.getElementById('sub_repair').textContent = CLP(sRepair);
-    document.getElementById('sub_paint').textContent  = CLP(sPaint);
-    document.getElementById('sub_dm').textContent     = CLP(sDm);
-    document.getElementById('sub_parts').textContent  = CLP(sParts);
-    document.getElementById('sub_other').textContent  = CLP(sOther);
-
-    const neto = sRepair + sPaint + sDm + sParts + sOther;
+    const iva   = Math.round(neto * 0.19);
+    const total = neto + iva;
     document.getElementById('netAmount').textContent   = CLP(neto);
-    document.getElementById('taxAmount').textContent   = CLP(Math.round(neto*0.19));
-    document.getElementById('totalAmount').textContent = CLP(neto + Math.round(neto*0.19));
+    document.getElementById('netoDisplay').textContent = CLP(neto);
+    document.getElementById('taxAmount').textContent   = CLP(iva);
+    document.getElementById('totalAmount').textContent = CLP(total);
 }
-
-document.getElementById('client_id').addEventListener('change', function() {
-    const cid = this.value;
-    Array.from(document.getElementById('vehicle_id').options).forEach(opt => {
-        opt.style.display = (!opt.value || opt.dataset.client === cid) ? '' : 'none';
-    });
-});
 
 document.getElementById('addItem').addEventListener('click', () => addRow());
 
-// Populate existing items
 if (existingItems.length) {
     existingItems.forEach(item => addRow(item));
 } else {

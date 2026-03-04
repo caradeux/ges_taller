@@ -45,6 +45,18 @@ class LiquidatorController extends Controller
             ->with('success', 'Liquidador actualizado exitosamente.');
     }
 
+    public function quickStore(Request $request)
+    {
+        $request->validate([
+            'name'                 => 'required|string|max:255',
+            'insurance_company_id' => 'required|exists:insurance_companies,id',
+            'phone'                => 'nullable|string|max:20',
+            'email'                => 'nullable|email|max:255',
+        ]);
+        $liq = Liquidator::create($request->only('name', 'insurance_company_id', 'phone', 'email'));
+        return response()->json(['id' => $liq->id, 'name' => $liq->name]);
+    }
+
     public function destroy(Liquidator $liquidator)
     {
         $liquidator->delete();

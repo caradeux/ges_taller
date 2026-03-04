@@ -8,14 +8,14 @@ class QuotationItem extends Model
 {
     protected $fillable = [
         'quotation_id',
-        'action',
+        'un_type_id',
         'description',
-        'repair_price',
-        'paint_price',
-        'dm_price',
-        'parts_price',
-        'other_price',
+        'price',
         'is_salvage',
-        'subtotal',
     ];
+
+    public function unType()
+    {
+        return $this->belongsTo(UnType::class);
+    }
 }

@@ -50,6 +50,40 @@
                                 <input type="email" name="company_email" class="form-control"
                                     value="{{ old('company_email', $company->email) }}">
                             </div>
+
+                            <div class="col-12"><hr class="my-1"></div>
+
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-secondary">
+                                    Vigencia de Cotizaciones
+                                    <i class="bi bi-info-circle text-muted ms-1"
+                                        title="Días de validez que se muestra en cada cotización generada"
+                                        data-bs-toggle="tooltip"></i>
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" name="quotation_validity_days" class="form-control @error('quotation_validity_days') is-invalid @enderror"
+                                        value="{{ old('quotation_validity_days', $company->quotation_validity_days ?? 30) }}"
+                                        min="1" max="365" required>
+                                    <span class="input-group-text text-secondary">días</span>
+                                </div>
+                                @error('quotation_validity_days')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                <div class="form-text">Entre 1 y 365 días (por defecto 30).</div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-secondary">
+                                    Próximo Nº Cotización
+                                    <i class="bi bi-info-circle text-muted ms-1"
+                                        title="Correlativo desde el cual se numerarán las nuevas cotizaciones"
+                                        data-bs-toggle="tooltip"></i>
+                                </label>
+                                <input type="number" name="folio_counter" class="form-control @error('folio_counter') is-invalid @enderror"
+                                    value="{{ old('folio_counter', $company->folio_counter ?? 1) }}"
+                                    min="1" required>
+                                @error('folio_counter')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                <div class="form-text">La siguiente cotización usará este número.</div>
+                            </div>
+
                             <div class="col-12 mt-2">
                                 <button type="submit" class="btn-primary-premium">
                                     <i class="bi bi-building-fill"></i> Guardar Datos del Taller

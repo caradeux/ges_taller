@@ -160,21 +160,19 @@ class ReportController extends Controller
             ->pluck('id');
 
         $itemAgg = QuotationItem::whereIn('quotation_id', $quotationIds)
-            ->selectRaw('
-                SUM(repair_price) as total_repair,
-                SUM(paint_price)  as total_paint,
-                SUM(dm_price)     as total_dm,
-                SUM(parts_price)  as total_parts,
-                SUM(other_price)  as total_other,
-                COUNT(*)          as total_count
-            ')
-            ->first();
+            ->join('un_types', 'quotation_items.un_type_id', '=', 'un_types.id')
+            ->selectRaw('un_types.category, SUM(quotation_items.price) as total')
+            ->groupBy('un_types.category')
+            ->get()
+            ->keyBy('category');
 
-        $repuestoTotal   = $itemAgg->total_parts  ?? 0;
-        $manoObraTotal   = ($itemAgg->total_repair ?? 0) + ($itemAgg->total_paint ?? 0) + ($itemAgg->total_dm ?? 0);
+        $repuestoTotal   = $itemAgg->get('parts')?->total  ?? 0;
+        $manoObraTotal   = ($itemAgg->get('repair')?->total ?? 0)
+                         + ($itemAgg->get('paint')?->total  ?? 0)
+                         + ($itemAgg->get('dm')?->total     ?? 0);
         $repuestoCount   = 0;
         $manoObraCount   = 0;
-        $itemsGrandTotal = $repuestoTotal + $manoObraTotal + ($itemAgg->total_other ?? 0);
+        $itemsGrandTotal = $itemAgg->sum('total');
 
         $itemTypes = compact('repuestoTotal', 'manoObraTotal', 'repuestoCount', 'manoObraCount', 'itemsGrandTotal');
 

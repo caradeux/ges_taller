@@ -42,19 +42,23 @@ class ProfileController extends Controller
         // Update company info (admin only, when company fields are submitted)
         if ($user->role === 'admin' && $request->has('company_name')) {
             $companyValidated = $request->validate([
-                'company_name'    => 'required|string|max:255',
-                'company_rut'     => 'nullable|string|max:20',
-                'company_address' => 'nullable|string|max:255',
-                'company_phone'   => 'nullable|string|max:30',
-                'company_email'   => 'nullable|email|max:255',
+                'company_name'               => 'required|string|max:255',
+                'company_rut'                => 'nullable|string|max:20',
+                'company_address'            => 'nullable|string|max:255',
+                'company_phone'              => 'nullable|string|max:30',
+                'company_email'              => 'nullable|email|max:255',
+                'quotation_validity_days'    => 'required|integer|min:1|max:365',
+                'folio_counter'              => 'required|integer|min:1',
             ]);
 
             Company::current()->update([
-                'name'    => $companyValidated['company_name'],
-                'rut'     => $companyValidated['company_rut'],
-                'address' => $companyValidated['company_address'],
-                'phone'   => $companyValidated['company_phone'],
-                'email'   => $companyValidated['company_email'],
+                'name'                    => $companyValidated['company_name'],
+                'rut'                     => $companyValidated['company_rut'],
+                'address'                 => $companyValidated['company_address'],
+                'phone'                   => $companyValidated['company_phone'],
+                'email'                   => $companyValidated['company_email'],
+                'quotation_validity_days' => $companyValidated['quotation_validity_days'],
+                'folio_counter'           => $companyValidated['folio_counter'],
             ]);
         }
 

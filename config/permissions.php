@@ -22,10 +22,13 @@ return [
     'quotations.edit'       => ['admin', 'recepcion'],
     'quotations.update'     => ['admin', 'recepcion'],
     'quotations.destroy'    => ['admin'],
+    'quotations.followup'   => ['admin', 'recepcion'],
     'quotations.pdf'        => ['admin', 'recepcion', 'taller'],
     'quotations.status'     => ['admin', 'recepcion'],
 
     // Clients
+    'clients.search'        => ['admin', 'recepcion', 'taller'],
+    'clients.quickStore'    => ['admin', 'recepcion'],
     'clients.index'         => ['admin', 'recepcion', 'taller'],
     'clients.show'          => ['admin', 'recepcion', 'taller'],
     'clients.create'        => ['admin', 'recepcion'],
@@ -35,6 +38,8 @@ return [
     'clients.destroy'       => ['admin'],
 
     // Vehicles
+    'vehicles.search'       => ['admin', 'recepcion', 'taller'],
+    'vehicles.quickStore'   => ['admin', 'recepcion'],
     'vehicles.index'        => ['admin', 'recepcion', 'taller'],
     'vehicles.show'         => ['admin', 'recepcion', 'taller'],
     'vehicles.create'       => ['admin', 'recepcion'],
@@ -44,9 +49,11 @@ return [
     'vehicles.destroy'      => ['admin'],
 
     // Insurance companies
+    'insurance-companies.quickStore' => ['admin', 'recepcion'],
     'insurance-companies.*' => ['admin', 'recepcion'],
 
     // Liquidators
+    'liquidators.quickStore' => ['admin', 'recepcion'],
     'liquidators.*'         => ['admin', 'recepcion'],
 
     // Reports
@@ -64,10 +71,18 @@ return [
     'service-items.destroy' => ['admin'],
     'service-items.search'  => ['admin', 'recepcion', 'taller'],
 
+    // UN Types catalog (admin only)
+    'un-types.*'            => ['admin'],
+    'un-types.json'         => ['admin', 'recepcion'],
+
     // Vehicle brands catalog
     'vehicle-brands.*'      => ['admin'],
     'vehicle-brands.json'   => ['admin', 'recepcion'],
     'vehicle-brands.models.json' => ['admin', 'recepcion'],
+
+    // Roles management (admin only)
+    'roles.index'           => ['admin'],
+    'roles.update'          => ['admin'],
 
     // Users management (admin only)
     'users.*'               => ['admin'],

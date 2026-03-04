@@ -66,6 +66,7 @@ class ClientController extends Controller
      */
     public function show(Client $client)
     {
+        $client->load(['vehicles', 'quotations.vehicle']);
         return view('clients.show', compact('client'));
     }
 
@@ -94,6 +95,38 @@ class ClientController extends Controller
 
         return redirect()->route('clients.index')
             ->with('success', 'Cliente actualizado exitosamente.');
+    }
+
+    /** AJAX search for autocomplete */
+    public function search(Request $request)
+    {
+        $q        = $request->input('q', '');
+        $branchId = auth()->user()->activeBranchId();
+
+        $clients = Client::when($branchId, fn($query) => $query->where('branch_id', $branchId))
+            ->where(function ($query) use ($q) {
+                $query->where('name', 'like', "%{$q}%")
+                      ->orWhere('rut_dni', 'like', "%{$q}%");
+            })
+            ->orderBy('name')
+            ->limit(15)
+            ->get(['id', 'name', 'rut_dni']);
+
+        return response()->json($clients);
+    }
+
+    /** Quick creation via AJAX from quotation form */
+    public function quickStore(Request $request)
+    {
+        $validated = $request->validate([
+            'rut_dni' => 'required|unique:clients,rut_dni',
+            'name'    => 'required|string|max:255',
+            'phone'   => 'nullable|string|max:20',
+            'email'   => 'nullable|email|max:255',
+        ]);
+        $validated['branch_id'] = auth()->user()->branch_id;
+        $client = Client::create($validated);
+        return response()->json(['id' => $client->id, 'name' => $client->name, 'rut_dni' => $client->rut_dni]);
     }
 
     /**

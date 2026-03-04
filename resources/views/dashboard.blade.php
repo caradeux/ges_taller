@@ -1,144 +1,187 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard Profesional')
+@section('title', 'Panel General')
 
 @section('content')
-    <header class="d-flex justify-content-between align-items-center mb-5 mt-2 animate-in">
+
+    {{-- ─── Page Header ────────────────────────────────────── --}}
+    <header class="d-flex justify-content-between align-items-center mb-4 animate-in">
         <div>
-            <h2 class="fw-bold mb-1">Bienvenido, {{ auth()->user()->name ?? 'Administrador' }}</h2>
-            <p class="text-secondary small mb-0">Resumen operativo para el día de hoy.</p>
+            <h2 class="page-title mb-1">Bienvenido, {{ auth()->user()->name ?? 'Administrador' }}</h2>
+            <p class="page-subtitle">Resumen operativo · {{ \Carbon\Carbon::now()->isoFormat('dddd D [de] MMMM, YYYY') }}</p>
         </div>
 
-        <div class="d-flex align-items-center gap-4">
-            <div class="bg-white rounded-pill px-3 py-2 border shadow-sm d-flex align-items-center gap-3"
-                style="width: 380px;">
-                <i class="bi bi-search text-secondary"></i>
-                <input type="text" class="border-0 bg-transparent w-100 outline-none"
-                    placeholder="Buscar patente, RUT o folio..." style="outline: none;">
+        <div class="d-flex align-items-center gap-3">
+            {{-- Search bar --}}
+            <div class="input-icon-wrap" style="width: 340px;">
+                <i class="bi bi-search"></i>
+                <input type="text" class="form-control"
+                    placeholder="Buscar patente, RUT o folio…"
+                    style="background:#fff;border-radius:var(--radius);">
             </div>
 
-            <div class="d-flex align-items-center gap-3 ps-4 border-start">
+            {{-- User chip --}}
+            <div class="d-flex align-items-center gap-2 ps-3 border-start">
                 <div class="text-end">
-                    <p class="mb-0 fw-semibold small">Taller Lira</p>
-                    <p class="mb-0 text-secondary tiny" style="font-size: 0.7rem;">Operador Senior</p>
+                    <p class="mb-0 fw-semibold text-sm">{{ auth()->user()->name ?? 'Usuario' }}</p>
+                    <p class="mb-0 text-xs" style="color:var(--text-muted);">{{ ucfirst(auth()->user()->role ?? 'taller') }}</p>
                 </div>
-                <img src="https://ui-avatars.com/api/?name=Admin&background=2563eb&color=fff" class="rounded-circle"
-                    width="42" alt="">
+                <div class="rounded-circle d-flex align-items-center justify-content-center fw-800 text-white flex-shrink-0"
+                    style="width:36px;height:36px;background:linear-gradient(135deg,var(--primary) 0%,#3b82f6 100%);font-size:0.875rem;letter-spacing:-0.01em;">
+                    {{ strtoupper(mb_substr(auth()->user()->name ?? 'U', 0, 1)) }}
+                </div>
             </div>
         </div>
     </header>
 
-    <!-- Stats Grid -->
-    <div class="row g-4 mb-4 animate-in" style="animation-delay: 0.1s;">
+    {{-- ─── Stats Grid ─────────────────────────────────────── --}}
+    <div class="row g-3 mb-4 animate-in" style="animation-delay:.08s;">
+
+        {{-- Clientes --}}
         <div class="col-md-3">
-            <div class="card p-4 d-flex flex-row align-items-center gap-3">
-                <div class="rounded-4 d-flex align-items-center justify-content-center"
-                    style="width: 56px; height: 56px; background-color: #eff6ff; color: var(--primary);">
-                    <i class="bi bi-people fs-4"></i>
-                </div>
-                <div>
-                    <p class="text-secondary small fw-medium mb-0">Clientes</p>
-                    <h4 class="fw-bold mb-0 outfit">{{ $stats['total_clients'] }}</h4>
+            <div class="card p-4 stat-card stat-primary card-hover">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <p class="stat-label mb-2">Clientes</p>
+                        <h3 class="stat-value outfit">{{ $stats['total_clients'] }}</h3>
+                    </div>
+                    <div class="stat-icon stat-icon-primary">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
                 </div>
             </div>
         </div>
+
+        {{-- Aprobados --}}
         <div class="col-md-3">
-            <div class="card p-4 d-flex flex-row align-items-center gap-3">
-                <div class="rounded-4 d-flex align-items-center justify-content-center"
-                    style="width: 56px; height: 56px; background-color: #f0fdf4; color: var(--success);">
-                    <i class="bi bi-check-circle fs-4"></i>
-                </div>
-                <div>
-                    <p class="text-secondary small fw-medium mb-0">Aprobados</p>
-                    <h4 class="fw-bold mb-0 outfit">{{ $stats['approved_quotations'] }}</h4>
+            <div class="card p-4 stat-card stat-success card-hover">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <p class="stat-label mb-2">Aprobados</p>
+                        <h3 class="stat-value outfit">{{ $stats['approved_quotations'] }}</h3>
+                    </div>
+                    <div class="stat-icon stat-icon-success">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
                 </div>
             </div>
         </div>
+
+        {{-- Pendientes --}}
         <div class="col-md-3">
-            <div class="card p-4 d-flex flex-row align-items-center gap-3">
-                <div class="rounded-4 d-flex align-items-center justify-content-center"
-                    style="width: 56px; height: 56px; background-color: #fffbeb; color: var(--warning);">
-                    <i class="bi bi-clock-history fs-4"></i>
-                </div>
-                <div>
-                    <p class="text-secondary small fw-medium mb-0">Pendientes</p>
-                    <h4 class="fw-bold mb-0 outfit">{{ $stats['pending_quotations'] }}</h4>
+            <div class="card p-4 stat-card stat-warning card-hover">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <p class="stat-label mb-2">Pendientes</p>
+                        <h3 class="stat-value outfit">{{ $stats['pending_quotations'] }}</h3>
+                    </div>
+                    <div class="stat-icon stat-icon-warning">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
                 </div>
             </div>
         </div>
+
+        {{-- Facturado mes --}}
         <div class="col-md-3">
-            <div class="card p-4 d-flex flex-row align-items-center gap-3">
-                <div class="rounded-4 d-flex align-items-center justify-content-center"
-                    style="width: 56px; height: 56px; background-color: #fef2f2; color: var(--danger);">
-                    <i class="bi bi-currency-dollar fs-4"></i>
-                </div>
-                <div>
-                    <p class="text-secondary small fw-medium mb-0">Total Mensual</p>
-                    <h4 class="fw-bold mb-0 outfit">${{ number_format($stats['total_revenue'], 0, ',', '.') }}</h4>
+            <div class="card p-4 stat-card stat-accent card-hover">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <p class="stat-label mb-2">Facturado (mes)</p>
+                        <h3 class="stat-value outfit" style="font-size:1.35rem;">
+                            ${{ number_format($stats['total_revenue'], 0, ',', '.') }}
+                        </h3>
+                    </div>
+                    <div class="stat-icon stat-icon-accent">
+                        <i class="bi bi-currency-dollar"></i>
+                    </div>
                 </div>
             </div>
         </div>
+
     </div>
 
-    <div class="row mb-5 animate-in" style="animation-delay: 0.2s;">
+    {{-- ─── Charts + Metrics ───────────────────────────────── --}}
+    <div class="row g-3 mb-4 animate-in" style="animation-delay:.16s;">
+
+        {{-- Revenue chart --}}
         <div class="col-md-8">
             <div class="card h-100 p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="fw-bold mb-0">Ingresos Mensuales</h5>
-                    <span class="badge bg-light text-secondary">Últimos 6 meses</span>
+                    <div>
+                        <h5 class="fw-bold mb-0 ls-tight">Ingresos Mensuales</h5>
+                        <p class="text-xs mb-0" style="color:var(--text-muted);margin-top:2px;">Presupuestos facturados</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-pill text-xs fw-600"
+                        style="background:var(--border-light);color:var(--text-secondary);font-weight:600;">
+                        Últimos 6 meses
+                    </span>
                 </div>
-                <div style="position: relative; height: 260px;">
+                <div style="position: relative; height: 240px;">
                     <canvas id="revenueChart"></canvas>
                 </div>
             </div>
         </div>
+
+        {{-- Quick metrics --}}
         <div class="col-md-4">
-            <div class="card h-100 p-4 d-flex flex-column justify-content-between">
-                <div>
-                    <h5 class="fw-bold mb-4">Métricas Rápidas</h5>
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between mb-1">
-                            <span class="text-secondary small">Eficiencia de Cierre</span>
-                            <span class="text-dark fw-bold small">75%</span>
-                        </div>
-                        <div class="progress" style="height: 6px;">
-                            <div class="progress-bar bg-primary" style="width: 75%"></div>
-                        </div>
+            <div class="card h-100 p-4 d-flex flex-column">
+                <h5 class="fw-bold mb-4 ls-tight">Métricas Rápidas</h5>
+
+                {{-- Progress bars --}}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="text-sm" style="color:var(--text-secondary);">Eficiencia de cierre</span>
+                        <span class="fw-700 text-sm" style="font-weight:700;">75%</span>
                     </div>
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between mb-1">
-                            <span class="text-secondary small">Vehículos en Taller</span>
-                            <span class="text-dark fw-bold small">{{ $stats['total_vehicles'] }}</span>
-                        </div>
-                        <div class="progress" style="height: 6px;">
-                            <div class="progress-bar bg-success" style="width: 60%"></div>
-                        </div>
+                    <div class="progress" style="height:5px;border-radius:9999px;background:var(--border-light);">
+                        <div class="progress-bar" style="width:75%;background:var(--primary);border-radius:9999px;"></div>
                     </div>
                 </div>
-                <div class="bg-light p-3 rounded-4 mb-3">
-                    <p class="text-secondary small mb-1">Total Facturado</p>
-                    <h4 class="fw-bold mb-0 outfit text-success">
+
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="text-sm" style="color:var(--text-secondary);">Vehículos en taller</span>
+                        <span class="fw-700 text-sm" style="font-weight:700;">{{ $stats['total_vehicles'] }}</span>
+                    </div>
+                    <div class="progress" style="height:5px;border-radius:9999px;background:var(--border-light);">
+                        <div class="progress-bar" style="width:60%;background:var(--success);border-radius:9999px;"></div>
+                    </div>
+                </div>
+
+                {{-- KPI boxes --}}
+                <div class="metric-box metric-box-success mb-2">
+                    <p class="metric-label mb-1" style="color:var(--success);">Total Facturado</p>
+                    <p class="metric-value mb-0" style="color:var(--success);">
                         ${{ number_format($stats['total_revenue'], 0, ',', '.') }}
-                    </h4>
+                    </p>
                 </div>
-                <div class="bg-light p-3 rounded-4">
-                    <p class="text-secondary small mb-1">Monto Pendiente</p>
-                    <h4 class="fw-bold mb-0 outfit text-warning">
+
+                <div class="metric-box metric-box-warning">
+                    <p class="metric-label mb-1" style="color:var(--warning);">Monto Pendiente</p>
+                    <p class="metric-value mb-0" style="color:var(--warning);">
                         ${{ number_format($stats['total_pending_amount'], 0, ',', '.') }}
-                    </h4>
+                    </p>
                 </div>
             </div>
         </div>
+
     </div>
 
-    <!-- Table Section -->
-    <div class="card animate-in" style="animation-delay: 0.3s;">
-        <div class="p-4 d-flex justify-content-between align-items-center border-bottom">
-            <h5 class="fw-bold mb-0">Últimos Presupuestos</h5>
-            <a href="{{ route('quotations.create') }}" class="btn-primary-premium py-2 px-3 small">
+    {{-- ─── Recent Quotations Table ─────────────────────────── --}}
+    <div class="card animate-in" style="animation-delay:.24s;">
+
+        <div class="d-flex justify-content-between align-items-center p-4 border-bottom"
+            style="border-color:var(--border-light)!important;">
+            <div>
+                <h5 class="fw-bold mb-0 ls-tight">Últimos Presupuestos</h5>
+                <p class="text-xs mb-0" style="color:var(--text-muted);margin-top:2px;">Actividad reciente del taller</p>
+            </div>
+            <a href="{{ route('quotations.create') }}" class="btn-primary-premium">
                 <i class="bi bi-plus-lg"></i> Nuevo Presupuesto
             </a>
         </div>
+
         <div class="table-responsive">
             <table class="table mb-0">
                 <thead>
@@ -155,53 +198,70 @@
                 <tbody>
                     @forelse($stats['recent_quotations'] as $q)
                         <tr>
-                            <td><span class="fw-bold text-dark">#{{ $q->folio }}</span></td>
-                            <td class="small fw-medium">{{ $q->client->name }}</td>
+                            <td>
+                                <span class="fw-700 text-sm ls-tight"
+                                    style="font-weight:700;color:var(--text-primary);">
+                                    #{{ $q->folio }}
+                                </span>
+                            </td>
+                            <td class="text-sm fw-500" style="font-weight:500;">
+                                {{ $q->client->name }}
+                            </td>
                             <td>
                                 <div class="d-flex flex-column">
-                                    <span class="fw-semibold small">{{ $q->vehicle->license_plate }}</span>
-                                    <span class="tiny text-secondary" style="font-size: 0.7rem;">{{ $q->vehicle->brand }}
-                                        {{ $q->vehicle->model }}</span>
+                                    <span class="fw-600 text-sm" style="font-weight:600;">
+                                        {{ $q->vehicle->license_plate }}
+                                    </span>
+                                    <span class="text-xs" style="color:var(--text-muted);">
+                                        {{ $q->vehicle->brand }} {{ $q->vehicle->model }}
+                                    </span>
                                 </div>
                             </td>
-                            <td class="text-secondary small">{{ \Carbon\Carbon::parse($q->date)->format('d/m/Y') }}</td>
+                            <td class="text-sm" style="color:var(--text-secondary);">
+                                {{ \Carbon\Carbon::parse($q->date)->format('d/m/Y') }}
+                            </td>
                             <td>
-                                <span class="badge rounded-pill px-3 py-2 fw-semibold" style="font-size: 0.65rem; 
-                                            @if($q->status == 'draft') background-color: #fef3c7; color: #92400e;
-                                            @elseif($q->status == 'approved') background-color: #dcfce7; color: #166534;
-                                            @elseif($q->status == 'sent') background-color: #e0f2fe; color: #075985;
-                                            @elseif($q->status == 'rejected') background-color: #fee2e2; color: #991b1b;
-                                            @else background-color: #f1f5f9; color: #475569; @endif">
+                                <span class="status-badge status-{{ $q->status }}">
                                     {{ $q->status_label }}
                                 </span>
                             </td>
-                            <td class="text-end fw-bold text-dark">
+                            <td class="text-end fw-700 text-sm ls-tight"
+                                style="font-weight:700;color:var(--text-primary);">
                                 ${{ number_format($q->total_amount, 0, ',', '.') }}
                             </td>
                             <td class="text-end">
                                 <a href="{{ route('quotations.show', $q) }}"
-                                    class="btn btn-sm btn-light p-1 px-2 border-0 bg-transparent text-secondary">
-                                    <i class="bi bi-eye"></i>
+                                    class="btn btn-sm border-0 bg-transparent"
+                                    style="color:var(--text-muted);"
+                                    title="Ver detalle">
+                                    <i class="bi bi-arrow-right-short fs-5"></i>
                                 </a>
                             </td>
                         </tr>
                     @empty
                         <tr>
                             <td colspan="7" class="text-center py-5">
-                                <i class="bi bi-inbox fs-1 text-light"></i>
-                                <p class="text-secondary mt-2">No se encontraron presupuestos registrados.</p>
+                                <i class="bi bi-inbox fs-1" style="color:var(--border);"></i>
+                                <p class="text-sm mb-0 mt-2" style="color:var(--text-muted);">
+                                    No se encontraron presupuestos registrados.
+                                </p>
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        <div class="p-3 text-center border-top">
+
+        <div class="p-3 text-center border-top" style="border-color:var(--border-light)!important;">
             <a href="{{ route('quotations.index') }}"
-                class="btn btn-link btn-sm text-decoration-none text-primary fw-semibold">Ver todos los
-                presupuestos</a>
+                class="text-sm fw-600 text-decoration-none"
+                style="color:var(--primary);font-weight:600;">
+                Ver todos los presupuestos <i class="bi bi-arrow-right ms-1"></i>
+            </a>
         </div>
+
     </div>
+
 @endsection
 
 @section('scripts')
@@ -216,42 +276,58 @@
                     datasets: [{
                         label: 'Ingresos (CLP)',
                         data: {!! json_encode($stats['chartData']['values']) !!},
-                        borderColor: '#2563eb',
-                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                        borderWidth: 3,
+                        borderColor: '#1e40af',
+                        backgroundColor: 'rgba(30, 64, 175, 0.07)',
+                        borderWidth: 2.5,
                         tension: 0.4,
                         fill: true,
                         pointBackgroundColor: '#fff',
-                        pointBorderColor: '#2563eb',
+                        pointBorderColor: '#1e40af',
                         pointBorderWidth: 2,
                         pointRadius: 4,
-                        pointHoverRadius: 6
+                        pointHoverRadius: 6,
+                        pointHoverBackgroundColor: '#1e40af',
+                        pointHoverBorderColor: '#fff',
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: false
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0d1520',
+                            titleColor: '#94a3b8',
+                            bodyColor: '#ffffff',
+                            bodyFont: { weight: '700', size: 13 },
+                            padding: 10,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(ctx) {
+                                    return ' $' + ctx.parsed.y.toLocaleString('es-CL');
+                                }
+                            }
                         }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: {
-                                color: '#f1f5f9'
-                            },
+                            grid: { color: '#f1f5f9', drawBorder: false },
+                            border: { display: false },
                             ticks: {
+                                color: '#9ca3af',
+                                font: { size: 11 },
                                 callback: function (value) {
+                                    if (value >= 1000000) return '$' + (value / 1000000).toFixed(1) + 'M';
+                                    if (value >= 1000) return '$' + (value / 1000).toFixed(0) + 'K';
                                     return '$' + value.toLocaleString('es-CL');
                                 }
                             }
                         },
                         x: {
-                            grid: {
-                                display: false
-                            }
+                            grid: { display: false },
+                            border: { display: false },
+                            ticks: { color: '#9ca3af', font: { size: 11 } }
                         }
                     }
                 }

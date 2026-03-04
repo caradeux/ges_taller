@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\Quotation;
 use App\Models\Client;
 use App\Models\Vehicle;
 use App\Models\InsuranceCompany;
 use App\Models\Liquidator;
 use App\Models\QuotationItem;
+use App\Models\UnType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -52,15 +54,15 @@ class QuotationController extends Controller
 
     public function create()
     {
-        $branchId = auth()->user()->activeBranchId() ?? auth()->user()->branch_id;
-        $clients  = Client::when($branchId, fn($q) => $q->where('branch_id', $branchId))
-                          ->orderBy('name')->get();
-        $vehicles = Vehicle::when($branchId, fn($q) => $q->where('branch_id', $branchId))
-                           ->orderBy('license_plate')->get();
         $insuranceCompanies = InsuranceCompany::orderBy('name')->get();
         $liquidators        = Liquidator::orderBy('name')->get();
+        $unTypes            = UnType::where('active', true)->orderBy('sort_order')->orderBy('code')->get();
 
-        return view('quotations.create', compact('clients', 'vehicles', 'insuranceCompanies', 'liquidators'));
+        // Re-populate autocomplete fields when validation fails
+        $oldClient  = old('client_id')  ? Client::select('id', 'name', 'rut_dni')->find(old('client_id')) : null;
+        $oldVehicle = old('vehicle_id') ? Vehicle::select('id', 'license_plate', 'brand', 'model')->find(old('vehicle_id')) : null;
+
+        return view('quotations.create', compact('insuranceCompanies', 'liquidators', 'unTypes', 'oldClient', 'oldVehicle'));
     }
 
     public function store(Request $request)
@@ -76,20 +78,19 @@ class QuotationController extends Controller
             'deductible_amount'    => 'nullable|numeric|min:0',
             'notes'                => 'nullable|string',
             'items'                => 'required|array|min:1',
-            'items.*.action'       => 'required|in:REP,D/M,C,MAT',
+            'items.*.un_type_id'   => 'required|exists:un_types,id',
             'items.*.description'  => 'required|string',
-            'items.*.repair_price' => 'nullable|numeric|min:0',
-            'items.*.paint_price'  => 'nullable|numeric|min:0',
-            'items.*.dm_price'     => 'nullable|numeric|min:0',
-            'items.*.parts_price'  => 'nullable|numeric|min:0',
-            'items.*.other_price'  => 'nullable|numeric|min:0',
+            'items.*.price'        => 'nullable|numeric|min:0',
         ]);
 
         try {
             DB::beginTransaction();
 
+            $company = Company::current();
+            $folio   = $this->nextFolio($company);
+
             $quotation = Quotation::create([
-                'folio'                => 'TMP',
+                'folio'                => $folio,
                 'branch_id'            => auth()->user()->branch_id,
                 'client_id'            => $validated['client_id'],
                 'vehicle_id'           => $validated['vehicle_id'],
@@ -104,35 +105,31 @@ class QuotationController extends Controller
                 'total_amount'         => 0,
             ]);
 
-            $quotation->update(['folio' => str_pad($quotation->id, 4, '0', STR_PAD_LEFT)]);
-
-            $totals = $this->saveItems($quotation, $validated['items']);
-
-            $tax   = round($totals['neto'] * 0.19);
-            $total = $totals['neto'] + $tax;
+            $neto = $this->saveItems($quotation, $validated['items']);
+            $tax  = round($neto * 0.19);
 
             $quotation->update([
-                'total_parts_cost' => $totals['parts'],
-                'total_labor_cost' => $totals['labor'],
-                'total_surcharge'  => $totals['other'],
-                'tax_amount'       => $tax,
-                'total_amount'     => $total,
+                'total_amount' => $neto + $tax,
+                'tax_amount'   => $tax,
             ]);
+
+            // Advance next folio counter
+            $company->increment('folio_counter');
 
             DB::commit();
 
             return redirect()->route('quotations.show', $quotation)
-                ->with('success', "Presupuesto #{$quotation->folio} creado exitosamente.");
+                ->with('success', "Cotización #{$quotation->folio} creada exitosamente.");
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Error al crear el presupuesto: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Error al crear la cotización: ' . $e->getMessage());
         }
     }
 
     public function show(Quotation $quotation)
     {
-        $quotation->load(['client', 'vehicle', 'items', 'insuranceCompany', 'liquidator']);
+        $quotation->load(['client', 'vehicle', 'items.unType', 'insuranceCompany', 'liquidator']);
         return view('quotations.show', compact('quotation'));
     }
 
@@ -140,26 +137,22 @@ class QuotationController extends Controller
     {
         if (in_array($quotation->status, ['invoiced', 'rejected'])) {
             return redirect()->route('quotations.show', $quotation)
-                ->with('error', 'Este presupuesto no puede ser editado en su estado actual.');
+                ->with('error', 'Esta cotización no puede ser editada en su estado actual.');
         }
 
-        $quotation->load('items');
-        $branchId = $quotation->branch_id;
-        $clients  = Client::when($branchId, fn($q) => $q->where('branch_id', $branchId))
-                          ->orderBy('name')->get();
-        $vehicles = Vehicle::when($branchId, fn($q) => $q->where('branch_id', $branchId))
-                           ->orderBy('license_plate')->get();
+        $quotation->load(['items', 'client', 'vehicle']);
         $insuranceCompanies = InsuranceCompany::orderBy('name')->get();
-        $liquidators = Liquidator::orderBy('name')->get();
+        $liquidators        = Liquidator::orderBy('name')->get();
+        $unTypes            = UnType::where('active', true)->orderBy('sort_order')->orderBy('code')->get();
 
-        return view('quotations.edit', compact('quotation', 'clients', 'vehicles', 'insuranceCompanies', 'liquidators'));
+        return view('quotations.edit', compact('quotation', 'insuranceCompanies', 'liquidators', 'unTypes'));
     }
 
     public function update(Request $request, Quotation $quotation)
     {
         if (in_array($quotation->status, ['invoiced', 'rejected'])) {
             return redirect()->route('quotations.show', $quotation)
-                ->with('error', 'Este presupuesto no puede ser editado en su estado actual.');
+                ->with('error', 'Esta cotización no puede ser editada en su estado actual.');
         }
 
         $validated = $request->validate([
@@ -173,23 +166,17 @@ class QuotationController extends Controller
             'deductible_amount'    => 'nullable|numeric|min:0',
             'notes'                => 'nullable|string',
             'items'                => 'required|array|min:1',
-            'items.*.action'       => 'required|in:REP,D/M,C,MAT',
+            'items.*.un_type_id'   => 'required|exists:un_types,id',
             'items.*.description'  => 'required|string',
-            'items.*.repair_price' => 'nullable|numeric|min:0',
-            'items.*.paint_price'  => 'nullable|numeric|min:0',
-            'items.*.dm_price'     => 'nullable|numeric|min:0',
-            'items.*.parts_price'  => 'nullable|numeric|min:0',
-            'items.*.other_price'  => 'nullable|numeric|min:0',
+            'items.*.price'        => 'nullable|numeric|min:0',
         ]);
 
         try {
             DB::beginTransaction();
 
             $quotation->items()->delete();
-            $totals = $this->saveItems($quotation, $validated['items']);
-
-            $tax   = round($totals['neto'] * 0.19);
-            $total = $totals['neto'] + $tax;
+            $neto = $this->saveItems($quotation, $validated['items']);
+            $tax  = round($neto * 0.19);
 
             $quotation->update([
                 'client_id'            => $validated['client_id'],
@@ -201,17 +188,14 @@ class QuotationController extends Controller
                 'liquidator_id'        => $validated['liquidator_id'] ?? null,
                 'deductible_amount'    => $validated['deductible_amount'] ?? 0,
                 'notes'                => $validated['notes'] ?? null,
-                'total_parts_cost'     => $totals['parts'],
-                'total_labor_cost'     => $totals['labor'],
-                'total_surcharge'      => $totals['other'],
                 'tax_amount'           => $tax,
-                'total_amount'         => $total,
+                'total_amount'         => $neto + $tax,
             ]);
 
             DB::commit();
 
             return redirect()->route('quotations.show', $quotation)
-                ->with('success', 'Presupuesto actualizado exitosamente.');
+                ->with('success', 'Cotización actualizada exitosamente.');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -219,43 +203,37 @@ class QuotationController extends Controller
         }
     }
 
-    /** Save items and return totals breakdown */
-    private function saveItems(Quotation $quotation, array $items): array
+    /** Save items with a single bulk INSERT, returns neto total */
+    private function saveItems(Quotation $quotation, array $items): float
     {
-        $partsTotal = $laborTotal = $otherTotal = 0;
+        $neto = 0;
+        $rows = [];
+        $now  = now();
 
         foreach ($items as $item) {
-            $repair = (float) ($item['repair_price'] ?? 0);
-            $paint  = (float) ($item['paint_price']  ?? 0);
-            $dm     = (float) ($item['dm_price']     ?? 0);
-            $parts  = (float) ($item['parts_price']  ?? 0);
-            $other  = (float) ($item['other_price']  ?? 0);
-            $sub    = $repair + $paint + $dm + $parts + $other;
-
-            $partsTotal += $parts;
-            $laborTotal += $repair + $paint + $dm;
-            $otherTotal += $other;
-
-            QuotationItem::create([
+            $price  = (float) ($item['price'] ?? 0);
+            $neto  += $price;
+            $rows[] = [
                 'quotation_id' => $quotation->id,
-                'action'       => $item['action'],
+                'un_type_id'   => $item['un_type_id'],
                 'description'  => $item['description'],
-                'repair_price' => $repair,
-                'paint_price'  => $paint,
-                'dm_price'     => $dm,
-                'parts_price'  => $parts,
-                'other_price'  => $other,
+                'price'        => $price,
                 'is_salvage'   => !empty($item['is_salvage']),
-                'subtotal'     => $sub,
-            ]);
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ];
         }
 
-        return [
-            'parts' => $partsTotal,
-            'labor' => $laborTotal,
-            'other' => $otherTotal,
-            'neto'  => $partsTotal + $laborTotal + $otherTotal,
-        ];
+        QuotationItem::insert($rows);
+
+        return $neto;
+    }
+
+    /** Generate next folio number based on company counter */
+    private function nextFolio(Company $company): string
+    {
+        $counter = ($company->folio_counter ?? 1);
+        return (string) $counter;
     }
 
     public function destroy(Quotation $quotation)
@@ -264,16 +242,42 @@ class QuotationController extends Controller
         $quotation->delete();
 
         return redirect()->route('quotations.index')
-            ->with('success', "Presupuesto #{$folio} eliminado.");
+            ->with('success', "Cotización #{$folio} eliminada.");
     }
 
     public function downloadPDF(Quotation $quotation)
     {
         $quotation->load(['client', 'vehicle', 'items', 'insuranceCompany', 'liquidator']);
+        $company = Company::current();
 
-        $pdf = Pdf::loadView('quotations.pdf', compact('quotation'));
+        $pdf = Pdf::loadView('quotations.pdf', compact('quotation', 'company'));
 
         return $pdf->download("Presupuesto-{$quotation->folio}.pdf");
+    }
+
+    public function followUp()
+    {
+        $company  = Company::current();
+        $validity = $company->quotation_validity_days ?? 30;
+        $branchId = auth()->user()->activeBranchId();
+
+        $quotations = Quotation::with(['client', 'vehicle', 'insuranceCompany'])
+            ->whereIn('status', ['draft', 'sent', 'approved'])
+            ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
+            ->orderBy('date', 'asc')
+            ->paginate(30)
+            ->through(function ($q) use ($validity) {
+                $expiry     = \Carbon\Carbon::parse($q->date)->addDays($validity);
+                $daysLeft   = (int) now()->startOfDay()->diffInDays($expiry, false);
+                $q->expiry_date = $expiry;
+                $q->days_left   = $daysLeft;
+                $q->urgency     = $daysLeft < 0 ? 'overdue'
+                                : ($daysLeft <= 3 ? 'critical'
+                                : ($daysLeft <= 7 ? 'warning' : 'ok'));
+                return $q;
+            });
+
+        return view('quotations.followup', compact('quotations', 'validity'));
     }
 
     public function updateStatus(Request $request, Quotation $quotation)

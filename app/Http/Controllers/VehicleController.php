@@ -109,6 +109,50 @@ class VehicleController extends Controller
             ->with('success', 'Vehículo actualizado exitosamente.');
     }
 
+    /** AJAX search for autocomplete */
+    public function search(Request $request)
+    {
+        $q        = $request->input('q', '');
+        $clientId = $request->input('client_id');
+        $branchId = auth()->user()->activeBranchId();
+
+        $vehicles = Vehicle::when($branchId, fn($query) => $query->where('branch_id', $branchId))
+            ->when($clientId, fn($query) => $query->where('client_id', $clientId))
+            ->where(function ($query) use ($q) {
+                $query->where('license_plate', 'like', "%{$q}%")
+                      ->orWhere('brand', 'like', "%{$q}%")
+                      ->orWhere('model', 'like', "%{$q}%");
+            })
+            ->orderBy('license_plate')
+            ->limit(15)
+            ->get(['id', 'license_plate', 'brand', 'model', 'client_id']);
+
+        return response()->json($vehicles);
+    }
+
+    /** Quick creation via AJAX from quotation form */
+    public function quickStore(Request $request)
+    {
+        $validated = $request->validate([
+            'client_id'     => 'required|exists:clients,id',
+            'license_plate' => 'required|unique:vehicles,license_plate',
+            'brand'         => 'required|string|max:255',
+            'model'         => 'required|string|max:255',
+            'year'          => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
+            'color'         => 'nullable|string|max:50',
+            'vin_chassis'   => 'nullable|string|unique:vehicles,vin_chassis',
+            'odometer'      => 'nullable|integer|min:0',
+        ]);
+        $validated['branch_id'] = auth()->user()->branch_id;
+        $vehicle = Vehicle::create($validated);
+        return response()->json([
+            'id'            => $vehicle->id,
+            'label'         => $vehicle->license_plate . ' — ' . $vehicle->brand . ' ' . $vehicle->model,
+            'client_id'     => $vehicle->client_id,
+            'license_plate' => $vehicle->license_plate,
+        ]);
+    }
+
     /**
      * Remove the specified resource from storage.
      */

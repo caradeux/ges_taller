@@ -37,6 +37,13 @@ class InsuranceCompanyController extends Controller
             ->with('success', 'Compañía actualizada exitosamente.');
     }
 
+    public function quickStore(Request $request)
+    {
+        $request->validate(['name' => 'required|string|max:255|unique:insurance_companies,name']);
+        $company = InsuranceCompany::create(['name' => $request->name]);
+        return response()->json(['id' => $company->id, 'name' => $company->name]);
+    }
+
     public function destroy(InsuranceCompany $insuranceCompany)
     {
         $insuranceCompany->delete();
