@@ -8,6 +8,7 @@ RUN apk add --no-cache \
     libzip-dev \
     freetype-dev \
     libjpeg-turbo-dev \
+    oniguruma-dev \
     zip unzip git curl bash
 
 # PHP extensions
