@@ -17,6 +17,9 @@ fi
 echo "Running migrations..."
 php artisan migrate --force
 
+# Seed only if no users exist yet
+php artisan db:seed --force
+
 # Cache for production
 echo "Caching config..."
 php artisan config:cache

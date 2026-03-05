@@ -17,6 +17,11 @@ class SampleDataSeeder extends Seeder
 {
     public function run(): void
     {
+        // Skip if sample data already exists
+        if (InsuranceCompany::exists()) {
+            return;
+        }
+
         // ─── UnTypes are seeded by the migration itself ───────────────────────
         $rep  = UnType::where('code', 'REP')->first();
         $pint = UnType::where('code', 'PINT')->first();
