@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Role extends Model
 {
-    protected $fillable = ['name', 'label', 'description', 'badge_color'];
+    protected $fillable = ['name', 'label', 'description', 'badge_color', 'permissions', 'is_system'];
+
+    protected $casts = ['permissions' => 'array', 'is_system' => 'boolean'];
 
     // System roles cannot be deleted
     public function isDeletable(): bool

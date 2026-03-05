@@ -42,7 +42,7 @@ php artisan migrate:fresh --seed
 
 ## Architecture
 
-### Database (SQLite at `database/database.sqlite`)
+### Database (MySQL — XAMPP, root, no password, db: `ges_taller`)
 
 Core entity graph:
 - **Client** → has many Vehicles, Quotations
@@ -54,10 +54,14 @@ Core entity graph:
 - **Branch** — multi-branch support; `branch_id` FK on users, clients, vehicles, quotations
 - **Company** — single-record config table (name, rut, address, `quotation_validity_days`, `folio_counter`)
 
-> Use `strftime('%Y-%m', date)` for date grouping — not MySQL `DATE_FORMAT()`.
+> Use `DATE_FORMAT(date, '%Y-%m')`, `MONTH(date)`, `YEAR(date)` for date grouping — NOT SQLite's `strftime()`.
 
 ### Quotation Lifecycle
-- Folio: sequential number padded to 4 digits (`str_pad($id, 4, '0', STR_PAD_LEFT)`)
+- **Folio**: assigned only when status transitions to `sent` (drafts have no folio).
+  - Atomic assignment via `DB::transaction` + `Company::lockForUpdate()` (prevents race conditions with concurrent secretaries).
+  - Format: `str_pad($company->folio_counter, 4, '0', STR_PAD_LEFT)`, then `folio_counter` is incremented.
+  - `$quotation->folio_display` accessor returns folio string or `"Borrador"`.
+  - PDF is blocked (`downloadPDF()`) if folio is null.
 - Status enum: `draft → sent → approved → rejected → finished → invoiced`
 - Status transitions via `QuotationController@updateStatus` (`POST /quotations/{id}/status`)
 - Status display via model accessors: `getStatusLabelAttribute()`, `getStatusColorAttribute()`
@@ -91,10 +95,15 @@ To add a new route permission: add an entry to `config/permissions.php`.
 Custom auth via `App\Http\Controllers\Auth\LoginController`. All routes except `login`/`logout` require the `auth` middleware. Inactive users (`active = false`) are auto-logged out by `CheckRolePermission`.
 
 ### API Endpoints (internal JSON)
+- `GET /api/clients/search?q=` → client autocomplete (name/RUT, max 15, branch-scoped)
+- `GET /api/vehicles/search?q=&client_id=` → vehicle autocomplete (plate/brand/model, branch-scoped)
 - `GET /api/un-types` → UnType list for quotation item dropdowns
 - `GET /api/service-items/search?q=` → service item autocomplete
 - `GET /api/vehicle-brands` → brand list
 - `GET /api/vehicle-brands/{id}/models` → models for a brand
+
+### Autocomplete pattern
+Forms that select clients or vehicles use a text input (`id="X_text"`) + hidden input (`name="X_id"`) pattern, NOT a `<select>`. The `initAC()` JS function (defined inline in each view) drives the dropdown. Used in: `quotations/create`, `quotations/edit`, `vehicles/edit`. Never load full client/vehicle lists at page render.
 
 ### Catalogs (admin-only management)
 - **UnType** (`/un-types`) — item type tags for quotation lines (repair/paint/dm/parts/other)

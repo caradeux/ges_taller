@@ -88,7 +88,9 @@
                                 {{-- Encabezado de la card --}}
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <div>
-                                        <span class="fw-bold text-primary" style="font-size:0.95rem;">#{{ $q->folio }}</span>
+                                        <span class="fw-bold" style="font-size:0.95rem;color:{{ $q->folio ? 'var(--primary)' : 'var(--text-muted)' }};">
+                                            {{ $q->folio ? '#'.$q->folio : 'Borrador' }}
+                                        </span>
                                         <span class="ms-2 badge rounded-pill
                                             @if($q->status==='draft') bg-warning text-dark
                                             @elseif($q->status==='sent') bg-info text-dark
@@ -120,7 +122,7 @@
 
                                         $vehicle  = $q->vehicle->license_plate . ' ' . $q->vehicle->brand . ' ' . $q->vehicle->model;
                                         $msg = urlencode(
-                                            "Hola {$q->client->name}, le contactamos desde el taller respecto a la cotización N° {$q->folio} para su vehículo {$vehicle}. ¿Tiene alguna consulta o le gustaría aprobarla?"
+                                            "Hola {$q->client->name}, le contactamos desde el taller respecto a la cotización N° {$q->folio_display} para su vehículo {$vehicle}. ¿Tiene alguna consulta o le gustaría aprobarla?"
                                         );
                                         $waUrl = "https://wa.me/{$digits}?text={$msg}";
                                     @endphp
@@ -191,7 +193,7 @@
                                         <input type="hidden" name="status" value="rejected">
                                         <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2"
                                             style="font-size:0.7rem;" title="Rechazar"
-                                            onclick="return confirm('¿Rechazar cotización #{{ $q->folio }}?')">
+                                            onclick="return confirm('¿Rechazar cotización ({{ $q->folio_display }})?')">
                                             <i class="bi bi-x-lg"></i>
                                         </button>
                                     </form>

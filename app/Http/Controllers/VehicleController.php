@@ -75,6 +75,7 @@ class VehicleController extends Controller
      */
     public function show(Vehicle $vehicle)
     {
+        $vehicle->load(['client', 'quotations']);
         return view('vehicles.show', compact('vehicle'));
     }
 
@@ -83,8 +84,8 @@ class VehicleController extends Controller
      */
     public function edit(Vehicle $vehicle)
     {
-        $clients = Client::orderBy('name')->get();
-        return view('vehicles.edit', compact('vehicle', 'clients'));
+        $vehicle->load('client');
+        return view('vehicles.edit', compact('vehicle'));
     }
 
     /**

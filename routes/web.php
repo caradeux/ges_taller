@@ -37,9 +37,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('quotations/{quotation}/pdf', [QuotationController::class, 'downloadPDF'])->name('quotations.pdf');
     Route::post('quotations/{quotation}/status', [QuotationController::class, 'updateStatus'])->name('quotations.status');
     Route::post('insurance-companies/quick', [InsuranceCompanyController::class, 'quickStore'])->name('insurance-companies.quickStore');
-    Route::resource('insurance-companies', InsuranceCompanyController::class);
+    Route::resource('insurance-companies', InsuranceCompanyController::class)->except(['create', 'show', 'edit']);
     Route::post('liquidators/quick', [LiquidatorController::class, 'quickStore'])->name('liquidators.quickStore');
-    Route::resource('liquidators', LiquidatorController::class);
+    Route::resource('liquidators', LiquidatorController::class)->except(['create', 'show', 'edit']);
     Route::get('profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('reportes', [ReportController::class, 'index'])->name('reports.index');
@@ -51,7 +51,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Roles management (admin only)
     Route::get('roles', [RoleController::class, 'index'])->name('roles.index');
+    Route::post('roles', [RoleController::class, 'store'])->name('roles.store');
     Route::put('roles/{role}', [RoleController::class, 'update'])->name('roles.update');
+    Route::delete('roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
 
     // Users management
     Route::get('users/permissions', [UserController::class, 'permissions'])->name('users.permissions');

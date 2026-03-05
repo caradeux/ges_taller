@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Cotización #' . $quotation->folio)
+@section('title', 'Cotización ' . ($quotation->folio ? '#'.$quotation->folio : '— Borrador'))
 
 @section('content')
 <div class="animate-in">
@@ -14,7 +14,9 @@
                 <i class="bi bi-arrow-left"></i> Cotizaciones
             </a>
             <div class="d-flex align-items-center gap-3">
-                <h2 class="page-title mb-0">Cotización #{{ $quotation->folio }}</h2>
+                <h2 class="page-title mb-0">
+                    Cotización {{ $quotation->folio ? '#'.$quotation->folio : '— Borrador' }}
+                </h2>
                 <span class="status-badge status-{{ $quotation->status }}">
                     {{ $quotation->status_label }}
                 </span>
@@ -68,9 +70,11 @@
                     <i class="bi bi-pencil"></i> Editar
                 </a>
             @endif
+            @if($quotation->folio)
             <a href="{{ route('quotations.pdf', $quotation) }}" class="btn-accent-app">
                 <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
             </a>
+            @endif
         </div>
     </div>
 

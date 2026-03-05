@@ -82,7 +82,9 @@ return [
 
     // Roles management (admin only)
     'roles.index'           => ['admin'],
+    'roles.store'           => ['admin'],
     'roles.update'          => ['admin'],
+    'roles.destroy'         => ['admin'],
 
     // Users management (admin only)
     'users.*'               => ['admin'],

@@ -86,11 +86,7 @@ class QuotationController extends Controller
         try {
             DB::beginTransaction();
 
-            $company = Company::current();
-            $folio   = $this->nextFolio($company);
-
             $quotation = Quotation::create([
-                'folio'                => $folio,
                 'branch_id'            => auth()->user()->branch_id,
                 'client_id'            => $validated['client_id'],
                 'vehicle_id'           => $validated['vehicle_id'],
@@ -113,13 +109,10 @@ class QuotationController extends Controller
                 'tax_amount'   => $tax,
             ]);
 
-            // Advance next folio counter
-            $company->increment('folio_counter');
-
             DB::commit();
 
             return redirect()->route('quotations.show', $quotation)
-                ->with('success', "Cotización #{$quotation->folio} creada exitosamente.");
+                ->with('success', 'Cotización (borrador) creada. El folio se asignará al marcarla como enviada.');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -229,16 +222,9 @@ class QuotationController extends Controller
         return $neto;
     }
 
-    /** Generate next folio number based on company counter */
-    private function nextFolio(Company $company): string
-    {
-        $counter = ($company->folio_counter ?? 1);
-        return (string) $counter;
-    }
-
     public function destroy(Quotation $quotation)
     {
-        $folio = $quotation->folio;
+        $folio = $quotation->folio ?? 'borrador';
         $quotation->delete();
 
         return redirect()->route('quotations.index')
@@ -247,6 +233,10 @@ class QuotationController extends Controller
 
     public function downloadPDF(Quotation $quotation)
     {
+        if (! $quotation->folio) {
+            return back()->with('error', 'El PDF solo está disponible una vez que la cotización tiene folio asignado (estado "Enviada" o superior).');
+        }
+
         $quotation->load(['client', 'vehicle', 'items', 'insuranceCompany', 'liquidator']);
         $company = Company::current();
 
@@ -282,11 +272,27 @@ class QuotationController extends Controller
 
     public function updateStatus(Request $request, Quotation $quotation)
     {
-        $validated = $request->validate([
+        $validated  = $request->validate([
             'status' => 'required|in:draft,sent,approved,finished,rejected,invoiced',
         ]);
+        $newStatus = $validated['status'];
 
-        $quotation->update(['status' => $validated['status']]);
+        // Assign folio atomically when first transitioning to 'sent'
+        if ($newStatus === 'sent' && $quotation->folio === null) {
+            try {
+                Company::current(); // ensure record exists before locking
+                DB::transaction(function () use ($quotation, $newStatus) {
+                    $company = Company::lockForUpdate()->firstOrFail();
+                    $folio   = str_pad($company->folio_counter ?? 1, 4, '0', STR_PAD_LEFT);
+                    $quotation->update(['status' => $newStatus, 'folio' => $folio]);
+                    $company->increment('folio_counter');
+                });
+            } catch (\Exception $e) {
+                return back()->with('error', 'Error al asignar folio: ' . $e->getMessage());
+            }
+        } else {
+            $quotation->update(['status' => $newStatus]);
+        }
 
         return back()->with('success', 'Estado actualizado a: ' . $quotation->fresh()->status_label);
     }

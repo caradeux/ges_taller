@@ -57,13 +57,16 @@
                         <td class="text-muted">{{ $user->email }}</td>
                         <td>
                             @php
-                                $roleBadge = [
-                                    'admin'     => ['bg-primary', 'Administrador'],
-                                    'recepcion' => ['bg-info text-dark', 'Recepción'],
-                                    'taller'    => ['bg-warning text-dark', 'Taller'],
-                                ][$user->role] ?? ['bg-secondary', $user->role];
+                                $roleObj = $roles->firstWhere('name', $user->role);
                             @endphp
-                            <span class="badge {{ $roleBadge[0] }} rounded-pill px-3">{{ $roleBadge[1] }}</span>
+                            @if($roleObj)
+                                <span class="badge rounded-pill px-3"
+                                      style="background:{{ $roleObj->badge_color }};color:#fff;">
+                                    {{ $roleObj->label }}
+                                </span>
+                            @else
+                                <span class="badge bg-secondary rounded-pill px-3">{{ $user->role }}</span>
+                            @endif
                         </td>
                         <td>
                             @if($user->active)

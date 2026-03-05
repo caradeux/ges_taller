@@ -2,6 +2,22 @@
 
 @section('title', 'Editar Vehículo')
 
+@section('styles')
+<style>
+    .ac-wrap { position: relative; }
+    .ac-dropdown {
+        display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 9999;
+        background: #fff; border: 1px solid #dee2e6;
+        border-radius: 0 0 .375rem .375rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,.1);
+        max-height: 200px; overflow-y: auto; list-style: none; padding: 0; margin: 0;
+    }
+    .ac-dropdown li { padding: .45rem .75rem; cursor: pointer; font-size: .84rem; border-bottom: 1px solid #f0f0f0; }
+    .ac-dropdown li:last-child { border-bottom: none; }
+    .ac-dropdown li:hover, .ac-dropdown li.ac-active { background: #f0f4ff; }
+</style>
+@endsection
+
 @section('content')
     <div class="animate-in" style="max-width: 800px; margin: 0 auto;">
         <div class="mb-4">
@@ -21,17 +37,16 @@
                     <div class="col-md-6">
                         <label class="form-label fw-semibold small">Dueño (Cliente) <span
                                 class="text-danger">*</span></label>
-                        <select name="client_id" class="form-select @error('client_id') is-invalid @enderror" required>
-                            <option value="">Selecciona un cliente...</option>
-                            @foreach($clients as $client)
-                                <option value="{{ $client->id }}"
-                                    {{ old('client_id', $vehicle->client_id) == $client->id ? 'selected' : '' }}>
-                                    {{ $client->name }} ({{ $client->rut_dni }})
-                                </option>
-                            @endforeach
-                        </select>
+                        <div class="ac-wrap">
+                            <input type="text" id="client_text"
+                                class="form-control @error('client_id') is-invalid @enderror"
+                                autocomplete="off"
+                                value="{{ $vehicle->client ? $vehicle->client->name . ' — ' . $vehicle->client->rut_dni : '' }}">
+                            <input type="hidden" name="client_id" id="client_id"
+                                value="{{ old('client_id', $vehicle->client_id) }}">
+                        </div>
                         @error('client_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
                     </div>
 
@@ -102,4 +117,60 @@
             </form>
         </div>
     </div>
+
+@section('scripts')
+<script>
+(function () {
+    const txt  = document.getElementById('client_text');
+    const hid  = document.getElementById('client_id');
+    const wrap = txt.closest('.ac-wrap');
+    const ul   = document.createElement('ul');
+    ul.className = 'ac-dropdown';
+    wrap.appendChild(ul);
+    let timer;
+
+    txt.addEventListener('input', () => {
+        hid.value = '';
+        const q = txt.value.trim();
+        if (!q) { ul.style.display = 'none'; return; }
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            fetch(`{{ route('clients.search') }}?q=${encodeURIComponent(q)}`, {
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(r => r.json())
+            .then(items => {
+                ul.innerHTML = '';
+                if (!items.length) { ul.style.display = 'none'; return; }
+                items.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerHTML   = `<strong>${item.name}</strong> <span style="color:#888;font-size:.8rem;">${item.rut_dni ?? ''}</span>`;
+                    li.dataset.lbl = item.name + (item.rut_dni ? ' — ' + item.rut_dni : '');
+                    li.dataset.id  = item.id;
+                    li.addEventListener('mousedown', e => {
+                        e.preventDefault();
+                        txt.value = li.dataset.lbl;
+                        hid.value = li.dataset.id;
+                        ul.style.display = 'none';
+                    });
+                    ul.appendChild(li);
+                });
+                ul.style.display = 'block';
+            })
+            .catch(() => ul.style.display = 'none');
+        }, 220);
+    });
+
+    txt.addEventListener('blur',    () => setTimeout(() => ul.style.display = 'none', 180));
+    txt.addEventListener('keydown', e => {
+        const items  = [...ul.querySelectorAll('li')];
+        const active = ul.querySelector('li.ac-active');
+        const idx    = active ? items.indexOf(active) : -1;
+        if (e.key === 'ArrowDown')  { e.preventDefault(); active?.classList.remove('ac-active'); (items[idx + 1] ?? items[0])?.classList.add('ac-active'); }
+        if (e.key === 'ArrowUp')    { e.preventDefault(); active?.classList.remove('ac-active'); (items[idx - 1] ?? items[items.length - 1])?.classList.add('ac-active'); }
+        if (e.key === 'Enter' && active) { e.preventDefault(); active.dispatchEvent(new MouseEvent('mousedown')); }
+        if (e.key === 'Escape')     { ul.style.display = 'none'; }
+    });
+})();
+</script>
 @endsection

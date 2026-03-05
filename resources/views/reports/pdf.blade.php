@@ -2,428 +2,670 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Reporte Ges_Taller {{ $from }} al {{ $to }}</title>
+    <title>Informe de Gestión {{ $from }} al {{ $to }}</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: DejaVu Sans, sans-serif;
+            font-family: 'DejaVu Sans', Arial, sans-serif;
+            font-size: 9.5px;
+            color: #1a1a1a;
+            padding: 16px 20px;
+        }
+
+        /* ─── HEADER CON LOGO ─── */
+        .doc-header {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 6px;
+        }
+        .doc-header td { vertical-align: middle; padding: 0; }
+        .logo-cell { width: 140px; }
+        .logo-cell img { max-width: 130px; max-height: 70px; object-fit: contain; }
+        .logo-placeholder {
+            width: 130px; height: 60px;
+            border: 2px solid #1a3c6e;
+            border-radius: 4px;
+            display: inline-block;
+            text-align: center;
+            line-height: 60px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #1a3c6e;
+            letter-spacing: 2px;
+        }
+        .title-cell { text-align: center; }
+        .title-cell .doc-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1a3c6e;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .title-cell .doc-subtitle {
             font-size: 10px;
-            color: #1e293b;
-            background: #fff;
+            color: #555;
+            margin-top: 3px;
+        }
+        .title-cell .doc-company {
+            font-size: 10px;
+            color: #555;
+            margin-top: 1px;
         }
 
-        /* ── Header ─────────────────────────────────────────────────────────── */
-        .header {
-            background: #0f172a;
-            color: white;
-            padding: 20px 24px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-        .header .brand { font-size: 18px; font-weight: 700; }
-        .header .period { font-size: 9px; color: #94a3b8; margin-top: 4px; }
-        .header .generated { font-size: 9px; color: #94a3b8; text-align: right; }
-
-        /* ── Secciones ───────────────────────────────────────────────────────── */
-        .section { margin-bottom: 22px; page-break-inside: avoid; }
-        .section-title {
-            font-size: 8px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #64748b;
-            border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 5px;
+        /* ─── BARRA PERÍODO ─── */
+        .period-bar {
+            width: 100%;
+            border-collapse: collapse;
             margin-bottom: 10px;
+            border: 1.5px solid #1a3c6e;
         }
-
-        /* ── KPI Cards ───────────────────────────────────────────────────────── */
-        .kpi-grid { display: flex; gap: 8px; }
-        .kpi-card {
-            flex: 1;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            padding: 10px 12px;
-        }
-        .kpi-label { font-size: 8px; color: #64748b; font-weight: 600; margin-bottom: 4px; }
-        .kpi-value { font-size: 16px; font-weight: 700; color: #1e293b; }
-        .kpi-value.blue  { color: #2563eb; }
-        .kpi-value.green { color: #10b981; }
-        .kpi-sub { font-size: 8px; color: #94a3b8; margin-top: 3px; }
-        .kpi-change-up   { color: #10b981; font-size: 8px; font-weight: 600; }
-        .kpi-change-down { color: #ef4444; font-size: 8px; font-weight: 600; }
-
-        /* ── Progress Bar ────────────────────────────────────────────────────── */
-        .bar-wrap { background: #f1f5f9; border-radius: 4px; height: 7px; width: 100%; }
-        .bar-fill { height: 7px; border-radius: 4px; }
-
-        /* ── Tablas ──────────────────────────────────────────────────────────── */
-        table { width: 100%; border-collapse: collapse; }
-        th {
-            background: #f8fafc;
-            font-size: 8px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #64748b;
-            padding: 6px 8px;
-            text-align: left;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        td {
-            padding: 6px 8px;
-            border-bottom: 1px solid #f8fafc;
+        .period-bar td {
+            padding: 4px 8px;
+            border: 1px solid #6e8ab5;
             font-size: 9px;
         }
-        .text-right { text-align: right; }
-        .text-center { text-align: center; }
-        .fw-bold { font-weight: 700; }
-        .text-blue { color: #2563eb; }
-        .text-green { color: #10b981; }
-        .text-secondary { color: #64748b; }
+        .period-bar .lbl { background: #1a3c6e; color: #fff; font-weight: bold; text-align: center; white-space: nowrap; }
+        .period-bar .val { text-align: center; font-weight: bold; font-size: 10px; }
 
-        /* ── Pipeline ────────────────────────────────────────────────────────── */
-        .pipeline-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid #f8fafc; }
-        .pipeline-label { width: 70px; font-size: 9px; font-weight: 600; }
-        .pipeline-bar-wrap { flex: 1; background: #f1f5f9; border-radius: 4px; height: 8px; }
-        .pipeline-bar { height: 8px; border-radius: 4px; }
-        .pipeline-count { width: 25px; text-align: right; font-weight: 700; font-size: 9px; }
-        .pipeline-amount { width: 70px; text-align: right; font-size: 8px; color: #64748b; }
-
-        /* ── Donut simulado (cuadros de color) ───────────────────────────────── */
-        .legend-item { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
-        .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
-
-        /* ── 2 columnas ──────────────────────────────────────────────────────── */
-        .two-col { display: flex; gap: 12px; }
-        .two-col .col-left  { flex: 0 0 48%; }
-        .two-col .col-right { flex: 1; }
-
-        /* ── Embudo resumen ──────────────────────────────────────────────────── */
-        .funnel-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 5px 8px; border-radius: 4px; margin-bottom: 4px; font-size: 9px;
+        /* ─── TÍTULO DE SECCIÓN ─── */
+        .section-title {
+            background: #1a3c6e;
+            color: #fff;
+            font-size: 9px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 5px 8px;
+            margin-bottom: 6px;
+            margin-top: 12px;
+        }
+        .section-title .num {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+            padding: 0 4px;
+            margin-right: 4px;
         }
 
-        /* ── Footer ──────────────────────────────────────────────────────────── */
-        .footer {
-            text-align: center;
+        /* ─── KPI CARDS (tabla 4 col) ─── */
+        .kpi-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 4px;
+            margin-bottom: 6px;
+        }
+        .kpi-table td { vertical-align: top; }
+        .kpi-card {
+            border: 1.5px solid #1a3c6e;
+            padding: 7px 9px;
+            border-radius: 3px;
+            background: #f5f7fb;
+        }
+        .kpi-label {
+            font-size: 7.5px;
+            color: #1a3c6e;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            border-bottom: 1px solid #c8d4e3;
+            padding-bottom: 2px;
+        }
+        .kpi-value {
+            font-size: 15px;
+            font-weight: bold;
+            color: #1a3c6e;
+        }
+        .kpi-value.green { color: #15803d; }
+        .kpi-value.orange { color: #b45309; }
+        .kpi-sub {
+            font-size: 7.5px;
+            color: #555;
+            margin-top: 3px;
+        }
+        .kpi-change-up   { color: #15803d; font-size: 8px; font-weight: bold; margin-top: 2px; }
+        .kpi-change-down { color: #c00;    font-size: 8px; font-weight: bold; margin-top: 2px; }
+
+        /* ─── BARRA DE PROGRESO ─── */
+        .bar-wrap { background: #dce6f4; border-radius: 3px; height: 6px; width: 100%; margin-top: 4px; }
+        .bar-fill  { height: 6px; border-radius: 3px; }
+
+        /* ─── TABLAS GENERALES ─── */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 4px;
+        }
+        .data-table th {
+            background: #1a3c6e;
+            color: #fff;
+            padding: 5px 6px;
             font-size: 8px;
-            color: #94a3b8;
-            border-top: 1px solid #e2e8f0;
-            padding-top: 8px;
-            margin-top: 24px;
+            font-weight: bold;
+            text-align: left;
+            border: 1px solid #1a3c6e;
+            white-space: nowrap;
+        }
+        .data-table th.r { text-align: right; }
+        .data-table th.c { text-align: center; }
+        .data-table td {
+            padding: 4px 6px;
+            border: 1px solid #c8d4e3;
+            font-size: 9px;
+            vertical-align: middle;
+        }
+        .data-table td.r  { text-align: right; }
+        .data-table td.c  { text-align: center; }
+        .data-table td.lbl { background: #e8edf5; font-weight: bold; color: #1a3c6e; white-space: nowrap; }
+        .data-table tr:nth-child(even) td { background: #f5f7fb; }
+        .data-table tr:nth-child(even) td.lbl { background: #dce6f4; }
+        .data-table .total-row td {
+            background: #dce6f4;
+            font-weight: bold;
+            border-top: 2px solid #1a3c6e;
         }
 
-        /* ── Mensual tabla ───────────────────────────────────────────────────── */
-        .monthly-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
-        .monthly-label { width: 70px; font-size: 8px; color: #64748b; }
-        .monthly-bar-wrap { flex: 1; background: #f1f5f9; border-radius: 3px; height: 14px; position: relative; }
-        .monthly-bar-fill { height: 14px; border-radius: 3px; background: #2563eb; }
-        .monthly-val { width: 80px; text-align: right; font-size: 8px; font-weight: 700; color: #2563eb; }
+        /* ─── PIPELINE TABLA ─── */
+        .pipeline-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .pipeline-table td {
+            padding: 4px 6px;
+            border: 1px solid #c8d4e3;
+            font-size: 9px;
+            vertical-align: middle;
+        }
+        .pipeline-table .lbl { background: #e8edf5; font-weight: bold; color: #1a3c6e; width: 90px; }
+        .pipeline-table .cnt { text-align: center; font-weight: bold; width: 40px; }
+        .pipeline-table .amt { text-align: right; width: 85px; }
+        .pipeline-table .bar-cell { padding: 4px 8px; }
+
+        /* ─── PIE ─── */
+        .doc-footer {
+            margin-top: 16px;
+            border-top: 1.5px solid #1a3c6e;
+            padding-top: 5px;
+            font-size: 7.5px;
+            color: #555;
+        }
+        .doc-footer .company-line {
+            font-weight: bold;
+            font-size: 9px;
+            color: #1a3c6e;
+            margin-bottom: 2px;
+        }
+        .confidential {
+            text-align: center;
+            font-weight: bold;
+            font-size: 8px;
+            margin-top: 5px;
+            letter-spacing: 1.5px;
+            color: #1a3c6e;
+            border: 1px dashed #1a3c6e;
+            padding: 3px 0;
+        }
+
+        /* ─── COLORES ESTADO ─── */
+        .badge {
+            display: inline-block;
+            border-radius: 2px;
+            padding: 1px 5px;
+            font-size: 8px;
+            font-weight: bold;
+        }
+        .badge-draft    { background:#fef9c3; color:#92400e; border:1px solid #fcd34d; }
+        .badge-sent     { background:#e0f2fe; color:#0369a1; border:1px solid #7dd3fc; }
+        .badge-approved { background:#dcfce7; color:#166534; border:1px solid #4ade80; }
+        .badge-finished { background:#ede9fe; color:#4c1d95; border:1px solid #a78bfa; }
+        .badge-invoiced { background:#dbeafe; color:#1e40af; border:1px solid #60a5fa; }
+        .badge-rejected { background:#fee2e2; color:#991b1b; border:1px solid #f87171; }
+
+        /* ─── EVOLUCIÓN MENSUAL ─── */
+        .monthly-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+        .monthly-table td {
+            padding: 3px 6px;
+            border: 1px solid #c8d4e3;
+            font-size: 8.5px;
+            vertical-align: middle;
+        }
+        .monthly-table .lbl { background: #e8edf5; color: #1a3c6e; font-weight: bold; width: 75px; }
+        .monthly-table .bar-cell { padding: 4px 8px; }
+        .monthly-table .val { text-align: right; width: 85px; font-weight: bold; color: #1a3c6e; }
+
+        /* ─── FUNNEL RESUMEN ─── */
+        .funnel-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 4px;
+        }
+        .funnel-table td {
+            padding: 5px 8px;
+            border: 1px solid #c8d4e3;
+            font-size: 9px;
+        }
+        .funnel-table .f-lbl { background: #e8edf5; color: #1a3c6e; font-weight: bold; width: 120px; }
+        .funnel-table .f-val { font-weight: bold; text-align: center; width: 50px; }
+        .funnel-table .highlight td { background: #1a3c6e; color: #fff; font-weight: bold; font-size: 11px; }
     </style>
 </head>
 <body>
 
-{{-- Header --}}
-<div class="header">
-    <div>
-        <div class="brand">&#9632; Ges_Taller</div>
-        <div class="period">Período: {{ \Carbon\Carbon::parse($from)->format('d/m/Y') }} al {{ \Carbon\Carbon::parse($to)->format('d/m/Y') }}</div>
-    </div>
-    <div class="generated">
-        Generado el {{ now()->format('d/m/Y H:i') }}<br>
-        Reporte de Gestión — Confidencial
-    </div>
-</div>
+@php
+    $logoPath   = $company->logo_path ? storage_path('app/public/' . $company->logo_path) : null;
+    $logoExists = $logoPath && file_exists($logoPath);
+    $logoBase64 = '';
+    if ($logoExists) {
+        $mime       = mime_content_type($logoPath);
+        $logoBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($logoPath));
+    }
 
-{{-- ══════════════════════════════════════ --}}
+    $pipeColors = [
+        'draft'    => '#d97706',
+        'sent'     => '#0369a1',
+        'approved' => '#15803d',
+        'finished' => '#6d28d9',
+        'invoiced' => '#1d4ed8',
+        'rejected' => '#b91c1c',
+    ];
+    $insColors = ['#1d4ed8','#15803d','#b45309','#b91c1c','#6d28d9','#0e7490'];
+@endphp
+
+{{-- ═══ ENCABEZADO ═══ --}}
+<table class="doc-header">
+    <tr>
+        <td class="logo-cell">
+            @if($logoBase64)
+                <img src="{{ $logoBase64 }}" alt="Logo">
+            @else
+                <div class="logo-placeholder">{{ strtoupper(substr($company->name ?? 'GT', 0, 3)) }}</div>
+            @endif
+        </td>
+        <td class="title-cell">
+            <div class="doc-title">Informe de Gestión</div>
+            <div class="doc-subtitle">Reporte Ejecutivo — Uso Interno Confidencial</div>
+            <div class="doc-company">{{ $company->name ?? 'Ges Taller' }}</div>
+        </td>
+        <td style="width:10px;"></td>
+    </tr>
+</table>
+
+{{-- ═══ BARRA PERÍODO ═══ --}}
+<table class="period-bar">
+    <tr>
+        <td class="lbl" style="width:80px;">PERÍODO</td>
+        <td class="val">{{ \Carbon\Carbon::parse($from)->format('d/m/Y') }} &mdash; {{ \Carbon\Carbon::parse($to)->format('d/m/Y') }}</td>
+        <td class="lbl" style="width:90px;">FECHA EMISIÓN</td>
+        <td class="val" style="width:90px;">{{ now()->format('d/m/Y H:i') }}</td>
+        @if($company->rut)
+        <td class="lbl" style="width:50px;">RUT</td>
+        <td class="val" style="width:80px;">{{ $company->rut }}</td>
+        @endif
+    </tr>
+    @if($company->address || $company->phone)
+    <tr>
+        <td class="lbl">DIRECCIÓN</td>
+        <td colspan="{{ $company->rut ? 3 : 3 }}" style="font-size:8.5px;">
+            {{ $company->address ?? '' }}{{ ($company->address && $company->phone) ? '  ·  Tel: ' : '' }}{{ $company->phone ?? '' }}
+        </td>
+        @if($company->rut)
+        <td colspan="2"></td>
+        @endif
+    </tr>
+    @endif
+</table>
+
+
+{{-- ══════════════════════════════════════════════════════════════════ --}}
 {{-- 1. RESUMEN EJECUTIVO --}}
-{{-- ══════════════════════════════════════ --}}
-<div class="section">
-    <div class="section-title">1. Resumen Ejecutivo</div>
-    <div class="kpi-grid">
-        <div class="kpi-card">
-            <div class="kpi-label">Ingresos Facturados</div>
-            <div class="kpi-value blue">${{ number_format($executive['totalRevenue'], 0, ',', '.') }}</div>
-            @if($executive['revenueChange'] !== null)
-                <div class="{{ $executive['revenueChange'] >= 0 ? 'kpi-change-up' : 'kpi-change-down' }}">
-                    {{ $executive['revenueChange'] >= 0 ? '▲' : '▼' }} {{ abs($executive['revenueChange']) }}% vs período anterior
+{{-- ══════════════════════════════════════════════════════════════════ --}}
+<div class="section-title"><span class="num">1</span> Resumen Ejecutivo</div>
+
+<table class="kpi-table">
+    <tr>
+        {{-- KPI 1: Ingresos facturados --}}
+        <td style="width:25%;">
+            <div class="kpi-card">
+                <div class="kpi-label">Ingresos Facturados</div>
+                <div class="kpi-value">$ {{ number_format($executive['totalRevenue'], 0, ',', '.') }}</div>
+                @if($executive['revenueChange'] !== null)
+                    <div class="{{ $executive['revenueChange'] >= 0 ? 'kpi-change-up' : 'kpi-change-down' }}">
+                        {{ $executive['revenueChange'] >= 0 ? '▲' : '▼' }} {{ abs($executive['revenueChange']) }}% vs período ant.
+                    </div>
+                @else
+                    <div class="kpi-sub">Sin datos período anterior</div>
+                @endif
+            </div>
+        </td>
+        {{-- KPI 2: Presupuestos emitidos --}}
+        <td style="width:25%;">
+            <div class="kpi-card">
+                <div class="kpi-label">Presupuestos Emitidos</div>
+                <div class="kpi-value">{{ $executive['totalQuotations'] }}</div>
+                @if($executive['countChange'] !== null)
+                    <div class="{{ $executive['countChange'] >= 0 ? 'kpi-change-up' : 'kpi-change-down' }}">
+                        {{ $executive['countChange'] >= 0 ? '▲' : '▼' }} {{ abs($executive['countChange']) }}% vs período ant.
+                    </div>
+                @else
+                    <div class="kpi-sub">Sin datos período anterior</div>
+                @endif
+            </div>
+        </td>
+        {{-- KPI 3: Ticket promedio --}}
+        <td style="width:25%;">
+            <div class="kpi-card">
+                <div class="kpi-label">Ticket Promedio Facturado</div>
+                <div class="kpi-value green">$ {{ number_format($executive['avgTicket'], 0, ',', '.') }}</div>
+                <div class="kpi-sub">{{ $executive['invoicedCount'] }} facturas emitidas</div>
+            </div>
+        </td>
+        {{-- KPI 4: Tasa de aprobación --}}
+        <td style="width:25%;">
+            <div class="kpi-card">
+                <div class="kpi-label">Tasa de Aprobación</div>
+                <div class="kpi-value {{ $executive['approvalRate'] >= 70 ? 'green' : ($executive['approvalRate'] >= 40 ? 'orange' : '') }}">
+                    {{ $executive['approvalRate'] }}%
                 </div>
-            @else
-                <div class="kpi-sub">Sin datos previos</div>
-            @endif
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-label">Presupuestos Emitidos</div>
-            <div class="kpi-value">{{ $executive['totalQuotations'] }}</div>
-            @if($executive['countChange'] !== null)
-                <div class="{{ $executive['countChange'] >= 0 ? 'kpi-change-up' : 'kpi-change-down' }}">
-                    {{ $executive['countChange'] >= 0 ? '▲' : '▼' }} {{ abs($executive['countChange']) }}% vs período anterior
-                </div>
-            @else
-                <div class="kpi-sub">Sin datos previos</div>
-            @endif
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-label">Ticket Promedio Facturado</div>
-            <div class="kpi-value green">${{ number_format($executive['avgTicket'], 0, ',', '.') }}</div>
-            <div class="kpi-sub">{{ $executive['invoicedCount'] }} facturas emitidas</div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-label">Tasa de Aprobación</div>
-            <div class="kpi-value {{ $executive['approvalRate'] >= 70 ? 'green' : '' }}">{{ $executive['approvalRate'] }}%</div>
-            <div style="margin-top: 5px;">
                 <div class="bar-wrap">
-                    <div class="bar-fill" style="width: {{ $executive['approvalRate'] }}%; background: {{ $executive['approvalRate'] >= 70 ? '#10b981' : ($executive['approvalRate'] >= 40 ? '#f59e0b' : '#ef4444') }};"></div>
+                    <div class="bar-fill" style="width: {{ $executive['approvalRate'] }}%; background: {{ $executive['approvalRate'] >= 70 ? '#15803d' : ($executive['approvalRate'] >= 40 ? '#b45309' : '#b91c1c') }};"></div>
                 </div>
+                <div class="kpi-sub">Aprobados + Terminados + Facturados</div>
             </div>
-        </div>
-    </div>
+        </td>
+    </tr>
+</table>
 
-    @if($monthlyChart->count() > 0)
-        <div style="margin-top: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
-            <div class="kpi-label" style="margin-bottom: 8px;">Evolución de Ingresos Mensuales (Facturados)</div>
-            @php $maxMonth = $monthlyChart->max('total') ?: 1; @endphp
-            @foreach($monthlyChart as $m)
-                <div class="monthly-bar-row">
-                    <div class="monthly-label">{{ $m['label'] }}</div>
-                    <div class="monthly-bar-wrap">
-                        <div class="monthly-bar-fill" style="width: {{ round($m['total'] / $maxMonth * 100) }}%"></div>
-                    </div>
-                    <div class="monthly-val">${{ number_format($m['total'], 0, ',', '.') }}</div>
+{{-- Evolución mensual --}}
+@if($monthlyChart->count() > 0)
+@php $maxMonth = $monthlyChart->max('total') ?: 1; @endphp
+<table class="monthly-table">
+    <thead>
+        <tr>
+            <td class="lbl" style="font-size:7.5px; text-align:center; background:#1a3c6e; color:#fff; border:1px solid #1a3c6e; padding:4px;">EVOLUCIÓN MENSUAL DE INGRESOS FACTURADOS</td>
+            <td class="bar-cell" style="background:#1a3c6e; border:1px solid #1a3c6e;"></td>
+            <td class="val" style="background:#1a3c6e; color:#fff; border:1px solid #1a3c6e; font-size:7.5px; text-align:center; width:85px;">MONTO</td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($monthlyChart as $m)
+        <tr>
+            <td class="lbl">{{ strtoupper($m['label']) }}</td>
+            <td class="bar-cell">
+                <div class="bar-wrap" style="height:8px;">
+                    <div class="bar-fill" style="width: {{ round($m['total'] / $maxMonth * 100) }}%; height:8px; background:#1a3c6e;"></div>
                 </div>
-            @endforeach
-        </div>
-    @endif
-</div>
+            </td>
+            <td class="val">$ {{ number_format($m['total'], 0, ',', '.') }}</td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
+@endif
 
-{{-- ══════════════════════════════════════ --}}
+
+{{-- ══════════════════════════════════════════════════════════════════ --}}
 {{-- 2. PIPELINE --}}
-{{-- ══════════════════════════════════════ --}}
-<div class="section">
-    <div class="section-title">2. Pipeline de Presupuestos</div>
-    <div class="two-col">
-        <div class="col-left">
-            @php
-                $maxCount = max(collect($pipeline)->pluck('count')->max(), 1);
-                $pipeColors = [
-                    'draft'    => '#fbbf24',
-                    'sent'     => '#38bdf8',
-                    'approved' => '#34d399',
-                    'finished' => '#818cf8',
-                    'invoiced' => '#2563eb',
-                    'rejected' => '#f87171',
-                ];
-            @endphp
-            @foreach($pipeline as $stage)
-                <div class="pipeline-row">
-                    <div class="pipeline-label">{{ $stage['label'] }}</div>
-                    <div class="pipeline-bar-wrap">
-                        <div class="pipeline-bar"
-                            style="width: {{ round($stage['count'] / $maxCount * 100) }}%; background: {{ $pipeColors[$stage['key']] ?? '#94a3b8' }}">
-                        </div>
-                    </div>
-                    <div class="pipeline-count">{{ $stage['count'] }}</div>
-                    <div class="pipeline-amount">${{ number_format($stage['amount'], 0, ',', '.') }}</div>
+{{-- ══════════════════════════════════════════════════════════════════ --}}
+<div class="section-title" style="margin-top:14px;"><span class="num">2</span> Pipeline de Presupuestos</div>
+
+@php
+    $maxCount  = max(collect($pipeline)->pluck('count')->max(), 1);
+    $totalP    = collect($pipeline)->sum('count');
+    $invoicedP = collect($pipeline)->firstWhere('key', 'invoiced')['count'] ?? 0;
+    $rejectedP = collect($pipeline)->firstWhere('key', 'rejected')['count'] ?? 0;
+    $activeP   = $totalP - $invoicedP - $rejectedP;
+    $convP     = $totalP > 0 ? round($invoicedP / $totalP * 100) : 0;
+@endphp
+
+<table class="pipeline-table">
+    <thead>
+        <tr>
+            <td style="background:#1a3c6e; color:#fff; font-weight:bold; font-size:8px; padding:4px 6px; width:90px; border:1px solid #1a3c6e;">ESTADO</td>
+            <td style="background:#1a3c6e; color:#fff; font-weight:bold; font-size:8px; padding:4px 6px; text-align:center; width:40px; border:1px solid #1a3c6e;">CANT.</td>
+            <td style="background:#1a3c6e; color:#fff; font-weight:bold; font-size:8px; padding:4px 6px; border:1px solid #1a3c6e;">DISTRIBUCIÓN</td>
+            <td style="background:#1a3c6e; color:#fff; font-weight:bold; font-size:8px; padding:4px 6px; text-align:right; width:90px; border:1px solid #1a3c6e;">MONTO TOTAL</td>
+            <td style="background:#1a3c6e; color:#fff; font-weight:bold; font-size:8px; padding:4px 6px; text-align:center; width:40px; border:1px solid #1a3c6e;">%</td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($pipeline as $stage)
+        <tr>
+            <td class="lbl">
+                <span class="badge badge-{{ $stage['key'] }}">{{ strtoupper($stage['label']) }}</span>
+            </td>
+            <td class="cnt">{{ $stage['count'] }}</td>
+            <td class="bar-cell">
+                <div class="bar-wrap" style="height:8px;">
+                    <div class="bar-fill" style="width: {{ $maxCount > 0 ? round($stage['count'] / $maxCount * 100) : 0 }}%; height:8px; background:{{ $pipeColors[$stage['key']] ?? '#1a3c6e' }};"></div>
                 </div>
-            @endforeach
-        </div>
-        <div class="col-right">
-            @php
-                $totalP    = collect($pipeline)->sum('count');
-                $invoicedP = collect($pipeline)->firstWhere('key', 'invoiced')['count'] ?? 0;
-                $rejectedP = collect($pipeline)->firstWhere('key', 'rejected')['count'] ?? 0;
-                $activeP   = $totalP - $invoicedP - $rejectedP;
-                $convP     = $totalP > 0 ? round($invoicedP / $totalP * 100) : 0;
-            @endphp
-            <div class="funnel-row" style="background: #f1f5f9;">
-                <span>Total ingresados</span><span class="fw-bold">{{ $totalP }}</span>
-            </div>
-            <div class="funnel-row" style="background: #ede9fe; color: #4c1d95;">
-                <span>En proceso</span><span class="fw-bold">{{ $activeP }}</span>
-            </div>
-            <div class="funnel-row" style="background: #dcfce7; color: #166534;">
-                <span>Facturados</span><span class="fw-bold">{{ $invoicedP }}</span>
-            </div>
-            <div class="funnel-row" style="background: #fee2e2; color: #991b1b;">
-                <span>Rechazados</span><span class="fw-bold">{{ $rejectedP }}</span>
-            </div>
-            <div class="funnel-row" style="background: #2563eb; color: white;">
-                <span style="font-weight:700;">Tasa de conversión</span>
-                <span style="font-size:14px; font-weight:700;">{{ $convP }}%</span>
-            </div>
-        </div>
-    </div>
-</div>
+            </td>
+            <td class="amt">{{ $stage['amount'] > 0 ? '$ '.number_format($stage['amount'], 0, ',', '.') : '—' }}</td>
+            <td style="text-align:center; font-size:8.5px; color:#555;">{{ $totalP > 0 ? round($stage['count'] / $totalP * 100) : 0 }}%</td>
+        </tr>
+        @endforeach
+        <tr class="total-row">
+            <td class="lbl">TOTAL</td>
+            <td class="cnt">{{ $totalP }}</td>
+            <td></td>
+            <td class="amt">$ {{ number_format(collect($pipeline)->sum('amount'), 0, ',', '.') }}</td>
+            <td style="text-align:center;">100%</td>
+        </tr>
+    </tbody>
+</table>
 
-{{-- ══════════════════════════════════════ --}}
-{{-- 3. ASEGURADORAS --}}
-{{-- ══════════════════════════════════════ --}}
-<div class="section">
-    <div class="section-title">3. Ingresos por Aseguradora (Presupuestos Facturados)</div>
-    @if($byInsurance->count() > 0)
-        @php
-            $grandTotalIns = $byInsurance->sum('total');
-            $insColors = ['#2563eb','#10b981','#f59e0b','#ef4444','#8b5cf6','#64748b'];
-        @endphp
-        <div class="two-col">
-            <div class="col-left">
-                @foreach($byInsurance as $i => $ins)
-                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-                        <div style="width:10px; height:10px; border-radius:2px; background:{{ $insColors[$i % count($insColors)] }}; flex-shrink:0;"></div>
-                        <div style="flex:1; font-size:9px;">{{ $ins['name'] }}</div>
-                        <div style="width:80px;">
-                            <div class="bar-wrap">
-                                <div class="bar-fill" style="width:{{ $grandTotalIns > 0 ? round($ins['total']/$grandTotalIns*100) : 0 }}%; background:{{ $insColors[$i % count($insColors)] }};"></div>
-                            </div>
-                        </div>
-                        <div style="width:30px; text-align:right; font-size:8px; font-weight:700;">
-                            {{ $grandTotalIns > 0 ? round($ins['total']/$grandTotalIns*100) : 0 }}%
-                        </div>
-                    </div>
-                @endforeach
+{{-- Resumen embudo --}}
+<table style="width:100%; border-collapse:separate; border-spacing:4px; margin-top:6px;">
+    <tr>
+        <td style="width:25%;">
+            <div class="kpi-card" style="background:#f5f7fb;">
+                <div class="kpi-label">Total Ingresados</div>
+                <div class="kpi-value">{{ $totalP }}</div>
             </div>
-            <div class="col-right">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Fuente</th>
-                            <th class="text-center">Facturas</th>
-                            <th class="text-right">Total</th>
-                            <th class="text-right">% Part.</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($byInsurance as $ins)
-                            <tr>
-                                <td class="fw-bold">{{ $ins['name'] }}</td>
-                                <td class="text-center text-secondary">{{ $ins['count'] }}</td>
-                                <td class="text-right fw-bold text-blue">${{ number_format($ins['total'], 0, ',', '.') }}</td>
-                                <td class="text-right">{{ $grandTotalIns > 0 ? round($ins['total']/$grandTotalIns*100) : 0 }}%</td>
-                            </tr>
-                        @endforeach
-                        <tr style="border-top: 2px solid #e2e8f0; font-weight:700;">
-                            <td>TOTAL</td>
-                            <td class="text-center">{{ $byInsurance->sum('count') }}</td>
-                            <td class="text-right text-blue">${{ number_format($grandTotalIns, 0, ',', '.') }}</td>
-                            <td class="text-right">100%</td>
-                        </tr>
-                    </tbody>
-                </table>
+        </td>
+        <td style="width:25%;">
+            <div class="kpi-card" style="background:#ede9fe;">
+                <div class="kpi-label" style="color:#4c1d95;">En Proceso</div>
+                <div class="kpi-value" style="color:#4c1d95;">{{ $activeP }}</div>
             </div>
-        </div>
-    @else
-        <p class="text-secondary" style="font-size:9px;">Sin facturación en el período seleccionado.</p>
-    @endif
-</div>
+        </td>
+        <td style="width:25%;">
+            <div class="kpi-card" style="background:#dcfce7;">
+                <div class="kpi-label" style="color:#166534;">Facturados</div>
+                <div class="kpi-value green">{{ $invoicedP }}</div>
+            </div>
+        </td>
+        <td style="width:25%;">
+            <div class="kpi-card" style="background:#dbeafe; border-color:#1d4ed8;">
+                <div class="kpi-label" style="color:#1e40af;">Tasa de Conversión</div>
+                <div class="kpi-value" style="color:#1e40af; font-size:18px;">{{ $convP }}%</div>
+                <div class="kpi-sub">Presupuestos → Facturados</div>
+            </div>
+        </td>
+    </tr>
+</table>
 
-{{-- ══════════════════════════════════════ --}}
+
+{{-- ══════════════════════════════════════════════════════════════════ --}}
+{{-- 3. INGRESOS POR ASEGURADORA --}}
+{{-- ══════════════════════════════════════════════════════════════════ --}}
+<div class="section-title"><span class="num">3</span> Ingresos por Aseguradora (Presupuestos Facturados)</div>
+
+@if($byInsurance->count() > 0)
+@php $grandTotalIns = $byInsurance->sum('total'); @endphp
+<table class="data-table">
+    <thead>
+        <tr>
+            <th style="width:20px;">#</th>
+            <th>Compañía / Fuente</th>
+            <th class="c" style="width:55px;">Facturas</th>
+            <th class="r" style="width:100px;">Monto Total</th>
+            <th class="r" style="width:45px;">% Part.</th>
+            <th style="width:120px;">Distribución</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($byInsurance as $i => $ins)
+        @php $pct = $grandTotalIns > 0 ? round($ins['total'] / $grandTotalIns * 100) : 0; @endphp
+        <tr>
+            <td class="c" style="color:#1a3c6e; font-weight:bold;">{{ $i + 1 }}</td>
+            <td class="lbl">{{ $ins['name'] }}</td>
+            <td class="c">{{ $ins['count'] }}</td>
+            <td class="r" style="font-weight:bold; color:#1a3c6e;">$ {{ number_format($ins['total'], 0, ',', '.') }}</td>
+            <td class="r">{{ $pct }}%</td>
+            <td style="padding:4px 8px;">
+                <div class="bar-wrap" style="height:8px;">
+                    <div class="bar-fill" style="width:{{ $pct }}%; height:8px; background:{{ $insColors[$i % count($insColors)] }};"></div>
+                </div>
+            </td>
+        </tr>
+        @endforeach
+        <tr class="total-row">
+            <td></td>
+            <td class="lbl">TOTAL GENERAL</td>
+            <td class="c">{{ $byInsurance->sum('count') }}</td>
+            <td class="r" style="color:#1a3c6e;">$ {{ number_format($grandTotalIns, 0, ',', '.') }}</td>
+            <td class="r">100%</td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+@else
+<table class="data-table"><tr><td style="text-align:center; color:#888; padding:10px;">Sin facturación en el período seleccionado.</td></tr></table>
+@endif
+
+
+{{-- ══════════════════════════════════════════════════════════════════ --}}
 {{-- 4. RANKING DE CLIENTES --}}
-{{-- ══════════════════════════════════════ --}}
-<div class="section">
-    <div class="section-title">4. Ranking de Clientes (Presupuestos Aprobados, Terminados y Facturados)</div>
-    @if($topClients->count() > 0)
-        @php $maxClient = $topClients->max('total') ?: 1; @endphp
-        <table>
-            <thead>
-                <tr>
-                    <th style="width:25px;">#</th>
-                    <th>Cliente</th>
-                    <th>RUT</th>
-                    <th class="text-center">Presupuestos</th>
-                    <th class="text-right">Monto Total</th>
-                    <th style="width:120px;"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($topClients as $i => $client)
-                    <tr>
-                        <td class="fw-bold text-secondary">{{ $i + 1 }}°</td>
-                        <td class="fw-bold">{{ $client['name'] }}</td>
-                        <td class="text-secondary">{{ $client['rut'] }}</td>
-                        <td class="text-center">{{ $client['count'] }}</td>
-                        <td class="text-right fw-bold text-blue">${{ number_format($client['total'], 0, ',', '.') }}</td>
-                        <td>
-                            <div class="bar-wrap">
-                                <div class="bar-fill" style="width:{{ round($client['total']/$maxClient*100) }}%; background:#2563eb;"></div>
-                            </div>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    @else
-        <p class="text-secondary" style="font-size:9px;">Sin datos en el período seleccionado.</p>
-    @endif
-</div>
+{{-- ══════════════════════════════════════════════════════════════════ --}}
+<div class="section-title"><span class="num">4</span> Ranking de Clientes (Aprobados, Terminados y Facturados)</div>
 
-{{-- ══════════════════════════════════════ --}}
-{{-- 5. REPUESTOS VS MANO DE OBRA --}}
-{{-- ══════════════════════════════════════ --}}
-<div class="section">
-    <div class="section-title">5. Composición: Repuestos vs Mano de Obra</div>
-    @if($itemTypes['itemsGrandTotal'] > 0)
-        @php
-            $pctRep = round($itemTypes['repuestoTotal'] / $itemTypes['itemsGrandTotal'] * 100);
-            $pctMO  = 100 - $pctRep;
-        @endphp
-        <div class="two-col">
-            <div class="col-left">
-                <div class="kpi-card" style="margin-bottom: 8px; border-left: 3px solid #2563eb;">
-                    <div class="kpi-label">Repuestos</div>
-                    <div class="kpi-value blue">${{ number_format($itemTypes['repuestoTotal'], 0, ',', '.') }}</div>
-                    <div class="kpi-sub">{{ $itemTypes['repuestoCount'] }} líneas · {{ $pctRep }}% del total</div>
-                    <div style="margin-top: 5px;">
-                        <div class="bar-wrap"><div class="bar-fill" style="width:{{ $pctRep }}%; background:#2563eb;"></div></div>
-                    </div>
+@if($topClients->count() > 0)
+@php $maxClient = $topClients->max('total') ?: 1; @endphp
+<table class="data-table">
+    <thead>
+        <tr>
+            <th class="c" style="width:25px;">Pos.</th>
+            <th>Cliente</th>
+            <th style="width:90px;">RUT / DNI</th>
+            <th class="c" style="width:65px;">Presupuestos</th>
+            <th class="r" style="width:100px;">Monto Total</th>
+            <th style="width:130px;">Participación</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($topClients as $i => $client)
+        @php $pct = round($client['total'] / $maxClient * 100); @endphp
+        <tr>
+            <td class="c" style="font-weight:bold; color:#1a3c6e;">{{ $i + 1 }}°</td>
+            <td class="lbl">{{ $client['name'] }}</td>
+            <td style="color:#555;">{{ $client['rut'] ?: '—' }}</td>
+            <td class="c">{{ $client['count'] }}</td>
+            <td class="r" style="font-weight:bold; color:#1a3c6e;">$ {{ number_format($client['total'], 0, ',', '.') }}</td>
+            <td style="padding:4px 8px;">
+                <div class="bar-wrap" style="height:8px;">
+                    <div class="bar-fill" style="width:{{ $pct }}%; height:8px; background:#1a3c6e;"></div>
                 </div>
-                <div class="kpi-card" style="border-left: 3px solid #10b981;">
-                    <div class="kpi-label">Mano de Obra</div>
-                    <div class="kpi-value green">${{ number_format($itemTypes['manoObraTotal'], 0, ',', '.') }}</div>
-                    <div class="kpi-sub">{{ $itemTypes['manoObraCount'] }} líneas · {{ $pctMO }}% del total</div>
-                    <div style="margin-top: 5px;">
-                        <div class="bar-wrap"><div class="bar-fill" style="width:{{ $pctMO }}%; background:#10b981;"></div></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-right">
-                <div class="kpi-card" style="border-left: 3px solid #64748b; height: 100%;">
-                    <div class="kpi-label">Total de Ítems (Base Neta)</div>
-                    <div class="kpi-value" style="font-size: 20px;">${{ number_format($itemTypes['itemsGrandTotal'], 0, ',', '.') }}</div>
-                    <div class="kpi-sub" style="margin-top:8px;">{{ $itemTypes['repuestoCount'] + $itemTypes['manoObraCount'] }} líneas en total</div>
-                    <div class="kpi-sub">En presupuestos aprobados, terminados y facturados</div>
+            </td>
+        </tr>
+        @endforeach
+        <tr class="total-row">
+            <td></td>
+            <td class="lbl">TOTAL TOP {{ $topClients->count() }}</td>
+            <td></td>
+            <td class="c">{{ $topClients->sum('count') }}</td>
+            <td class="r" style="color:#1a3c6e;">$ {{ number_format($topClients->sum('total'), 0, ',', '.') }}</td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+@else
+<table class="data-table"><tr><td style="text-align:center; color:#888; padding:10px;">Sin datos en el período seleccionado.</td></tr></table>
+@endif
 
-                    <div style="margin-top: 14px;">
-                        <div style="display:flex; gap:0; height: 16px; border-radius:4px; overflow:hidden;">
-                            <div style="width:{{ $pctRep }}%; background:#2563eb;"></div>
-                            <div style="width:{{ $pctMO }}%; background:#10b981;"></div>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; margin-top:5px;">
-                            <div class="legend-item">
-                                <div class="legend-dot" style="background:#2563eb;"></div>
-                                <span style="font-size:8px;">Repuestos {{ $pctRep }}%</span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-dot" style="background:#10b981;"></div>
-                                <span style="font-size:8px;">Mano de Obra {{ $pctMO }}%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @else
-        <p class="text-secondary" style="font-size:9px;">Sin datos en el período seleccionado.</p>
-    @endif
-</div>
 
-<div class="footer">
-    Ges_Taller &bull; Sistema de Gestión de Taller &bull; Reporte generado el {{ now()->format('d/m/Y \a \l\a\s H:i') }}
+{{-- ══════════════════════════════════════════════════════════════════ --}}
+{{-- 5. COMPOSICIÓN: REPUESTOS VS MANO DE OBRA --}}
+{{-- ══════════════════════════════════════════════════════════════════ --}}
+<div class="section-title"><span class="num">5</span> Composición: Repuestos vs Mano de Obra</div>
+
+@if($itemTypes['itemsGrandTotal'] > 0)
+@php
+    $pctRep = round($itemTypes['repuestoTotal'] / $itemTypes['itemsGrandTotal'] * 100);
+    $pctMO  = 100 - $pctRep;
+@endphp
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Categoría</th>
+            <th class="r" style="width:110px;">Monto</th>
+            <th class="r" style="width:50px;">% del Total</th>
+            <th>Proporción</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="lbl">Mano de Obra (Reparación + Pintura + D/M)</td>
+            <td class="r" style="font-weight:bold; color:#15803d;">$ {{ number_format($itemTypes['manoObraTotal'], 0, ',', '.') }}</td>
+            <td class="r">{{ $pctMO }}%</td>
+            <td style="padding:4px 8px;">
+                <div class="bar-wrap" style="height:8px;">
+                    <div class="bar-fill" style="width:{{ $pctMO }}%; height:8px; background:#15803d;"></div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="lbl">Repuestos / Partes</td>
+            <td class="r" style="font-weight:bold; color:#1a3c6e;">$ {{ number_format($itemTypes['repuestoTotal'], 0, ',', '.') }}</td>
+            <td class="r">{{ $pctRep }}%</td>
+            <td style="padding:4px 8px;">
+                <div class="bar-wrap" style="height:8px;">
+                    <div class="bar-fill" style="width:{{ $pctRep }}%; height:8px; background:#1a3c6e;"></div>
+                </div>
+            </td>
+        </tr>
+        <tr class="total-row">
+            <td class="lbl">TOTAL BASE (Presupuestos Aprobados, Terminados y Facturados)</td>
+            <td class="r">$ {{ number_format($itemTypes['itemsGrandTotal'], 0, ',', '.') }}</td>
+            <td class="r">100%</td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+
+{{-- Barra combinada visual --}}
+<table style="width:100%; border-collapse:collapse; margin-top:6px;">
+    <tr>
+        <td style="width:{{ $pctMO }}%; background:#15803d; height:14px; border-radius:3px 0 0 3px;"></td>
+        <td style="width:{{ $pctRep }}%; background:#1a3c6e; height:14px; border-radius:0 3px 3px 0;"></td>
+    </tr>
+</table>
+<table style="width:100%; border-collapse:collapse; margin-top:3px;">
+    <tr>
+        <td style="font-size:7.5px; color:#15803d; font-weight:bold;">&#9632; Mano de Obra {{ $pctMO }}%</td>
+        <td style="font-size:7.5px; color:#1a3c6e; font-weight:bold; text-align:right;">&#9632; Repuestos {{ $pctRep }}%</td>
+    </tr>
+</table>
+@else
+<table class="data-table"><tr><td style="text-align:center; color:#888; padding:10px;">Sin datos en el período seleccionado.</td></tr></table>
+@endif
+
+
+{{-- ═══ PIE DEL DOCUMENTO ═══ --}}
+<div class="doc-footer">
+    <div class="company-line">
+        {{ strtoupper($company->name ?? 'GES TALLER') }}
+        @if($company->rut) &nbsp;·&nbsp; RUT: {{ $company->rut }} @endif
+        @if($company->address) &nbsp;·&nbsp; {{ $company->address }} @endif
+        @if($company->phone) &nbsp;·&nbsp; {{ $company->phone }} @endif
+    </div>
+    <div>Este informe fue generado automáticamente por el sistema Ges_Taller el {{ now()->format('d/m/Y \a \l\a\s H:i') }}.
+    Los datos reflejan el período {{ \Carbon\Carbon::parse($from)->format('d/m/Y') }} al {{ \Carbon\Carbon::parse($to)->format('d/m/Y') }}.</div>
+    <div class="confidential">&#9733; DOCUMENTO CONFIDENCIAL — USO INTERNO &#9733;</div>
 </div>
 
 </body>

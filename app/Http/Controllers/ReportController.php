@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\Quotation;
 use App\Models\QuotationItem;
 use Illuminate\Http\Request;
@@ -29,9 +30,10 @@ class ReportController extends Controller
         $to       = $request->input('to', now()->toDateString());
         $branchId = $this->resolveBranchId($request);
 
-        $data = $this->buildReportData($from, $to, $branchId);
+        $data    = $this->buildReportData($from, $to, $branchId);
+        $company = Company::current();
 
-        $pdf = Pdf::loadView('reports.pdf', array_merge($data, compact('from', 'to')))
+        $pdf = Pdf::loadView('reports.pdf', array_merge($data, compact('from', 'to', 'company')))
             ->setPaper('a4', 'portrait');
 
         $filename = 'Reporte-Ges_Taller-' . $from . '-al-' . $to . '.pdf';
@@ -181,7 +183,7 @@ class ReportController extends Controller
         $monthlyChart = Quotation::whereBetween('date', [$from, $to])
             ->where('status', 'invoiced')
             ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
-            ->select(DB::raw("strftime('%Y-%m', date) as month_key"), DB::raw('SUM(total_amount) as total'))
+            ->select(DB::raw("DATE_FORMAT(date, '%Y-%m') as month_key"), DB::raw('SUM(total_amount) as total'))
             ->groupBy('month_key')
             ->orderBy('month_key')
             ->get()

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -14,7 +15,8 @@ class UserController extends Controller
     public function index()
     {
         $users = User::orderBy('name')->get();
-        return view('users.index', compact('users'));
+        $roles = Role::orderBy('label')->get();
+        return view('users.index', compact('users', 'roles'));
     }
 
     public function permissions()
@@ -65,15 +67,18 @@ class UserController extends Controller
     public function create()
     {
         $branches = Branch::where('active', true)->orderBy('name')->get();
-        return view('users.create', compact('branches'));
+        $roles    = Role::orderBy('label')->get();
+        return view('users.create', compact('branches', 'roles'));
     }
 
     public function store(Request $request)
     {
+        $validRoles = Role::pluck('name')->toArray();
+
         $validated = $request->validate([
             'name'      => 'required|string|max:255',
             'email'     => 'required|email|unique:users,email',
-            'role'      => 'required|in:admin,recepcion,taller',
+            'role'      => ['required', Rule::in($validRoles)],
             'branch_id' => 'nullable|exists:branches,id',
             'password'  => ['required', 'confirmed', Password::min(8)],
         ]);
@@ -93,15 +98,18 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $branches = Branch::where('active', true)->orderBy('name')->get();
-        return view('users.edit', compact('user', 'branches'));
+        $roles    = Role::orderBy('label')->get();
+        return view('users.edit', compact('user', 'branches', 'roles'));
     }
 
     public function update(Request $request, User $user)
     {
+        $validRoles = Role::pluck('name')->toArray();
+
         $validated = $request->validate([
             'name'         => 'required|string|max:255',
             'email'        => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'role'         => 'required|in:admin,recepcion,taller',
+            'role'         => ['required', Rule::in($validRoles)],
             'branch_id'    => 'nullable|exists:branches,id',
             'new_password' => ['nullable', 'confirmed', Password::min(8)],
         ]);
@@ -130,7 +138,6 @@ class UserController extends Controller
 
     public function toggleActive(User $user)
     {
-        // Prevent deactivating the last active admin
         if ($user->role === 'admin' && $user->active) {
             $activeAdmins = User::where('role', 'admin')->where('active', true)->count();
             if ($activeAdmins <= 1) {

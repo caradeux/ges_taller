@@ -20,8 +20,8 @@ class DashboardController extends Controller
             ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
             ->select(
                 DB::raw('SUM(total_amount) as total'),
-                DB::raw("strftime('%m', date) as month"),
-                DB::raw("strftime('%Y', date) as year")
+                DB::raw("MONTH(date) as month"),
+                DB::raw("YEAR(date) as year")
             )
             ->groupBy('year', 'month')
             ->orderBy('year', 'asc')

@@ -56,6 +56,11 @@ class Quotation extends Model
         return $this->hasMany(QuotationItem::class);
     }
 
+    public function getFolioDisplayAttribute(): string
+    {
+        return $this->folio ?? 'Borrador';
+    }
+
     public function getStatusLabelAttribute()
     {
         return match ($this->status) {

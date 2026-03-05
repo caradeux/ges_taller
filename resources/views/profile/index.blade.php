@@ -17,7 +17,7 @@
                     <h5 class="fw-bold mb-4">
                         <i class="bi bi-building-fill me-2 text-primary"></i>Datos del Taller
                     </h5>
-                    <form action="{{ route('profile.update') }}" method="POST">
+                    <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
                         @csrf @method('PUT')
                         {{-- Hidden user fields to keep them valid --}}
                         <input type="hidden" name="name"  value="{{ auth()->user()->name }}">
@@ -82,6 +82,21 @@
                                     min="1" required>
                                 @error('folio_counter')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                                 <div class="form-text">La siguiente cotización usará este número.</div>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label small fw-bold text-secondary">Logo del Taller</label>
+                                @if($company->logo_path)
+                                <div class="mb-2">
+                                    <img src="{{ \Illuminate\Support\Facades\Storage::url($company->logo_path) }}" alt="Logo" style="max-height:80px; max-width:220px; object-fit:contain; border:1px solid #dee2e6; border-radius:6px; padding:6px; background:#fff;">
+                                    <div class="form-text">Logo actual. Sube uno nuevo para reemplazarlo.</div>
+                                </div>
+                                @else
+                                <div class="form-text mb-1">Sin logo cargado.</div>
+                                @endif
+                                <input type="file" name="company_logo" class="form-control @error('company_logo') is-invalid @enderror" accept="image/*">
+                                @error('company_logo')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                <div class="form-text">PNG, JPG o SVG. Máx. 2 MB. Se usará en el PDF de cotizaciones.</div>
                             </div>
 
                             <div class="col-12 mt-2">
@@ -157,8 +172,10 @@
             <div class="col-md-4">
                 <div class="card p-4 text-center">
                     <div class="mb-3">
-                        <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=2563eb&color=fff&size=128"
-                            class="rounded-circle shadow-sm" alt="Avatar">
+                        <div class="rounded-circle shadow-sm d-inline-flex align-items-center justify-content-center fw-bold text-white mx-auto"
+                            style="width:96px;height:96px;font-size:2.5rem;background:linear-gradient(135deg,#2563eb 0%,#3b82f6 100%);">
+                            {{ strtoupper(mb_substr($user->name, 0, 1)) }}
+                        </div>
                     </div>
                     <h5 class="fw-bold mb-1">{{ $user->name }}</h5>
                     <p class="text-secondary small mb-3">{{ $user->email }}</p>

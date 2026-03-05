@@ -388,6 +388,181 @@
         </div>
     </form>
 </div>
+
+{{-- ══════════════════════════════════════════════════════════ --}}
+{{-- MODALES                                                    --}}
+{{-- ══════════════════════════════════════════════════════════ --}}
+
+{{-- Modal: Nuevo Cliente --}}
+<div class="modal fade" id="modalNewClient" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content border-0" style="border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);">
+            <div class="modal-header border-0 pb-0 pt-4 px-4">
+                <h6 class="fw-bold mb-0 ls-tight">
+                    <i class="bi bi-person-plus-fill me-2" style="color:var(--primary);"></i>Nuevo Cliente
+                </h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formNewClient">
+                <div class="modal-body px-4 py-3">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre completo <span class="text-danger">*</span></label>
+                        <input type="text" name="name" class="form-control" required autofocus>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">RUT <span class="text-danger">*</span></label>
+                        <input type="text" name="rut_dni" class="form-control" required placeholder="12.345.678-9">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Teléfono</label>
+                        <input type="text" name="phone" class="form-control">
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
+                    <button type="button" class="btn-app-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-primary-premium">
+                        <i class="bi bi-check-lg"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Modal: Nuevo Vehículo --}}
+<div class="modal fade" id="modalNewVehicle" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-0" style="border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);">
+            <div class="modal-header border-0 pb-0 pt-4 px-4">
+                <h6 class="fw-bold mb-0 ls-tight">
+                    <i class="bi bi-car-front-fill me-2" style="color:var(--primary);"></i>Nuevo Vehículo
+                </h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formNewVehicle">
+                <div class="modal-body px-4 py-3">
+                    <div class="mb-3">
+                        <label class="form-label">Cliente <span class="text-danger">*</span></label>
+                        <div class="ac-wrap">
+                            <input type="text" id="nv_client_text" class="form-control"
+                                placeholder="Buscar cliente…" autocomplete="off">
+                            <input type="hidden" name="client_id" id="nv_client_id" required>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label">Patente <span class="text-danger">*</span></label>
+                            <input type="text" name="license_plate" class="form-control text-uppercase" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Año</label>
+                            <input type="number" name="year" class="form-control"
+                                min="1900" max="{{ date('Y') + 1 }}" placeholder="{{ date('Y') }}">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Marca <span class="text-danger">*</span></label>
+                            <input type="text" name="brand" class="form-control" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Modelo <span class="text-danger">*</span></label>
+                            <input type="text" name="model" class="form-control" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Color</label>
+                            <input type="text" name="color" class="form-control">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Kilometraje</label>
+                            <input type="number" name="odometer" class="form-control" min="0" placeholder="0">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Nº de Chasis (VIN)</label>
+                            <input type="text" name="vin_chassis" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
+                    <button type="button" class="btn-app-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-primary-premium">
+                        <i class="bi bi-check-lg"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Modal: Nueva Compañía --}}
+<div class="modal fade" id="modalNewCompany" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content border-0" style="border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);">
+            <div class="modal-header border-0 pb-0 pt-4 px-4">
+                <h6 class="fw-bold mb-0 ls-tight">
+                    <i class="bi bi-building-fill me-2" style="color:var(--primary);"></i>Nueva Compañía
+                </h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formNewCompany">
+                <div class="modal-body px-4 py-3">
+                    <label class="form-label">Nombre <span class="text-danger">*</span></label>
+                    <input type="text" name="name" class="form-control" required placeholder="Ej: CARDIF" autofocus>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
+                    <button type="button" class="btn-app-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-primary-premium">
+                        <i class="bi bi-check-lg"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Modal: Nuevo Liquidador --}}
+<div class="modal fade" id="modalNewLiquidator" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content border-0" style="border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);">
+            <div class="modal-header border-0 pb-0 pt-4 px-4">
+                <h6 class="fw-bold mb-0 ls-tight">
+                    <i class="bi bi-person-badge-fill me-2" style="color:var(--primary);"></i>Nuevo Liquidador
+                </h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formNewLiquidator">
+                <div class="modal-body px-4 py-3">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre <span class="text-danger">*</span></label>
+                        <input type="text" name="name" class="form-control" required autofocus>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Compañía <span class="text-danger">*</span></label>
+                        <select name="insurance_company_id" id="nv_insurance_company_id" class="form-select" required>
+                            <option value="">Seleccione…</option>
+                            @foreach($insuranceCompanies as $ic)
+                                <option value="{{ $ic->id }}">{{ $ic->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label">Teléfono</label>
+                        <input type="text" name="phone" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
+                    <button type="button" class="btn-app-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-primary-premium">
+                        <i class="bi bi-check-lg"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('scripts')
@@ -654,179 +829,4 @@ document.getElementById('formNewLiquidator').addEventListener('submit', function
     });
 });
 </script>
-
-{{-- ══════════════════════════════════════════════════════════ --}}
-{{-- MODALES                                                    --}}
-{{-- ══════════════════════════════════════════════════════════ --}}
-
-{{-- Modal: Nuevo Cliente --}}
-<div class="modal fade" id="modalNewClient" tabindex="-1">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content border-0" style="border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);">
-            <div class="modal-header border-0 pb-0 pt-4 px-4">
-                <h6 class="fw-bold mb-0 ls-tight">
-                    <i class="bi bi-person-plus-fill me-2" style="color:var(--primary);"></i>Nuevo Cliente
-                </h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="formNewClient">
-                <div class="modal-body px-4 py-3">
-                    <div class="mb-3">
-                        <label class="form-label">Nombre completo <span class="text-danger">*</span></label>
-                        <input type="text" name="name" class="form-control" required autofocus>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">RUT <span class="text-danger">*</span></label>
-                        <input type="text" name="rut_dni" class="form-control" required placeholder="12.345.678-9">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Teléfono</label>
-                        <input type="text" name="phone" class="form-control">
-                    </div>
-                    <div class="mb-0">
-                        <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control">
-                    </div>
-                </div>
-                <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
-                    <button type="button" class="btn-app-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn-primary-premium">
-                        <i class="bi bi-check-lg"></i> Guardar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-{{-- Modal: Nuevo Vehículo --}}
-<div class="modal fade" id="modalNewVehicle" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content border-0" style="border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);">
-            <div class="modal-header border-0 pb-0 pt-4 px-4">
-                <h6 class="fw-bold mb-0 ls-tight">
-                    <i class="bi bi-car-front-fill me-2" style="color:var(--primary);"></i>Nuevo Vehículo
-                </h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="formNewVehicle">
-                <div class="modal-body px-4 py-3">
-                    <div class="mb-3">
-                        <label class="form-label">Cliente <span class="text-danger">*</span></label>
-                        <div class="ac-wrap">
-                            <input type="text" id="nv_client_text" class="form-control"
-                                placeholder="Buscar cliente…" autocomplete="off">
-                            <input type="hidden" name="client_id" id="nv_client_id" required>
-                        </div>
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <label class="form-label">Patente <span class="text-danger">*</span></label>
-                            <input type="text" name="license_plate" class="form-control text-uppercase" required>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label">Año</label>
-                            <input type="number" name="year" class="form-control"
-                                min="1900" max="{{ date('Y') + 1 }}" placeholder="{{ date('Y') }}">
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label">Marca <span class="text-danger">*</span></label>
-                            <input type="text" name="brand" class="form-control" required>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label">Modelo <span class="text-danger">*</span></label>
-                            <input type="text" name="model" class="form-control" required>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label">Color</label>
-                            <input type="text" name="color" class="form-control">
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label">Kilometraje</label>
-                            <input type="number" name="odometer" class="form-control" min="0" placeholder="0">
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">Nº de Chasis (VIN)</label>
-                            <input type="text" name="vin_chassis" class="form-control">
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
-                    <button type="button" class="btn-app-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn-primary-premium">
-                        <i class="bi bi-check-lg"></i> Guardar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-{{-- Modal: Nueva Compañía --}}
-<div class="modal fade" id="modalNewCompany" tabindex="-1">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content border-0" style="border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);">
-            <div class="modal-header border-0 pb-0 pt-4 px-4">
-                <h6 class="fw-bold mb-0 ls-tight">
-                    <i class="bi bi-building-fill me-2" style="color:var(--primary);"></i>Nueva Compañía
-                </h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="formNewCompany">
-                <div class="modal-body px-4 py-3">
-                    <label class="form-label">Nombre <span class="text-danger">*</span></label>
-                    <input type="text" name="name" class="form-control" required placeholder="Ej: CARDIF" autofocus>
-                </div>
-                <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
-                    <button type="button" class="btn-app-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn-primary-premium">
-                        <i class="bi bi-check-lg"></i> Guardar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-{{-- Modal: Nuevo Liquidador --}}
-<div class="modal fade" id="modalNewLiquidator" tabindex="-1">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content border-0" style="border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);">
-            <div class="modal-header border-0 pb-0 pt-4 px-4">
-                <h6 class="fw-bold mb-0 ls-tight">
-                    <i class="bi bi-person-badge-fill me-2" style="color:var(--primary);"></i>Nuevo Liquidador
-                </h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="formNewLiquidator">
-                <div class="modal-body px-4 py-3">
-                    <div class="mb-3">
-                        <label class="form-label">Nombre <span class="text-danger">*</span></label>
-                        <input type="text" name="name" class="form-control" required autofocus>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Compañía <span class="text-danger">*</span></label>
-                        <select name="insurance_company_id" id="nv_insurance_company_id" class="form-select" required>
-                            <option value="">Seleccione…</option>
-                            @foreach($insuranceCompanies as $ic)
-                                <option value="{{ $ic->id }}">{{ $ic->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-0">
-                        <label class="form-label">Teléfono</label>
-                        <input type="text" name="phone" class="form-control">
-                    </div>
-                </div>
-                <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
-                    <button type="button" class="btn-app-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn-primary-premium">
-                        <i class="bi bi-check-lg"></i> Guardar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 @endsection

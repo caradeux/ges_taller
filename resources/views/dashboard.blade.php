@@ -177,9 +177,11 @@
                 <h5 class="fw-bold mb-0 ls-tight">Últimos Presupuestos</h5>
                 <p class="text-xs mb-0" style="color:var(--text-muted);margin-top:2px;">Actividad reciente del taller</p>
             </div>
+            @if(auth()->user()->role !== 'taller')
             <a href="{{ route('quotations.create') }}" class="btn-primary-premium">
                 <i class="bi bi-plus-lg"></i> Nuevo Presupuesto
             </a>
+            @endif
         </div>
 
         <div class="table-responsive">

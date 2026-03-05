@@ -33,9 +33,11 @@
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Rol</label>
                     <select name="role" class="form-select @error('role') is-invalid @enderror" required>
-                        <option value="admin"     {{ old('role', $user->role) === 'admin'     ? 'selected' : '' }}>Administrador</option>
-                        <option value="recepcion" {{ old('role', $user->role) === 'recepcion' ? 'selected' : '' }}>Recepción</option>
-                        <option value="taller"    {{ old('role', $user->role) === 'taller'    ? 'selected' : '' }}>Taller</option>
+                        @foreach($roles as $role)
+                            <option value="{{ $role->name }}" {{ old('role', $user->role) === $role->name ? 'selected' : '' }}>
+                                {{ $role->label }}
+                            </option>
+                        @endforeach
                     </select>
                     @error('role')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>

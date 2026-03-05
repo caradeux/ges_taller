@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
@@ -49,9 +50,11 @@ class ProfileController extends Controller
                 'company_email'              => 'nullable|email|max:255',
                 'quotation_validity_days'    => 'required|integer|min:1|max:365',
                 'folio_counter'              => 'required|integer|min:1',
+                'company_logo'               => 'nullable|image|max:2048',
             ]);
 
-            Company::current()->update([
+            $company = Company::current();
+            $updates = [
                 'name'                    => $companyValidated['company_name'],
                 'rut'                     => $companyValidated['company_rut'],
                 'address'                 => $companyValidated['company_address'],
@@ -59,7 +62,16 @@ class ProfileController extends Controller
                 'email'                   => $companyValidated['company_email'],
                 'quotation_validity_days' => $companyValidated['quotation_validity_days'],
                 'folio_counter'           => $companyValidated['folio_counter'],
-            ]);
+            ];
+
+            if ($request->hasFile('company_logo')) {
+                if ($company->logo_path) {
+                    Storage::disk('public')->delete($company->logo_path);
+                }
+                $updates['logo_path'] = $request->file('company_logo')->store('logos', 'public');
+            }
+
+            $company->update($updates);
         }
 
         return back()->with('success', 'Perfil actualizado exitosamente.');

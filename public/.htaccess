@@ -5,6 +5,9 @@
 
     RewriteEngine On
 
+    # Block direct web access to the app folder
+    RewriteRule ^ges_taller(/.*)?$ - [F,L]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

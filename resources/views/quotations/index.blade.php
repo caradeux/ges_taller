@@ -71,8 +71,8 @@
                             <td>
                                 <a href="{{ route('quotations.show', $q) }}"
                                     class="fw-700 text-decoration-none ls-tight"
-                                    style="font-weight:700;color:var(--primary);">
-                                    #{{ $q->folio }}
+                                    style="font-weight:700;color:{{ $q->folio ? 'var(--primary)' : 'var(--text-muted)' }};">
+                                    {{ $q->folio ? '#'.$q->folio : 'Borrador' }}
                                 </a>
                             </td>
                             <td class="fw-500" style="font-weight:500;">{{ $q->client->name }}</td>
@@ -119,7 +119,7 @@
                                         <li><hr class="dropdown-divider my-1"></li>
                                         <li>
                                             <form action="{{ route('quotations.destroy', $q) }}" method="POST"
-                                                onsubmit="return confirm('¿Eliminar la cotización #{{ $q->folio }}?')">
+                                                onsubmit="return confirm('¿Eliminar la cotización ({{ $q->folio_display }})?')">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" class="dropdown-item text-danger">
                                                     <i class="bi bi-trash me-2"></i> Eliminar
