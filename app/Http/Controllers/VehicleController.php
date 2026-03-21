@@ -53,7 +53,7 @@ class VehicleController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'license_plate' => 'required|unique:vehicles,license_plate',
+            'license_plate' => 'required|regex:/^[A-Za-z0-9]{4,6}$/|unique:vehicles,license_plate',
             'brand' => 'required|string|max:255',
             'model' => 'required|string|max:255',
             'year' => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
@@ -94,7 +94,7 @@ class VehicleController extends Controller
     public function update(Request $request, Vehicle $vehicle)
     {
         $validated = $request->validate([
-            'license_plate' => 'required|unique:vehicles,license_plate,' . $vehicle->id,
+            'license_plate' => 'required|regex:/^[A-Za-z0-9]{4,6}$/|unique:vehicles,license_plate,' . $vehicle->id,
             'brand' => 'required|string|max:255',
             'model' => 'required|string|max:255',
             'year' => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
@@ -136,7 +136,7 @@ class VehicleController extends Controller
     {
         $validated = $request->validate([
             'client_id'     => 'required|exists:clients,id',
-            'license_plate' => 'required|unique:vehicles,license_plate',
+            'license_plate' => 'required|regex:/^[A-Za-z0-9]{4,6}$/|unique:vehicles,license_plate',
             'brand'         => 'required|string|max:255',
             'model'         => 'required|string|max:255',
             'year'          => 'nullable|integer|min:1900|max:' . (date('Y') + 1),

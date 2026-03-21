@@ -470,7 +470,7 @@
                 @if($partItem->partOrders && $partItem->partOrders->count())
                 <div class="table-responsive">
                     <table class="table table-sm mb-0">
-                        <thead><tr><th>Proveedor</th><th>N Pieza</th><th class="text-end">Costo</th><th class="text-center">Estado</th><th>Pedido</th><th>Recepcion</th></tr></thead>
+                        <thead><tr><th>Proveedor</th><th>N Pieza</th><th class="text-end">Costo</th><th class="text-center">Estado</th><th>Pedido</th><th>Recepcion</th><th></th></tr></thead>
                         <tbody>
                         @foreach($partItem->partOrders as $po)
                         <tr>
@@ -482,6 +482,17 @@
                             </td>
                             <td class="text-sm">{{ $po->ordered_at?->format('d/m/Y') ?? '—' }}</td>
                             <td class="text-sm">{{ $po->received_at?->format('d/m/Y') ?? '—' }}</td>
+                            <td class="text-end">
+                                @if(!$po->received_at && $po->ordered_at)
+                                <form action="{{ route('part-orders.received', $po) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-outline-success rounded-pill" title="Marcar recibido"
+                                        onclick="return confirm('¿Marcar repuesto como recibido?')">
+                                        <i class="bi bi-check-lg"></i> Recibido
+                                    </button>
+                                </form>
+                                @endif
+                            </td>
                         </tr>
                         @endforeach
                         </tbody>

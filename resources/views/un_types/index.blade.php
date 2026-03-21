@@ -7,7 +7,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="outfit fw-bold mb-1">Tipos de UN</h2>
-            <p class="text-muted mb-0">Define los tipos de acción disponibles al crear cotizaciones.</p>
+            <p class="text-muted mb-0">Define los tipos de acción disponibles al crear órdenes de trabajo.</p>
         </div>
         <button class="btn-primary-premium" data-bs-toggle="modal" data-bs-target="#modalNuevo">
             <i class="bi bi-plus-lg"></i> Nuevo Tipo
@@ -27,7 +27,7 @@
 
     {{-- Leyenda de categorías --}}
     <div class="card mb-4 p-3">
-        <p class="small text-muted mb-2 fw-semibold">Cada tipo de UN pertenece a una <strong>categoría de columna</strong> del presupuesto PDF:</p>
+        <p class="small text-muted mb-2 fw-semibold">Cada tipo de UN pertenece a una <strong>categoría de columna</strong> del PDF de la OT:</p>
         <div class="d-flex flex-wrap gap-2">
             @foreach($categories as $key => $label)
             <span class="badge rounded-pill px-3 py-2"

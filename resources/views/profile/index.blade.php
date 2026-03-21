@@ -55,9 +55,9 @@
 
                             <div class="col-md-4">
                                 <label class="form-label small fw-bold text-secondary">
-                                    Vigencia de Cotizaciones
+                                    Vigencia de OTs
                                     <i class="bi bi-info-circle text-muted ms-1"
-                                        title="Días de validez que se muestra en cada cotización generada"
+                                        title="Días de validez que se muestra en cada OT generada"
                                         data-bs-toggle="tooltip"></i>
                                 </label>
                                 <div class="input-group">
@@ -72,16 +72,16 @@
 
                             <div class="col-md-4">
                                 <label class="form-label small fw-bold text-secondary">
-                                    Próximo Nº Cotización
+                                    Próximo Nº OT
                                     <i class="bi bi-info-circle text-muted ms-1"
-                                        title="Correlativo desde el cual se numerarán las nuevas cotizaciones"
+                                        title="Correlativo desde el cual se numerarán las nuevas OTs"
                                         data-bs-toggle="tooltip"></i>
                                 </label>
                                 <input type="number" name="folio_counter" class="form-control @error('folio_counter') is-invalid @enderror"
                                     value="{{ old('folio_counter', $company->folio_counter ?? 1) }}"
                                     min="1" required>
                                 @error('folio_counter')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
-                                <div class="form-text">La siguiente cotización usará este número.</div>
+                                <div class="form-text">La siguiente OT usará este número.</div>
                             </div>
 
                             <div class="col-12">

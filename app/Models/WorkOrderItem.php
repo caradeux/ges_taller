@@ -2,10 +2,16 @@
 
 namespace App\Models;
 
+use App\Helpers\TextHelper;
 use Illuminate\Database\Eloquent\Model;
 
 class WorkOrderItem extends Model
 {
+    public function setDescriptionAttribute($value)
+    {
+        $this->attributes['description'] = TextHelper::toTitleCase($value);
+    }
+
     protected $fillable = [
         'work_order_id',
         'un_type_id',

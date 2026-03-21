@@ -169,7 +169,7 @@
                 </div>
             </div>
 
-            {{-- Presupuestos Emitidos --}}
+            {{-- OTs Emitidos --}}
             <div class="col-md-3">
                 <div class="kpi-card">
                     <div class="kpi-label">OTs Emitidas</div>
@@ -218,7 +218,7 @@
         {{-- Gráfico de ingresos mensuales --}}
         <div class="card p-4">
             <h6 class="fw-bold mb-1">Evolución de Ingresos en el Período</h6>
-            <p class="text-secondary small mb-3">Solo presupuestos facturados.</p>
+            <p class="text-secondary small mb-3">Solo OTs facturados.</p>
             @if($monthlyChart->count() > 0)
                 <div style="position: relative; height: 220px;">
                     <canvas id="monthlyChart"></canvas>
@@ -236,7 +236,7 @@
     {{-- 2. PIPELINE --}}
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
     <div class="report-section">
-        <p class="report-section-title"><i class="bi bi-funnel-fill"></i> Pipeline de Presupuestos</p>
+        <p class="report-section-title"><i class="bi bi-funnel-fill"></i> Pipeline de OTs</p>
 
         <div class="row g-4">
             <div class="col-md-7">
@@ -329,7 +329,7 @@
             <div class="col-md-5">
                 <div class="card p-4">
                     <h6 class="fw-bold mb-1">Distribución de Ingresos</h6>
-                    <p class="text-secondary small mb-3">Solo presupuestos facturados.</p>
+                    <p class="text-secondary small mb-3">Solo OTs facturados.</p>
                     @if($byInsurance->count() > 0)
                         <div style="position: relative; height: 260px;">
                             <canvas id="insuranceChart"></canvas>
@@ -394,7 +394,7 @@
         <div class="card">
             <div class="p-4 border-bottom">
                 <h6 class="fw-bold mb-0">Top 10 Clientes por Monto</h6>
-                <p class="text-secondary small mb-0">Presupuestos aprobados, terminados y facturados.</p>
+                <p class="text-secondary small mb-0">OTs aprobados, terminados y facturados.</p>
             </div>
             <div class="table-responsive">
                 <table class="table mb-0 align-middle">
@@ -403,7 +403,7 @@
                             <th style="width: 40px;">#</th>
                             <th>Cliente</th>
                             <th>RUT</th>
-                            <th class="text-center">Presupuestos</th>
+                            <th class="text-center">OTs</th>
                             <th class="text-end">Monto Total</th>
                             <th style="width: 160px;"></th>
                         </tr>
@@ -457,7 +457,7 @@
             <div class="col-md-4">
                 <div class="card p-4">
                     <h6 class="fw-bold mb-1">Participación por Tipo</h6>
-                    <p class="text-secondary small mb-3">Suma de ítems en presupuestos cerrados.</p>
+                    <p class="text-secondary small mb-3">Suma de ítems en OTs cerrados.</p>
                     @if($itemTypes['itemsGrandTotal'] > 0)
                         <div style="position: relative; height: 220px;">
                             <canvas id="itemTypesChart"></canvas>
@@ -479,7 +479,7 @@
                             <div class="kpi-value text-primary">
                                 ${{ number_format($itemTypes['repuestoTotal'], 0, ',', '.') }}
                             </div>
-                            <p class="text-secondary small mb-1 mt-2">{{ $itemTypes['repuestoCount'] }} líneas</p>
+                            <p class="text-secondary small mb-1 mt-2">Repuestos</p>
                             @if($itemTypes['itemsGrandTotal'] > 0)
                                 <div class="progress mt-2" style="height: 5px;">
                                     <div class="progress-bar bg-primary"
@@ -498,7 +498,7 @@
                             <div class="kpi-value text-success">
                                 ${{ number_format($itemTypes['manoObraTotal'], 0, ',', '.') }}
                             </div>
-                            <p class="text-secondary small mb-1 mt-2">{{ $itemTypes['manoObraCount'] }} líneas</p>
+                            <p class="text-secondary small mb-1 mt-2">Mano de Obra</p>
                             @if($itemTypes['itemsGrandTotal'] > 0)
                                 <div class="progress mt-2" style="height: 5px;">
                                     <div class="progress-bar bg-success"
@@ -518,8 +518,7 @@
                                 ${{ number_format($itemTypes['itemsGrandTotal'], 0, ',', '.') }}
                             </div>
                             <p class="text-secondary small mb-0 mt-1">
-                                {{ $itemTypes['repuestoCount'] + $itemTypes['manoObraCount'] }} líneas en total
-                                · En presupuestos aprobados, terminados y facturados
+                                En OTs aprobadas, terminadas y facturadas
                             </p>
                         </div>
                     </div>

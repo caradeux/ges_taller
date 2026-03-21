@@ -2,10 +2,16 @@
 
 namespace App\Models;
 
+use App\Helpers\TextHelper;
 use Illuminate\Database\Eloquent\Model;
 
 class Vehicle extends Model
 {
+    public function setLicensePlateAttribute($value)
+    {
+        $this->attributes['license_plate'] = TextHelper::cleanPlate($value);
+    }
+
     protected $fillable = [
         'branch_id',
         'license_plate',

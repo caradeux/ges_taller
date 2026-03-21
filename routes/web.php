@@ -50,6 +50,7 @@ Route::middleware(['auth'])->group(function () {
     // Part Orders (Repuestos)
     Route::post('work-orders/{work_order}/parts', [PartOrderController::class, 'store'])->name('part-orders.store');
     Route::put('part-orders/{partOrder}', [PartOrderController::class, 'update'])->name('part-orders.update');
+    Route::post('part-orders/{partOrder}/received', [PartOrderController::class, 'markReceived'])->name('part-orders.received');
     Route::delete('part-orders/{partOrder}', [PartOrderController::class, 'destroy'])->name('part-orders.destroy');
 
     // Tags

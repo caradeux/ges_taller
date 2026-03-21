@@ -56,6 +56,20 @@ class PartOrderController extends Controller
         return back()->with('success', 'Pedido de repuesto actualizado.');
     }
 
+    public function markReceived(PartOrder $partOrder)
+    {
+        if ($partOrder->received_at) {
+            return back()->with('error', 'Este repuesto ya fue marcado como recibido.');
+        }
+
+        $partOrder->update(['received_at' => now()]);
+
+        $workOrder = $partOrder->workOrderItem->workOrder;
+        $this->timeline->record($workOrder, 'parts_arrived', "Repuesto recibido: {$partOrder->description}");
+
+        return back()->with('success', 'Repuesto marcado como recibido.');
+    }
+
     public function destroy(PartOrder $partOrder)
     {
         $partOrder->delete();
