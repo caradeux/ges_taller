@@ -3,7 +3,9 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\VehicleController;
-use App\Http\Controllers\QuotationController;
+use App\Http\Controllers\WorkOrderController;
+use App\Http\Controllers\PartOrderController;
+use App\Http\Controllers\TagController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\InsuranceCompanyController;
 use App\Http\Controllers\LiquidatorController;
@@ -26,24 +28,52 @@ Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 // Protected Routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Clients
     Route::post('clients/quick', [ClientController::class, 'quickStore'])->name('clients.quickStore');
     Route::get('api/clients/search', [ClientController::class, 'search'])->name('clients.search');
     Route::resource('clients', ClientController::class);
+
+    // Vehicles
     Route::post('vehicles/quick', [VehicleController::class, 'quickStore'])->name('vehicles.quickStore');
     Route::get('api/vehicles/search', [VehicleController::class, 'search'])->name('vehicles.search');
     Route::resource('vehicles', VehicleController::class);
-    Route::get('quotations/seguimiento', [QuotationController::class, 'followUp'])->name('quotations.followup');
-    Route::resource('quotations', QuotationController::class);
-    Route::get('quotations/{quotation}/pdf', [QuotationController::class, 'downloadPDF'])->name('quotations.pdf');
-    Route::post('quotations/{quotation}/status', [QuotationController::class, 'updateStatus'])->name('quotations.status');
+
+    // Work Orders (OT)
+    Route::get('work-orders/seguimiento', [WorkOrderController::class, 'followUp'])->name('work-orders.followup');
+    Route::resource('work-orders', WorkOrderController::class);
+    Route::get('work-orders/{work_order}/pdf', [WorkOrderController::class, 'downloadPDF'])->name('work-orders.pdf');
+    Route::get('work-orders/{work_order}/invoice-pdf', [WorkOrderController::class, 'downloadInvoicePDF'])->name('work-orders.invoice-pdf');
+    Route::post('work-orders/{work_order}/status', [WorkOrderController::class, 'updateStatus'])->name('work-orders.status');
+    Route::post('work-orders/{work_order}/items/{item}/toggle-approval', [WorkOrderController::class, 'toggleItemApproval'])->name('work-orders.toggle-approval');
+
+    // Part Orders (Repuestos)
+    Route::post('work-orders/{work_order}/parts', [PartOrderController::class, 'store'])->name('part-orders.store');
+    Route::put('part-orders/{partOrder}', [PartOrderController::class, 'update'])->name('part-orders.update');
+    Route::delete('part-orders/{partOrder}', [PartOrderController::class, 'destroy'])->name('part-orders.destroy');
+
+    // Tags
+    Route::resource('tags', TagController::class)->except(['show', 'create', 'edit']);
+    Route::get('api/tags/search', [TagController::class, 'search'])->name('tags.search');
+
+    // Insurance Companies
     Route::post('insurance-companies/quick', [InsuranceCompanyController::class, 'quickStore'])->name('insurance-companies.quickStore');
     Route::resource('insurance-companies', InsuranceCompanyController::class)->except(['create', 'show', 'edit']);
+
+    // Liquidators
     Route::post('liquidators/quick', [LiquidatorController::class, 'quickStore'])->name('liquidators.quickStore');
     Route::resource('liquidators', LiquidatorController::class)->except(['create', 'show', 'edit']);
+
+    // Profile
     Route::get('profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    // Reports
     Route::get('reportes', [ReportController::class, 'index'])->name('reports.index');
     Route::get('reportes/pdf', [ReportController::class, 'pdf'])->name('reports.pdf');
+    Route::get('reportes/aseguradoras', [ReportController::class, 'insuranceReport'])->name('reports.insurance');
+    Route::get('reportes/rentabilidad', [ReportController::class, 'profitabilityReport'])->name('reports.profitability');
+    Route::get('reportes/repuestos', [ReportController::class, 'partsReport'])->name('reports.parts');
 
     // Branches management (admin only)
     Route::resource('branches', BranchController::class)->except(['show', 'create', 'edit']);

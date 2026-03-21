@@ -78,7 +78,7 @@
                             </div>
                             <div class="col-4">
                                 <p class="text-secondary small mb-1">Presupuestos</p>
-                                <p class="fw-semibold small mb-0">{{ $vehicle->quotations->count() }}</p>
+                                <p class="fw-semibold small mb-0">{{ $vehicle->workOrders->count() }}</p>
                             </div>
                         </div>
                     @endif
@@ -89,7 +89,7 @@
         <div class="card">
             <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
                 <h6 class="text-secondary small fw-bold text-uppercase mb-0">Historial de Presupuestos</h6>
-                <a href="{{ route('quotations.create') }}" class="btn btn-outline-primary btn-sm rounded-pill">
+                <a href="{{ route('work-orders.create') }}" class="btn btn-outline-primary btn-sm rounded-pill">
                     <i class="bi bi-plus-lg"></i> Nuevo Presupuesto
                 </a>
             </div>
@@ -105,7 +105,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($vehicle->quotations->sortByDesc('date') as $q)
+                        @forelse($vehicle->workOrders->sortByDesc('date') as $q)
                             <tr>
                                 <td><span class="fw-bold text-dark">#{{ $q->folio }}</span></td>
                                 <td class="text-secondary small">{{ \Carbon\Carbon::parse($q->date)->format('d/m/Y') }}</td>
@@ -123,7 +123,7 @@
                                     ${{ number_format($q->total_amount, 0, ',', '.') }}
                                 </td>
                                 <td class="text-end">
-                                    <a href="{{ route('quotations.show', $q) }}"
+                                    <a href="{{ route('work-orders.show', $q) }}"
                                         class="btn btn-sm btn-light border-0 text-secondary">
                                         <i class="bi bi-eye"></i>
                                     </a>

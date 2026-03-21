@@ -57,8 +57,8 @@
             <div class="card p-4 stat-card stat-success card-hover">
                 <div class="d-flex align-items-start justify-content-between">
                     <div>
-                        <p class="stat-label mb-2">Aprobados</p>
-                        <h3 class="stat-value outfit">{{ $stats['approved_quotations'] }}</h3>
+                        <p class="stat-label mb-2">OTs Aprobadas</p>
+                        <h3 class="stat-value outfit">{{ $stats['approved_ots'] }}</h3>
                     </div>
                     <div class="stat-icon stat-icon-success">
                         <i class="bi bi-check-circle-fill"></i>
@@ -72,8 +72,8 @@
             <div class="card p-4 stat-card stat-warning card-hover">
                 <div class="d-flex align-items-start justify-content-between">
                     <div>
-                        <p class="stat-label mb-2">Pendientes</p>
-                        <h3 class="stat-value outfit">{{ $stats['pending_quotations'] }}</h3>
+                        <p class="stat-label mb-2">OTs Pendientes</p>
+                        <h3 class="stat-value outfit">{{ $stats['pending_ots'] }}</h3>
                     </div>
                     <div class="stat-icon stat-icon-warning">
                         <i class="bi bi-clock-history"></i>
@@ -110,7 +110,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <h5 class="fw-bold mb-0 ls-tight">Ingresos Mensuales</h5>
-                        <p class="text-xs mb-0" style="color:var(--text-muted);margin-top:2px;">Presupuestos facturados</p>
+                        <p class="text-xs mb-0" style="color:var(--text-muted);margin-top:2px;">OTs facturadas</p>
                     </div>
                     <span class="px-3 py-1 rounded-pill text-xs fw-600"
                         style="background:var(--border-light);color:var(--text-secondary);font-weight:600;">
@@ -174,12 +174,12 @@
         <div class="d-flex justify-content-between align-items-center p-4 border-bottom"
             style="border-color:var(--border-light)!important;">
             <div>
-                <h5 class="fw-bold mb-0 ls-tight">Últimos Presupuestos</h5>
+                <h5 class="fw-bold mb-0 ls-tight">Últimas Órdenes de Trabajo</h5>
                 <p class="text-xs mb-0" style="color:var(--text-muted);margin-top:2px;">Actividad reciente del taller</p>
             </div>
             @if(auth()->user()->role !== 'taller')
-            <a href="{{ route('quotations.create') }}" class="btn-primary-premium">
-                <i class="bi bi-plus-lg"></i> Nuevo Presupuesto
+            <a href="{{ route('work-orders.create') }}" class="btn-primary-premium">
+                <i class="bi bi-plus-lg"></i> Nueva OT
             </a>
             @endif
         </div>
@@ -198,7 +198,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($stats['recent_quotations'] as $q)
+                    @forelse($stats['recent_work_orders'] as $q)
                         <tr>
                             <td>
                                 <span class="fw-700 text-sm ls-tight"
@@ -232,7 +232,7 @@
                                 ${{ number_format($q->total_amount, 0, ',', '.') }}
                             </td>
                             <td class="text-end">
-                                <a href="{{ route('quotations.show', $q) }}"
+                                <a href="{{ route('work-orders.show', $q) }}"
                                     class="btn btn-sm border-0 bg-transparent"
                                     style="color:var(--text-muted);"
                                     title="Ver detalle">
@@ -255,7 +255,7 @@
         </div>
 
         <div class="p-3 text-center border-top" style="border-color:var(--border-light)!important;">
-            <a href="{{ route('quotations.index') }}"
+            <a href="{{ route('work-orders.index') }}"
                 class="text-sm fw-600 text-decoration-none"
                 style="color:var(--primary);font-weight:600;">
                 Ver todos los presupuestos <i class="bi bi-arrow-right ms-1"></i>

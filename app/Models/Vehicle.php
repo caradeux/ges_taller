@@ -23,8 +23,8 @@ class Vehicle extends Model
         return $this->belongsTo(Client::class);
     }
 
-    public function quotations()
+    public function workOrders()
     {
-        return $this->hasMany(Quotation::class);
+        return $this->hasMany(WorkOrder::class);
     }
 }

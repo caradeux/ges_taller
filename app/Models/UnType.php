@@ -23,6 +23,6 @@ class UnType extends Model
 
     public function items()
     {
-        return $this->hasMany(QuotationItem::class);
+        return $this->hasMany(WorkOrderItem::class);
     }
 }

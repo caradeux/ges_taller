@@ -75,7 +75,7 @@ class VehicleController extends Controller
      */
     public function show(Vehicle $vehicle)
     {
-        $vehicle->load(['client', 'quotations']);
+        $vehicle->load(['client', 'workOrders']);
         return view('vehicles.show', compact('vehicle'));
     }
 

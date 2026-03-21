@@ -20,8 +20,8 @@ class Client extends Model
         return $this->hasMany(Vehicle::class);
     }
 
-    public function quotations()
+    public function workOrders()
     {
-        return $this->hasMany(Quotation::class);
+        return $this->hasMany(WorkOrder::class);
     }
 }

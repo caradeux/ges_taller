@@ -6,10 +6,12 @@ use Illuminate\Database\Seeder;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Vehicle;
-use App\Models\Quotation;
-use App\Models\QuotationItem;
+use App\Models\WorkOrder;
+use App\Models\WorkOrderItem;
+use App\Models\WorkOrderEvent;
 use App\Models\InsuranceCompany;
 use App\Models\Liquidator;
+use App\Models\Tag;
 use App\Models\UnType;
 use Carbon\Carbon;
 
@@ -41,7 +43,12 @@ class SampleDataSeeder extends Seeder
             'email'                => 'juan.perez@cardif.cl',
         ]);
 
-        // 3. Clients
+        // 3. Tags
+        Tag::create(['name' => 'Urgente', 'slug' => 'urgente', 'color' => '#dc2626']);
+        Tag::create(['name' => 'Pendiente de Repuesto', 'slug' => 'pendiente-de-repuesto', 'color' => '#d97706']);
+        Tag::create(['name' => 'Re-inspección', 'slug' => 're-inspeccion', 'color' => '#7c3aed']);
+
+        // 4. Clients
         $client1 = Client::create([
             'rut_dni' => '12.345.678-9',
             'name'    => 'Nelson Edgardo Locer',
@@ -57,9 +64,9 @@ class SampleDataSeeder extends Seeder
             'address' => 'Av. Libertad 1020, Viña del Mar',
         ]);
 
-        // 4. Vehicles
+        // 5. Vehicles
         $vehicle1 = Vehicle::create([
-            'license_plate' => 'GFGR-60',
+            'license_plate' => 'GFGR60',
             'brand'         => 'Kia',
             'model'         => 'Carens',
             'year'          => 2018,
@@ -69,7 +76,7 @@ class SampleDataSeeder extends Seeder
             'client_id'     => $client1->id,
         ]);
         $vehicle2 = Vehicle::create([
-            'license_plate' => 'ABCD-12',
+            'license_plate' => 'ABCD12',
             'brand'         => 'Hyundai',
             'model'         => 'Tucson',
             'year'          => 2022,
@@ -79,20 +86,22 @@ class SampleDataSeeder extends Seeder
             'client_id'     => $client2->id,
         ]);
 
-        // 5. Quotations ────────────────────────────────────────────────────────
-        // quote1: aprobada, con folio asignado
+        // 6. Work Orders ────────────────────────────────────────────────────────
+        // OT1: aprobada, con folio asignado
         $items1 = [
-            ['un_type_id' => $rep->id,  'description' => 'Parachoques trasero — Reparación',             'price' => 100000, 'is_salvage' => false],
-            ['un_type_id' => $pint->id, 'description' => 'Parachoques trasero — Pintura',                'price' =>  67800, 'is_salvage' => false],
-            ['un_type_id' => $dm->id,   'description' => 'Parachoques trasero — Desmontar/Montar',       'price' =>  16000, 'is_salvage' => false],
-            ['un_type_id' => $rep->id,  'description' => 'Guardafango plástico trasero der. — Reparar',  'price' =>  55000, 'is_salvage' => false],
-            ['un_type_id' => $pint->id, 'description' => 'Guardafango plástico trasero der. — Pintura',  'price' =>  12000, 'is_salvage' => false],
-            ['un_type_id' => $dm->id,   'description' => 'Guardafango plástico trasero der. — D/M',      'price' =>   3500, 'is_salvage' => false],
+            ['un_type_id' => $rep->id,  'description' => 'Parachoques Trasero — Reparación',             'price_workshop' => 100000, 'price_authorized' => 95000,  'price_real' => 80000,  'is_approved' => true, 'is_salvage' => false],
+            ['un_type_id' => $pint->id, 'description' => 'Parachoques Trasero — Pintura',                'price_workshop' =>  67800, 'price_authorized' => 65000,  'price_real' => 50000,  'is_approved' => true, 'is_salvage' => false],
+            ['un_type_id' => $dm->id,   'description' => 'Parachoques Trasero — Desmontar/Montar',       'price_workshop' =>  16000, 'price_authorized' => 16000,  'price_real' => 10000,  'is_approved' => true, 'is_salvage' => false],
+            ['un_type_id' => $rep->id,  'description' => 'Guardafango Plástico Trasero Der. — Reparar',  'price_workshop' =>  55000, 'price_authorized' => 50000,  'price_real' => 35000,  'is_approved' => true, 'is_salvage' => false],
+            ['un_type_id' => $pint->id, 'description' => 'Guardafango Plástico Trasero Der. — Pintura',  'price_workshop' =>  12000, 'price_authorized' => 12000,  'price_real' =>  8000,  'is_approved' => true, 'is_salvage' => false],
+            ['un_type_id' => $dm->id,   'description' => 'Guardafango Plástico Trasero Der. — D/M',      'price_workshop' =>   3500, 'price_authorized' =>  3500,  'price_real' =>  2000,  'is_approved' => false, 'is_salvage' => false],
         ];
-        $neto1 = collect($items1)->sum('price');
-        $tax1  = round($neto1 * 0.19);
+        $netoWorkshop1 = collect($items1)->sum('price_workshop');
+        $netoAuth1     = collect($items1)->where('is_approved', true)->sum('price_authorized');
+        $netoReal1     = collect($items1)->sum('price_real');
+        $tax1          = round($netoAuth1 * 0.19);
 
-        $quote1 = Quotation::create([
+        $wo1 = WorkOrder::create([
             'folio'                => '1423',
             'date'                 => Carbon::parse('2026-01-05'),
             'status'               => 'approved',
@@ -100,45 +109,62 @@ class SampleDataSeeder extends Seeder
             'client_id'            => $client1->id,
             'insurance_company_id' => $cardif->id,
             'liquidator_id'        => $liquidator1->id,
+            'total_workshop'       => $netoWorkshop1,
+            'total_authorized'     => $netoAuth1,
+            'total_real_cost'      => $netoReal1,
             'tax_amount'           => $tax1,
-            'total_amount'         => $neto1 + $tax1,
+            'total_amount'         => $netoAuth1 + $tax1,
             'notes'                => 'Reparación de parachoques trasero según presupuesto original.',
         ]);
-        $this->insertItems($quote1->id, $items1);
+        $this->insertItems($wo1->id, $items1);
 
-        // quote2: borrador sin folio (muestra el flujo nuevo)
+        // Timeline events for OT1
+        WorkOrderEvent::create(['work_order_id' => $wo1->id, 'event_type' => 'intake', 'description' => 'OT creada', 'occurred_at' => Carbon::parse('2026-01-05 09:00')]);
+        WorkOrderEvent::create(['work_order_id' => $wo1->id, 'event_type' => 'status_change', 'description' => 'Estado cambiado de intake a budget_sent', 'occurred_at' => Carbon::parse('2026-01-05 10:30')]);
+        WorkOrderEvent::create(['work_order_id' => $wo1->id, 'event_type' => 'status_change', 'description' => 'Estado cambiado de budget_sent a approved', 'occurred_at' => Carbon::parse('2026-01-06 14:00')]);
+
+        // OT2: ingreso sin folio
         $items2 = [
-            ['un_type_id' => $pint->id, 'description' => 'Revisión general de pintura', 'price' => 150000, 'is_salvage' => false],
-            ['un_type_id' => $mat->id,  'description' => 'Material de preparación',     'price' =>  25000, 'is_salvage' => false],
+            ['un_type_id' => $pint->id, 'description' => 'Revisión General De Pintura', 'price_workshop' => 150000, 'price_authorized' => 0, 'price_real' => 0, 'is_approved' => true, 'is_salvage' => false],
+            ['un_type_id' => $mat->id,  'description' => 'Material De Preparación',     'price_workshop' =>  25000, 'price_authorized' => 0, 'price_real' => 0, 'is_approved' => true, 'is_salvage' => false],
         ];
-        $neto2 = collect($items2)->sum('price');
-        $tax2  = round($neto2 * 0.19);
+        $netoWorkshop2 = collect($items2)->sum('price_workshop');
+        $tax2 = round($netoWorkshop2 * 0.19);
 
-        $quote2 = Quotation::create([
-            'folio'        => null,
-            'date'         => Carbon::now(),
-            'status'       => 'draft',
-            'vehicle_id'   => $vehicle2->id,
-            'client_id'    => $client2->id,
-            'tax_amount'   => $tax2,
-            'total_amount' => $neto2 + $tax2,
-            'notes'        => 'Revisión inicial por falla de pintura.',
+        $wo2 = WorkOrder::create([
+            'folio'          => null,
+            'date'           => Carbon::now(),
+            'status'         => 'intake',
+            'vehicle_id'     => $vehicle2->id,
+            'client_id'      => $client2->id,
+            'total_workshop' => $netoWorkshop2,
+            'tax_amount'     => $tax2,
+            'total_amount'   => $netoWorkshop2 + $tax2,
+            'notes'          => 'Revisión inicial por falla de pintura.',
         ]);
-        $this->insertItems($quote2->id, $items2);
+        $this->insertItems($wo2->id, $items2);
+        WorkOrderEvent::create(['work_order_id' => $wo2->id, 'event_type' => 'intake', 'description' => 'OT creada', 'occurred_at' => now()]);
 
-        // 6. Set folio counter so next sent quotation starts at 1424
-        Company::current()->update(['folio_counter' => 1424]);
+        // 7. Set folio counter
+        Company::current()->update(['folio_counter' => 1424, 'ot_folio_counter' => 1424]);
     }
 
-    private function insertItems(int $quotationId, array $items): void
+    private function insertItems(int $workOrderId, array $items): void
     {
         $now  = now();
-        $rows = array_map(fn($i) => array_merge($i, [
-            'quotation_id' => $quotationId,
-            'created_at'   => $now,
-            'updated_at'   => $now,
-        ]), $items);
+        $rows = array_map(fn($i) => [
+            'work_order_id'    => $workOrderId,
+            'un_type_id'       => $i['un_type_id'],
+            'description'      => $i['description'],
+            'price_workshop'   => $i['price_workshop'],
+            'price_authorized' => $i['price_authorized'],
+            'price_real'       => $i['price_real'],
+            'is_approved'      => $i['is_approved'],
+            'is_salvage'       => $i['is_salvage'],
+            'created_at'       => $now,
+            'updated_at'       => $now,
+        ], $items);
 
-        QuotationItem::insert($rows);
+        WorkOrderItem::insert($rows);
     }
 }

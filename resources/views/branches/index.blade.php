@@ -99,8 +99,8 @@
                             <div class="small text-muted">Clientes</div>
                         </div>
                         <div class="col-4">
-                            <div class="fw-bold fs-5 text-warning">{{ $branch->quotations_count }}</div>
-                            <div class="small text-muted">Cotizaciones</div>
+                            <div class="fw-bold fs-5 text-warning">{{ $branch->work_orders_count }}</div>
+                            <div class="small text-muted">Órdenes de Trabajo</div>
                         </div>
                     </div>
                 </div>

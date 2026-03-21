@@ -13,9 +13,9 @@ class Branch extends Model
         return $this->hasMany(User::class);
     }
 
-    public function quotations()
+    public function workOrders()
     {
-        return $this->hasMany(Quotation::class);
+        return $this->hasMany(WorkOrder::class);
     }
 
     public function clients()

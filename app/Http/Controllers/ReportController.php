@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
-use App\Models\Quotation;
-use App\Models\QuotationItem;
+use App\Models\WorkOrder;
+use App\Models\WorkOrderItem;
+use App\Models\PartOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -36,9 +37,100 @@ class ReportController extends Controller
         $pdf = Pdf::loadView('reports.pdf', array_merge($data, compact('from', 'to', 'company')))
             ->setPaper('a4', 'portrait');
 
-        $filename = 'Reporte-Ges_Taller-' . $from . '-al-' . $to . '.pdf';
+        return $pdf->download('Reporte-Ges_Taller-' . $from . '-al-' . $to . '.pdf');
+    }
 
-        return $pdf->download($filename);
+    public function insuranceReport(Request $request)
+    {
+        $from     = $request->input('from', now()->startOfYear()->toDateString());
+        $to       = $request->input('to', now()->toDateString());
+        $branchId = $this->resolveBranchId($request);
+        $branches = \App\Models\Branch::where('active', true)->orderBy('name')->get();
+
+        $byInsurance = WorkOrder::whereBetween('date', [$from, $to])
+            ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
+            ->whereNotNull('insurance_company_id')
+            ->select(
+                'insurance_company_id',
+                DB::raw('COUNT(*) as count'),
+                DB::raw('SUM(total_authorized) as total_authorized'),
+                DB::raw('SUM(CASE WHEN status = "invoiced" THEN total_amount ELSE 0 END) as total_invoiced'),
+            )
+            ->groupBy('insurance_company_id')
+            ->with('insuranceCompany')
+            ->get()
+            ->map(fn($row) => [
+                'name'             => $row->insuranceCompany?->name ?? 'Sin Aseguradora',
+                'count'            => $row->count,
+                'total_authorized' => $row->total_authorized,
+                'total_invoiced'   => $row->total_invoiced,
+            ])
+            ->sortByDesc('total_authorized')
+            ->values();
+
+        return view('reports.insurance', compact('byInsurance', 'from', 'to', 'branchId', 'branches'));
+    }
+
+    public function profitabilityReport(Request $request)
+    {
+        $from     = $request->input('from', now()->startOfYear()->toDateString());
+        $to       = $request->input('to', now()->toDateString());
+        $branchId = $this->resolveBranchId($request);
+        $branches = \App\Models\Branch::where('active', true)->orderBy('name')->get();
+
+        $workOrders = WorkOrder::whereBetween('date', [$from, $to])
+            ->whereIn('status', ['approved', 'in_repair', 'completed', 'delivered', 'invoiced'])
+            ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
+            ->with(['client', 'vehicle', 'items'])
+            ->get()
+            ->map(function ($wo) {
+                $wo->profit = $wo->total_authorized - $wo->total_real_cost;
+                $wo->margin = $wo->total_authorized > 0
+                    ? round(($wo->profit / $wo->total_authorized) * 100, 1)
+                    : 0;
+                return $wo;
+            })
+            ->sortByDesc('profit')
+            ->values();
+
+        $totals = [
+            'authorized' => $workOrders->sum('total_authorized'),
+            'real_cost'  => $workOrders->sum('total_real_cost'),
+            'profit'     => $workOrders->sum('profit'),
+        ];
+        $totals['margin'] = $totals['authorized'] > 0
+            ? round(($totals['profit'] / $totals['authorized']) * 100, 1)
+            : 0;
+
+        return view('reports.profitability', compact('workOrders', 'totals', 'from', 'to', 'branchId', 'branches'));
+    }
+
+    public function partsReport(Request $request)
+    {
+        $from     = $request->input('from', now()->startOfYear()->toDateString());
+        $to       = $request->input('to', now()->toDateString());
+        $branchId = $this->resolveBranchId($request);
+        $branches = \App\Models\Branch::where('active', true)->orderBy('name')->get();
+
+        $partStats = PartOrder::whereNotNull('ordered_at')
+            ->whereNotNull('received_at')
+            ->whereHas('workOrderItem.workOrder', function ($q) use ($from, $to, $branchId) {
+                $q->whereBetween('date', [$from, $to]);
+                if ($branchId) {
+                    $q->where('branch_id', $branchId);
+                }
+            })
+            ->select(
+                'supplier',
+                DB::raw('COUNT(*) as count'),
+                DB::raw('AVG(DATEDIFF(received_at, ordered_at)) as avg_days'),
+                DB::raw('MAX(DATEDIFF(received_at, ordered_at)) as max_days'),
+            )
+            ->groupBy('supplier')
+            ->orderBy('avg_days', 'desc')
+            ->get();
+
+        return view('reports.parts', compact('partStats', 'from', 'to', 'branchId', 'branches'));
     }
 
     private function resolveBranchId(Request $request): ?int
@@ -60,48 +152,48 @@ class ReportController extends Controller
         $prevTo   = $fromDate->copy()->subDay();
         $prevFrom = $prevTo->copy()->subDays($diffDays - 1);
 
-        // ── 1. RESUMEN EJECUTIVO ──────────────────────────────────────────────
-
-        $invoiced = Quotation::whereBetween('date', [$from, $to])->where('status', 'invoiced')
+        // 1. RESUMEN EJECUTIVO
+        $invoiced = WorkOrder::whereBetween('date', [$from, $to])->where('status', 'invoiced')
             ->when($branchId, fn($q) => $q->where('branch_id', $branchId));
 
         $totalRevenue    = (clone $invoiced)->sum('total_amount');
         $invoicedCount   = (clone $invoiced)->count();
         $avgTicket       = $invoicedCount > 0 ? $totalRevenue / $invoicedCount : 0;
 
-        $totalQuotations = Quotation::whereBetween('date', [$from, $to])
+        $totalWorkOrders = WorkOrder::whereBetween('date', [$from, $to])
             ->when($branchId, fn($q) => $q->where('branch_id', $branchId))->count();
-        $approvedOrMore  = Quotation::whereBetween('date', [$from, $to])
-            ->whereIn('status', ['approved', 'finished', 'invoiced'])
+        $approvedOrMore  = WorkOrder::whereBetween('date', [$from, $to])
+            ->whereIn('status', ['approved', 'in_repair', 'completed', 'delivered', 'invoiced'])
             ->when($branchId, fn($q) => $q->where('branch_id', $branchId))->count();
-        $approvalRate    = $totalQuotations > 0 ? round($approvedOrMore / $totalQuotations * 100) : 0;
+        $approvalRate    = $totalWorkOrders > 0 ? round($approvedOrMore / $totalWorkOrders * 100) : 0;
 
-        $prevRevenue  = Quotation::whereBetween('date', [$prevFrom->toDateString(), $prevTo->toDateString()])
+        $prevRevenue  = WorkOrder::whereBetween('date', [$prevFrom->toDateString(), $prevTo->toDateString()])
             ->where('status', 'invoiced')
             ->when($branchId, fn($q) => $q->where('branch_id', $branchId))->sum('total_amount');
-        $prevCount    = Quotation::whereBetween('date', [$prevFrom->toDateString(), $prevTo->toDateString()])
+        $prevCount    = WorkOrder::whereBetween('date', [$prevFrom->toDateString(), $prevTo->toDateString()])
             ->when($branchId, fn($q) => $q->where('branch_id', $branchId))->count();
 
         $revenueChange = $prevRevenue > 0 ? round(($totalRevenue - $prevRevenue) / $prevRevenue * 100, 1) : null;
-        $countChange   = $prevCount > 0 ? round(($totalQuotations - $prevCount) / $prevCount * 100, 1) : null;
+        $countChange   = $prevCount > 0 ? round(($totalWorkOrders - $prevCount) / $prevCount * 100, 1) : null;
 
         $executive = compact(
-            'totalRevenue', 'invoicedCount', 'avgTicket', 'totalQuotations',
+            'totalRevenue', 'invoicedCount', 'avgTicket', 'totalWorkOrders',
             'approvalRate', 'prevRevenue', 'revenueChange', 'countChange'
         );
 
-        // ── 2. PIPELINE / EMBUDO ─────────────────────────────────────────────
-
+        // 2. PIPELINE
         $statusLabels = [
-            'draft'    => 'Borrador',
-            'sent'     => 'Enviado',
-            'approved' => 'Aprobado',
-            'finished' => 'Terminado',
-            'invoiced' => 'Facturado',
-            'rejected' => 'Rechazado',
+            'intake'        => 'Ingreso',
+            'budget_sent'   => 'Presupuesto Enviado',
+            'approved'      => 'Aprobado',
+            'waiting_parts' => 'Esperando Repuestos',
+            'in_repair'     => 'En Reparación',
+            'completed'     => 'Completado',
+            'delivered'     => 'Entregado',
+            'invoiced'      => 'Facturado',
         ];
 
-        $pipelineCounts = Quotation::whereBetween('date', [$from, $to])
+        $pipelineCounts = WorkOrder::whereBetween('date', [$from, $to])
             ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
             ->select('status', DB::raw('COUNT(*) as total'), DB::raw('SUM(total_amount) as amount'))
             ->groupBy('status')
@@ -119,9 +211,8 @@ class ReportController extends Controller
             ];
         }
 
-        // ── 3. INGRESOS POR ASEGURADORA ──────────────────────────────────────
-
-        $byInsurance = Quotation::whereBetween('date', [$from, $to])
+        // 3. INGRESOS POR ASEGURADORA
+        $byInsurance = WorkOrder::whereBetween('date', [$from, $to])
             ->where('status', 'invoiced')
             ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
             ->select('insurance_company_id', DB::raw('COUNT(*) as count'), DB::raw('SUM(total_amount) as total'))
@@ -136,10 +227,9 @@ class ReportController extends Controller
             ->sortByDesc('total')
             ->values();
 
-        // ── 4. RANKING DE CLIENTES ───────────────────────────────────────────
-
-        $topClients = Quotation::whereBetween('date', [$from, $to])
-            ->whereIn('status', ['approved', 'finished', 'invoiced'])
+        // 4. RANKING DE CLIENTES
+        $topClients = WorkOrder::whereBetween('date', [$from, $to])
+            ->whereIn('status', ['approved', 'in_repair', 'completed', 'delivered', 'invoiced'])
             ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
             ->select('client_id', DB::raw('COUNT(*) as count'), DB::raw('SUM(total_amount) as total'))
             ->groupBy('client_id')
@@ -154,16 +244,15 @@ class ReportController extends Controller
                 'total' => $row->total,
             ]);
 
-        // ── 5. REPUESTOS VS MANO DE OBRA ─────────────────────────────────────
-
-        $quotationIds = Quotation::whereBetween('date', [$from, $to])
-            ->whereIn('status', ['approved', 'finished', 'invoiced'])
+        // 5. REPUESTOS VS MANO DE OBRA
+        $woIds = WorkOrder::whereBetween('date', [$from, $to])
+            ->whereIn('status', ['approved', 'in_repair', 'completed', 'delivered', 'invoiced'])
             ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
             ->pluck('id');
 
-        $itemAgg = QuotationItem::whereIn('quotation_id', $quotationIds)
-            ->join('un_types', 'quotation_items.un_type_id', '=', 'un_types.id')
-            ->selectRaw('un_types.category, SUM(quotation_items.price) as total')
+        $itemAgg = WorkOrderItem::whereIn('work_order_id', $woIds)
+            ->join('un_types', 'work_order_items.un_type_id', '=', 'un_types.id')
+            ->selectRaw('un_types.category, SUM(work_order_items.price_workshop) as total')
             ->groupBy('un_types.category')
             ->get()
             ->keyBy('category');
@@ -172,15 +261,12 @@ class ReportController extends Controller
         $manoObraTotal   = ($itemAgg->get('repair')?->total ?? 0)
                          + ($itemAgg->get('paint')?->total  ?? 0)
                          + ($itemAgg->get('dm')?->total     ?? 0);
-        $repuestoCount   = 0;
-        $manoObraCount   = 0;
         $itemsGrandTotal = $itemAgg->sum('total');
 
-        $itemTypes = compact('repuestoTotal', 'manoObraTotal', 'repuestoCount', 'manoObraCount', 'itemsGrandTotal');
+        $itemTypes = compact('repuestoTotal', 'manoObraTotal', 'itemsGrandTotal');
 
-        // ── Ingresos mensuales ────────────────────────────────────────────────
-
-        $monthlyChart = Quotation::whereBetween('date', [$from, $to])
+        // INGRESOS MENSUALES
+        $monthlyChart = WorkOrder::whereBetween('date', [$from, $to])
             ->where('status', 'invoiced')
             ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
             ->select(DB::raw("DATE_FORMAT(date, '%Y-%m') as month_key"), DB::raw('SUM(total_amount) as total'))

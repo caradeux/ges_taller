@@ -4,8 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use App\Models\Vehicle;
-use App\Models\Quotation;
-use Illuminate\Http\Request;
+use App\Models\WorkOrder;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -15,7 +14,7 @@ class DashboardController extends Controller
         $sixMonthsAgo = now()->subMonths(6);
         $branchId = auth()->user()->activeBranchId();
 
-        $monthlyRevenue = Quotation::where('status', 'invoiced')
+        $monthlyRevenue = WorkOrder::where('status', 'invoiced')
             ->where('date', '>=', $sixMonthsAgo)
             ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
             ->select(
@@ -36,17 +35,21 @@ class DashboardController extends Controller
         $stats = [
             'total_clients'        => Client::when($branchId, fn($q) => $q->where('branch_id', $branchId))->count(),
             'total_vehicles'       => Vehicle::when($branchId, fn($q) => $q->where('branch_id', $branchId))->count(),
-            'pending_quotations'   => Quotation::whereIn('status', ['draft', 'sent'])
+            'pending_ots'          => WorkOrder::whereIn('status', ['intake', 'budget_sent'])
                                                ->when($branchId, fn($q) => $q->where('branch_id', $branchId))->count(),
-            'approved_quotations'  => Quotation::where('status', 'approved')
+            'approved_ots'         => WorkOrder::where('status', 'approved')
                                                ->when($branchId, fn($q) => $q->where('branch_id', $branchId))->count(),
-            'recent_quotations'    => Quotation::with(['client', 'vehicle', 'branch'])
+            'waiting_parts'        => WorkOrder::where('status', 'waiting_parts')
+                                               ->when($branchId, fn($q) => $q->where('branch_id', $branchId))->count(),
+            'in_repair'            => WorkOrder::where('status', 'in_repair')
+                                               ->when($branchId, fn($q) => $q->where('branch_id', $branchId))->count(),
+            'recent_work_orders'   => WorkOrder::with(['client', 'vehicle', 'branch'])
                                                ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
                                                ->latest()->take(5)->get(),
-            'total_revenue'        => Quotation::where('status', 'invoiced')
+            'total_revenue'        => WorkOrder::where('status', 'invoiced')
                                                ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
                                                ->sum('total_amount'),
-            'total_pending_amount' => Quotation::whereIn('status', ['draft', 'sent', 'approved', 'finished'])
+            'total_pending_amount' => WorkOrder::whereIn('status', ['intake', 'budget_sent', 'approved', 'waiting_parts', 'in_repair', 'completed'])
                                                ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
                                                ->sum('total_amount'),
             'chartData'            => $chartData,

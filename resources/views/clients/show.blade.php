@@ -74,8 +74,8 @@
 
         <div class="card">
             <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
-                <h6 class="text-secondary small fw-bold text-uppercase mb-0">Historial de Presupuestos</h6>
-                <span class="badge bg-light text-secondary border">{{ $client->quotations->count() }} total</span>
+                <h6 class="text-secondary small fw-bold text-uppercase mb-0">Historial de Órdenes de Trabajo</h6>
+                <span class="badge bg-light text-secondary border">{{ $client->workOrders->count() }} total</span>
             </div>
             <div class="table-responsive">
                 <table class="table mb-0">
@@ -90,7 +90,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($client->quotations->sortByDesc('date') as $q)
+                        @forelse($client->workOrders->sortByDesc('date') as $q)
                             <tr>
                                 <td><span class="fw-bold text-dark">#{{ $q->folio }}</span></td>
                                 <td class="small">
@@ -116,7 +116,7 @@
                                     ${{ number_format($q->total_amount, 0, ',', '.') }}
                                 </td>
                                 <td class="text-end">
-                                    <a href="{{ route('quotations.show', $q) }}"
+                                    <a href="{{ route('work-orders.show', $q) }}"
                                         class="btn btn-sm btn-light border-0 text-secondary">
                                         <i class="bi bi-eye"></i>
                                     </a>

@@ -454,6 +454,14 @@
         .status-finished { background: #ede9fe; color: #6d28d9; }
         .status-invoiced { background: #d1fae5; color: #065f46; }
 
+        /* OT status badges */
+        .status-intake        { background: #fef3c7; color: #92400e; }
+        .status-budget_sent   { background: #dbeafe; color: #1d4ed8; }
+        .status-waiting_parts { background: #ffedd5; color: #9a3412; }
+        .status-in_repair     { background: #e0e7ff; color: #3730a3; }
+        .status-completed     { background: #ccfbf1; color: #115e59; }
+        .status-delivered      { background: #ede9fe; color: #6d28d9; }
+
         /* ─── Form Controls ──────────────────────────────────── */
         .form-control,
         .form-select {
@@ -870,23 +878,23 @@
             <nav class="nav flex-column mt-1">
                 <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
                     href="{{ route('dashboard') }}">
-                    <i class="bi bi-grid-fill"></i> Panel General
+                    <i class="bi bi-speedometer2"></i> Panel General
                 </a>
-                <a class="nav-link {{ request()->routeIs('quotations.index') || (request()->routeIs('quotations.*') && !request()->routeIs('quotations.followup')) ? 'active' : '' }}"
-                    href="{{ route('quotations.index') }}">
-                    <i class="bi bi-receipt"></i> Cotizaciones
+                <a class="nav-link {{ request()->routeIs('work-orders.index') || (request()->routeIs('work-orders.*') && !request()->routeIs('work-orders.followup')) ? 'active' : '' }}"
+                    href="{{ route('work-orders.index') }}">
+                    <i class="bi bi-tools"></i> Órdenes de Trabajo
                 </a>
                 @if(in_array($role, ['admin','recepcion']))
-                <a class="nav-link {{ request()->routeIs('quotations.followup') ? 'active' : '' }}"
-                    href="{{ route('quotations.followup') }}">
-                    <i class="bi bi-telephone-outbound-fill"></i> Seguimiento
+                <a class="nav-link {{ request()->routeIs('work-orders.followup') ? 'active' : '' }}"
+                    href="{{ route('work-orders.followup') }}">
+                    <i class="bi bi-clipboard-check-fill"></i> Seguimiento
                 </a>
                 @endif
 
                 @if(in_array($role, ['admin','recepcion','taller']))
                 <a class="nav-link {{ request()->routeIs('clients.*') ? 'active' : '' }}"
                     href="{{ route('clients.index') }}">
-                    <i class="bi bi-people-fill"></i> Clientes
+                    <i class="bi bi-person-lines-fill"></i> Clientes
                 </a>
                 <a class="nav-link {{ request()->routeIs('vehicles.*') ? 'active' : '' }}"
                     href="{{ route('vehicles.index') }}">
@@ -901,11 +909,11 @@
                 </a>
                 <a class="nav-link {{ request()->is('insurance-companies*') ? 'active' : '' }}"
                     href="{{ route('insurance-companies.index') }}">
-                    <i class="bi bi-building-fill"></i> Compañías
+                    <i class="bi bi-shield-fill-check"></i> Aseguradoras
                 </a>
                 <a class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}"
                     href="{{ route('reports.index') }}">
-                    <i class="bi bi-bar-chart-fill"></i> Reportes
+                    <i class="bi bi-graph-up-arrow"></i> Reportes
                 </a>
                 @endif
 
@@ -922,19 +930,23 @@
                 </a>
                 <a class="nav-link {{ request()->routeIs('branches.*') ? 'active' : '' }}"
                     href="{{ route('branches.index') }}">
-                    <i class="bi bi-building-fill-gear"></i> Sucursales
+                    <i class="bi bi-shop"></i> Sucursales
+                </a>
+                <a class="nav-link {{ request()->routeIs('tags.*') ? 'active' : '' }}"
+                    href="{{ route('tags.index') }}">
+                    <i class="bi bi-bookmark-fill"></i> Etiquetas
                 </a>
                 <a class="nav-link {{ request()->routeIs('un-types.*') ? 'active' : '' }}"
                     href="{{ route('un-types.index') }}">
-                    <i class="bi bi-tags-fill"></i> Tipos de UN
+                    <i class="bi bi-list-check"></i> Tipos de UN
                 </a>
                 <a class="nav-link {{ request()->routeIs('service-items.*') ? 'active' : '' }}"
                     href="{{ route('service-items.index') }}">
-                    <i class="bi bi-clipboard2-pulse-fill"></i> Catálogo Servicios
+                    <i class="bi bi-gear-wide-connected"></i> Catálogo Servicios
                 </a>
                 <a class="nav-link {{ request()->is('vehicle-brands*') ? 'active' : '' }}"
                     href="{{ route('vehicle-brands.index') }}">
-                    <i class="bi bi-signpost-split-fill"></i> Marcas / Modelos
+                    <i class="bi bi-ev-front-fill"></i> Marcas / Modelos
                 </a>
                 @endif
 

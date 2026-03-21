@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Quotation extends Model
+class WorkOrder extends Model
 {
     protected $fillable = [
         'folio',
@@ -23,6 +23,9 @@ class Quotation extends Model
         'total_surcharge',
         'tax_amount',
         'total_amount',
+        'total_workshop',
+        'total_authorized',
+        'total_real_cost',
         'notes',
     ];
 
@@ -53,37 +56,51 @@ class Quotation extends Model
 
     public function items()
     {
-        return $this->hasMany(QuotationItem::class);
+        return $this->hasMany(WorkOrderItem::class);
+    }
+
+    public function events()
+    {
+        return $this->hasMany(WorkOrderEvent::class)->orderBy('occurred_at', 'desc');
+    }
+
+    public function tags()
+    {
+        return $this->morphToMany(Tag::class, 'taggable');
     }
 
     public function getFolioDisplayAttribute(): string
     {
-        return $this->folio ?? 'Borrador';
+        return $this->folio ?? 'Sin Folio';
     }
 
-    public function getStatusLabelAttribute()
+    public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
-            'draft' => 'Borrador',
+            'intake' => 'Ingreso',
+            'budget_sent' => 'Presupuesto Enviado',
             'approved' => 'Aprobado',
-            'sent' => 'Pendiente',
-            'rejected' => 'Rechazado',
-            'finished' => 'Terminado',
+            'waiting_parts' => 'Esperando Repuestos',
+            'in_repair' => 'En Reparación',
+            'completed' => 'Completado',
+            'delivered' => 'Entregado',
             'invoiced' => 'Facturado',
-            default => 'Pendiente'
+            default => 'Ingreso',
         };
     }
 
-    public function getStatusColorAttribute()
+    public function getStatusColorAttribute(): string
     {
         return match ($this->status) {
-            'draft' => 'warning',
+            'intake' => 'warning',
+            'budget_sent' => 'info',
             'approved' => 'success',
-            'sent' => 'info',
-            'rejected' => 'danger',
-            'finished' => 'primary',
+            'waiting_parts' => 'orange',
+            'in_repair' => 'primary',
+            'completed' => 'teal',
+            'delivered' => 'purple',
             'invoiced' => 'dark',
-            default => 'info'
+            default => 'secondary',
         };
     }
 }

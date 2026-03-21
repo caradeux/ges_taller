@@ -345,8 +345,8 @@
         {{-- KPI 2: Presupuestos emitidos --}}
         <td style="width:25%;">
             <div class="kpi-card">
-                <div class="kpi-label">Presupuestos Emitidos</div>
-                <div class="kpi-value">{{ $executive['totalQuotations'] }}</div>
+                <div class="kpi-label">OTs Emitidas</div>
+                <div class="kpi-value">{{ $executive['totalWorkOrders'] }}</div>
                 @if($executive['countChange'] !== null)
                     <div class="{{ $executive['countChange'] >= 0 ? 'kpi-change-up' : 'kpi-change-down' }}">
                         {{ $executive['countChange'] >= 0 ? '▲' : '▼' }} {{ abs($executive['countChange']) }}% vs período ant.

@@ -172,8 +172,8 @@
             {{-- Presupuestos Emitidos --}}
             <div class="col-md-3">
                 <div class="kpi-card">
-                    <div class="kpi-label">Presupuestos Emitidos</div>
-                    <div class="kpi-value text-dark">{{ $executive['totalQuotations'] }}</div>
+                    <div class="kpi-label">OTs Emitidas</div>
+                    <div class="kpi-value text-dark">{{ $executive['totalWorkOrders'] }}</div>
                     @if($executive['countChange'] !== null)
                         <div class="kpi-change {{ $executive['countChange'] >= 0 ? 'change-up' : 'change-down' }}">
                             <i class="bi bi-arrow-{{ $executive['countChange'] >= 0 ? 'up' : 'down' }}-short"></i>

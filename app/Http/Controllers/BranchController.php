@@ -9,7 +9,7 @@ class BranchController extends Controller
 {
     public function index()
     {
-        $branches = Branch::withCount(['users', 'quotations', 'clients', 'vehicles'])
+        $branches = Branch::withCount(['users', 'workOrders', 'clients', 'vehicles'])
             ->orderBy('name')
             ->get();
 
