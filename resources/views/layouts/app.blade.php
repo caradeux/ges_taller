@@ -1102,6 +1102,10 @@
                     href="{{ route('work-orders.followup') }}">
                     <i class="bi bi-clipboard-check-fill"></i> Seguimiento
                 </a>
+                <a class="nav-link {{ request()->routeIs('sla.*') ? 'active' : '' }}"
+                    href="{{ route('sla.index') }}">
+                    <i class="bi bi-stopwatch-fill"></i> Control de Tiempos
+                </a>
                 @endif
 
                 @if(in_array($role, ['admin','recepcion','taller']))

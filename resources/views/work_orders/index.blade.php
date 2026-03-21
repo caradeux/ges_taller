@@ -150,6 +150,18 @@
                         </td>
                         <td>
                             <span class="status-badge status-{{ $wo->status }}">{{ $wo->status_label }}</span>
+                            @if($wo->status !== 'invoiced')
+                                @php $urg = $wo->sla_urgency; @endphp
+                                @if($urg === 'overdue')
+                                <span class="badge rounded-pill ms-1" style="background:#fee2e2;color:#991b1b;font-size:0.6rem;" title="{{ $wo->business_days_in_status }}d / {{ $wo->sla_limit }}d">
+                                    <i class="bi bi-exclamation-triangle-fill"></i> {{ $wo->business_days_in_status }}d
+                                </span>
+                                @elseif($urg === 'warning')
+                                <span class="badge rounded-pill ms-1" style="background:#fef3c7;color:#92400e;font-size:0.6rem;" title="{{ $wo->business_days_in_status }}d / {{ $wo->sla_limit }}d">
+                                    <i class="bi bi-clock"></i> {{ $wo->business_days_in_status }}d
+                                </span>
+                                @endif
+                            @endif
                         </td>
                         <td>
                             @foreach($wo->tags as $tag)

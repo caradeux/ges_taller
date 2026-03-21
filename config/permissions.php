@@ -98,6 +98,9 @@ return [
     // Users management (admin only)
     'users.*'                    => ['admin'],
 
+    // SLA / Control de Tiempos
+    'sla.*'                      => ['admin', 'recepcion'],
+
     // Holidays (admin only)
     'holidays.*'                 => ['admin'],
 

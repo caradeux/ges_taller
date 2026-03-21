@@ -125,4 +125,107 @@ class WorkOrder extends Model
             default => 'secondary',
         };
     }
+
+    /**
+     * Get the date when the current status started (from the latest status_change event).
+     */
+    public function getCurrentStatusSinceAttribute(): \Carbon\Carbon
+    {
+        $event = $this->events()
+            ->where('event_type', 'status_change')
+            ->orderByDesc('occurred_at')
+            ->first();
+
+        return $event ? $event->occurred_at : \Carbon\Carbon::parse($this->created_at);
+    }
+
+    /**
+     * Get business days spent in the current status.
+     */
+    public function getBusinessDaysInStatusAttribute(): int
+    {
+        return Holiday::businessDaysBetween(
+            $this->current_status_since,
+            now()
+        );
+    }
+
+    /**
+     * Get the SLA limit for the current status.
+     */
+    public function getSlaLimitAttribute(): ?int
+    {
+        return Company::current()->getSlaForStatus($this->status);
+    }
+
+    /**
+     * Check if this WO is exceeding its SLA.
+     */
+    public function getIsOverdueAttribute(): bool
+    {
+        $limit = $this->sla_limit;
+        if ($limit === null || $this->status === 'invoiced') {
+            return false;
+        }
+
+        return $this->business_days_in_status > $limit;
+    }
+
+    /**
+     * Get SLA urgency: ok, warning (>75% used), overdue (exceeded).
+     */
+    public function getSlaUrgencyAttribute(): string
+    {
+        $limit = $this->sla_limit;
+        if ($limit === null || $this->status === 'invoiced') {
+            return 'none';
+        }
+
+        $days = $this->business_days_in_status;
+        if ($days > $limit) {
+            return 'overdue';
+        }
+        if ($days >= $limit * 0.75) {
+            return 'warning';
+        }
+
+        return 'ok';
+    }
+
+    /**
+     * Get time spent in each status (for timeline summary).
+     */
+    public function getStageTimesAttribute(): array
+    {
+        $events = $this->events()
+            ->where('event_type', 'status_change')
+            ->orderBy('occurred_at')
+            ->get();
+
+        $stages = [];
+        $allStatuses = ['intake', 'budget_sent', 'approved', 'waiting_parts', 'in_repair', 'completed', 'delivered', 'invoiced'];
+
+        // Start from creation
+        $prevDate = \Carbon\Carbon::parse($this->created_at);
+        $prevStatus = 'intake';
+
+        foreach ($events as $event) {
+            $newStatus = $event->metadata['new_status'] ?? null;
+            if (! $newStatus) continue;
+
+            $days = Holiday::businessDaysBetween($prevDate, $event->occurred_at);
+            $stages[$prevStatus] = ($stages[$prevStatus] ?? 0) + $days;
+
+            $prevDate = $event->occurred_at;
+            $prevStatus = $newStatus;
+        }
+
+        // Current stage (still in progress)
+        if ($this->status !== 'invoiced') {
+            $days = Holiday::businessDaysBetween($prevDate, now());
+            $stages[$prevStatus] = ($stages[$prevStatus] ?? 0) + $days;
+        }
+
+        return $stages;
+    }
 }

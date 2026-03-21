@@ -99,6 +99,10 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('service-items', ServiceItemController::class)->except(['show']);
     Route::get('api/service-items/search', [ServiceItemController::class, 'search'])->name('service-items.search');
 
+    // SLA / Control de Tiempos
+    Route::get('sla', [\App\Http\Controllers\SlaController::class, 'index'])->name('sla.index');
+    Route::post('sla', [\App\Http\Controllers\SlaController::class, 'updateSla'])->name('sla.update');
+
     // Holidays (admin)
     Route::get('holidays', [\App\Http\Controllers\HolidayController::class, 'index'])->name('holidays.index');
     Route::post('holidays', [\App\Http\Controllers\HolidayController::class, 'store'])->name('holidays.store');
