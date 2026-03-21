@@ -8,8 +8,8 @@
             <a href="{{ route('clients.index') }}" class="text-decoration-none text-secondary small fw-medium">
                 <i class="bi bi-arrow-left"></i> Volver al listado
             </a>
-            <h2 class="fw-bold mt-2">Registrar Nuevo Cliente</h2>
-            <p class="text-secondary small">Completa la información básica para dar de alta a un nuevo cliente en el
+            <h2 class="page-title mt-2">Registrar Nuevo Cliente</h2>
+            <p class="page-subtitle">Completa la información básica para dar de alta a un nuevo cliente en el
                 sistema.</p>
         </div>
 

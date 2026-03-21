@@ -12,6 +12,8 @@ class WorkOrder extends Model
         'claim_number',
         'intake_number',
         'date',
+        'exit_date',
+        'repair_start_date',
         'status',
         'vehicle_id',
         'client_id',
@@ -27,6 +29,26 @@ class WorkOrder extends Model
         'total_authorized',
         'total_real_cost',
         'notes',
+        'vehicle_inventory',
+        'objects_declaration',
+        'conductor_name',
+    ];
+
+    protected $casts = [
+        'vehicle_inventory' => 'array',
+    ];
+
+    public const INVENTORY_ITEMS = [
+        'rueda_repuesto'    => 'Rueda de Repuesto',
+        'grua'              => 'Grúa',
+        'gata'              => 'Gata',
+        'kit_seguridad'     => 'Kit de Seguridad',
+        'panel_radio'       => 'Panel de Radio',
+        'pisos_goma'        => 'Pisos de Goma',
+        'antena'            => 'Antena',
+        'logos'             => 'Logos',
+        'tag'               => 'TAG / Telepeaje',
+        'objetos_valor'     => 'Objetos de Valor',
     ];
 
     public function branch()

@@ -303,7 +303,66 @@
                     </div>
                 </div>
 
-                {{-- Card 3: Etiquetas ── --}}
+                {{-- Card 3: Inventario del Vehiculo ── --}}
+                <div class="card p-4">
+                    <div class="card-section-label">
+                        <i class="bi bi-clipboard-check" style="color:var(--warning);font-size:0.85rem;"></i>
+                        Inventario de Ingreso
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        @foreach(\App\Models\WorkOrder::INVENTORY_ITEMS as $key => $label)
+                        <div class="col-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                    name="vehicle_inventory[{{ $key }}]" value="1"
+                                    id="inv_{{ $key }}" {{ old("vehicle_inventory.{$key}") ? 'checked' : '' }}>
+                                <label class="form-check-label" for="inv_{{ $key }}" style="font-size:0.82rem;">
+                                    {{ $label }}
+                                </label>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-4">
+                            <label class="form-label" style="font-size:0.78rem;">Combustible</label>
+                            <select name="combustible" class="form-select form-select-sm">
+                                <option value="">—</option>
+                                <option value="E" {{ old('combustible') == 'E' ? 'selected' : '' }}>Vacío</option>
+                                <option value="1/4" {{ old('combustible') == '1/4' ? 'selected' : '' }}>1/4</option>
+                                <option value="1/2" {{ old('combustible') == '1/2' ? 'selected' : '' }}>1/2</option>
+                                <option value="3/4" {{ old('combustible') == '3/4' ? 'selected' : '' }}>3/4</option>
+                                <option value="F" {{ old('combustible') == 'F' ? 'selected' : '' }}>Lleno</option>
+                            </select>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label" style="font-size:0.78rem;">KM Ingreso</label>
+                            <input type="number" name="km_ingreso" class="form-control form-control-sm"
+                                value="{{ old('km_ingreso') }}" min="0" placeholder="0">
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label" style="font-size:0.78rem;">Llaves</label>
+                            <input type="number" name="llaves_count" class="form-control form-control-sm"
+                                value="{{ old('llaves_count', 1) }}" min="0" max="5">
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label" style="font-size:0.78rem;">Conductor / Quien entrega</label>
+                        <input type="text" name="conductor_name" class="form-control form-control-sm"
+                            value="{{ old('conductor_name') }}" placeholder="Nombre del conductor">
+                    </div>
+
+                    <div class="mb-0">
+                        <label class="form-label" style="font-size:0.78rem;">Declaracion de objetos</label>
+                        <textarea name="objects_declaration" class="form-control form-control-sm" rows="2"
+                            placeholder="Ej: Sin documentos, sin objetos de valor">{{ old('objects_declaration') }}</textarea>
+                    </div>
+                </div>
+
+                {{-- Card 4: Etiquetas ── --}}
                 <div class="card p-4">
                     <div class="card-section-label">
                         <i class="bi bi-tags-fill" style="color:var(--accent);font-size:0.85rem;"></i>

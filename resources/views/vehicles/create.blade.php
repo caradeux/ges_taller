@@ -8,8 +8,8 @@
             <a href="{{ route('vehicles.index') }}" class="text-decoration-none text-secondary small fw-medium">
                 <i class="bi bi-arrow-left"></i> Volver al listado
             </a>
-            <h2 class="fw-bold mt-2">Registrar Nuevo Vehículo</h2>
-            <p class="text-secondary small">Asocia un vehículo a un cliente existente para gestionar sus presupuestos.</p>
+            <h2 class="page-title mt-2">Registrar Nuevo Vehículo</h2>
+            <p class="page-subtitle">Asocia un vehículo a un cliente existente para gestionar sus órdenes de trabajo.</p>
         </div>
 
         <div class="card p-4">

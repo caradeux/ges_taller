@@ -8,7 +8,7 @@
     {{-- ─── Header ─────────────────────────────────────────── --}}
     <div class="d-flex justify-content-between align-items-start mb-4">
         <div>
-            <h2 class="page-title">Vehículos</h2>
+            <h2 class="page-title">Vehículos <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary fs-6 align-middle ms-2">{{ $vehicles->total() }}</span></h2>
             <p class="page-subtitle">Control de la flota de vehículos registrados y sus propietarios.</p>
         </div>
         <a href="{{ route('vehicles.create') }}" class="btn-primary-premium">
@@ -129,7 +129,11 @@
                                     <div class="empty-state-icon">
                                         <i class="bi bi-car-front"></i>
                                     </div>
-                                    <p>No hay vehículos registrados aún.</p>
+                                    <h5 class="fw-bold mb-2">Sin vehículos registrados</h5>
+                                    <p class="text-secondary mb-3">Registra el primer vehículo para comenzar a gestionar las órdenes de trabajo.</p>
+                                    <a href="{{ route('vehicles.create') }}" class="btn-primary-premium btn-sm">
+                                        <i class="bi bi-car-front-fill"></i> Nuevo Vehículo
+                                    </a>
                                 </div>
                             </td>
                         </tr>

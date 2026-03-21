@@ -80,6 +80,12 @@ class WorkOrderController extends Controller
             'liquidator_id'          => 'nullable|exists:liquidators,id',
             'deductible_amount'      => 'nullable|numeric|min:0',
             'notes'                  => 'nullable|string',
+            'conductor_name'         => 'nullable|string|max:255',
+            'objects_declaration'    => 'nullable|string',
+            'vehicle_inventory'      => 'nullable|array',
+            'combustible'            => 'nullable|string|max:10',
+            'km_ingreso'             => 'nullable|numeric|min:0',
+            'llaves_count'           => 'nullable|integer|min:0',
             'items'                  => 'required|array|min:1',
             'items.*.un_type_id'     => 'required|exists:un_types,id',
             'items.*.description'    => 'required|string',
@@ -90,6 +96,12 @@ class WorkOrderController extends Controller
             'tags'                   => 'nullable|array',
             'tags.*'                 => 'exists:tags,id',
         ]);
+
+        // Build inventory JSON
+        $inventory = $validated['vehicle_inventory'] ?? [];
+        $inventory['combustible'] = $validated['combustible'] ?? null;
+        $inventory['km_ingreso'] = $validated['km_ingreso'] ?? null;
+        $inventory['llaves_count'] = $validated['llaves_count'] ?? null;
 
         try {
             DB::beginTransaction();
@@ -105,6 +117,9 @@ class WorkOrderController extends Controller
                 'liquidator_id'        => $validated['liquidator_id'] ?? null,
                 'deductible_amount'    => $validated['deductible_amount'] ?? 0,
                 'notes'                => $validated['notes'] ?? null,
+                'conductor_name'       => $validated['conductor_name'] ?? null,
+                'objects_declaration'   => $validated['objects_declaration'] ?? null,
+                'vehicle_inventory'    => $inventory,
                 'status'               => 'intake',
                 'total_amount'         => 0,
             ]);
@@ -186,6 +201,12 @@ class WorkOrderController extends Controller
             'liquidator_id'          => 'nullable|exists:liquidators,id',
             'deductible_amount'      => 'nullable|numeric|min:0',
             'notes'                  => 'nullable|string',
+            'conductor_name'         => 'nullable|string|max:255',
+            'objects_declaration'    => 'nullable|string',
+            'vehicle_inventory'      => 'nullable|array',
+            'combustible'            => 'nullable|string|max:10',
+            'km_ingreso'             => 'nullable|numeric|min:0',
+            'llaves_count'           => 'nullable|integer|min:0',
             'items'                  => 'required|array|min:1',
             'items.*.un_type_id'     => 'required|exists:un_types,id',
             'items.*.description'    => 'required|string',
@@ -196,6 +217,11 @@ class WorkOrderController extends Controller
             'tags'                   => 'nullable|array',
             'tags.*'                 => 'exists:tags,id',
         ]);
+
+        $inventory = $validated['vehicle_inventory'] ?? [];
+        $inventory['combustible'] = $validated['combustible'] ?? null;
+        $inventory['km_ingreso'] = $validated['km_ingreso'] ?? null;
+        $inventory['llaves_count'] = $validated['llaves_count'] ?? null;
 
         try {
             DB::beginTransaction();
@@ -214,6 +240,9 @@ class WorkOrderController extends Controller
                 'liquidator_id'        => $validated['liquidator_id'] ?? null,
                 'deductible_amount'    => $validated['deductible_amount'] ?? 0,
                 'notes'                => $validated['notes'] ?? null,
+                'conductor_name'       => $validated['conductor_name'] ?? null,
+                'objects_declaration'   => $validated['objects_declaration'] ?? null,
+                'vehicle_inventory'    => $inventory,
                 'total_workshop'       => $totals['workshop'],
                 'total_authorized'     => $totals['authorized'],
                 'total_real_cost'      => $totals['real'],

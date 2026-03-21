@@ -8,8 +8,8 @@
             <a href="{{ route('clients.index') }}" class="text-decoration-none text-secondary small fw-medium">
                 <i class="bi bi-arrow-left"></i> Volver al listado
             </a>
-            <h2 class="fw-bold mt-2">Editar Cliente</h2>
-            <p class="text-secondary small">Modifica los datos del cliente <strong>{{ $client->name }}</strong>.</p>
+            <h2 class="page-title mt-2">Editar Cliente</h2>
+            <p class="page-subtitle">Modifica los datos del cliente <strong>{{ $client->name }}</strong>.</p>
         </div>
 
         <div class="card p-4">

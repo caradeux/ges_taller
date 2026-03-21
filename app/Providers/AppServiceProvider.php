@@ -11,6 +11,9 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Set Carbon locale to Spanish (Chile)
+        \Carbon\Carbon::setLocale('es');
+
         // Share branches list with the main layout for the admin branch switcher
         View::composer('layouts.app', function ($view) {
             if (auth()->check() && auth()->user()->role === 'admin') {

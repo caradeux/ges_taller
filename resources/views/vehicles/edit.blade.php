@@ -24,8 +24,8 @@
             <a href="{{ route('vehicles.index') }}" class="text-decoration-none text-secondary small fw-medium">
                 <i class="bi bi-arrow-left"></i> Volver al listado
             </a>
-            <h2 class="fw-bold mt-2">Editar Vehículo</h2>
-            <p class="text-secondary small">Modifica los datos del vehículo
+            <h2 class="page-title mt-2">Editar Vehículo</h2>
+            <p class="page-subtitle">Modifica los datos del vehículo
                 <strong>{{ strtoupper($vehicle->license_plate) }}</strong>.</p>
         </div>
 

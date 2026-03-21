@@ -98,6 +98,12 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('service-items', ServiceItemController::class)->except(['show']);
     Route::get('api/service-items/search', [ServiceItemController::class, 'search'])->name('service-items.search');
 
+    // Holidays (admin)
+    Route::get('holidays', [\App\Http\Controllers\HolidayController::class, 'index'])->name('holidays.index');
+    Route::post('holidays', [\App\Http\Controllers\HolidayController::class, 'store'])->name('holidays.store');
+    Route::delete('holidays/{holiday}', [\App\Http\Controllers\HolidayController::class, 'destroy'])->name('holidays.destroy');
+    Route::post('holidays/seed', [\App\Http\Controllers\HolidayController::class, 'seedYear'])->name('holidays.seed');
+
     // Vehicle brands & models
     Route::resource('vehicle-brands', VehicleBrandController::class)->except(['show', 'create', 'edit']);
     Route::post('vehicle-brands/{vehicleBrand}/models', [VehicleBrandController::class, 'storeModel'])->name('vehicle-brands.models.store');

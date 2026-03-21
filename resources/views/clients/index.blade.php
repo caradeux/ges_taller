@@ -8,7 +8,7 @@
     {{-- ─── Header ─────────────────────────────────────────── --}}
     <div class="d-flex justify-content-between align-items-start mb-4">
         <div>
-            <h2 class="page-title">Clientes</h2>
+            <h2 class="page-title">Clientes <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary fs-6 align-middle ms-2">{{ $clients->total() }}</span></h2>
             <p class="page-subtitle">Administra la base de datos de clientes y sus datos de contacto.</p>
         </div>
         <a href="{{ route('clients.create') }}" class="btn-primary-premium">
@@ -58,10 +58,9 @@
                     @forelse($clients as $client)
                         <tr>
                             <td>
-                                <span class="fw-700 text-sm ls-tight"
-                                    style="font-weight:700;color:var(--text-primary);font-variant-numeric:tabular-nums;">
+                                <code style="font-size:0.85rem;font-weight:600;color:var(--text-primary);background:var(--bg-secondary);padding:0.2rem 0.5rem;border-radius:4px;">
                                     {{ $client->rut_dni }}
-                                </span>
+                                </code>
                             </td>
                             <td>
                                 <a href="{{ route('clients.show', $client) }}"
@@ -122,7 +121,11 @@
                                     <div class="empty-state-icon">
                                         <i class="bi bi-people"></i>
                                     </div>
-                                    <p>No hay clientes registrados aún.</p>
+                                    <h5 class="fw-bold mb-2">Sin clientes registrados</h5>
+                                    <p class="text-secondary mb-3">Agrega tu primer cliente para comenzar a gestionar sus vehículos y órdenes de trabajo.</p>
+                                    <a href="{{ route('clients.create') }}" class="btn-primary-premium btn-sm">
+                                        <i class="bi bi-person-plus-fill"></i> Nuevo Cliente
+                                    </a>
                                 </div>
                             </td>
                         </tr>

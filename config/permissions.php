@@ -98,6 +98,9 @@ return [
     // Users management (admin only)
     'users.*'                    => ['admin'],
 
+    // Holidays (admin only)
+    'holidays.*'                 => ['admin'],
+
     // Branches management (admin only)
     'branches.*'                 => ['admin'],
     'branch.switch'              => ['admin'],

@@ -9,12 +9,13 @@
                 <a href="{{ route('vehicles.index') }}" class="text-decoration-none text-secondary small fw-medium">
                     <i class="bi bi-arrow-left"></i> Volver al listado
                 </a>
-                <h2 class="fw-bold mt-2 mb-0" style="font-family: monospace; letter-spacing: 2px;">
-                    {{ strtoupper($vehicle->license_plate) }}</h2>
-                <p class="text-secondary small mb-0">{{ $vehicle->brand }} {{ $vehicle->model }}
+                <h2 class="page-title mt-2 mb-1">
+                    <span class="plate-badge" style="font-size:1.1rem;">{{ strtoupper($vehicle->license_plate) }}</span>
+                </h2>
+                <p class="page-subtitle mb-0">{{ $vehicle->brand }} {{ $vehicle->model }}
                     {{ $vehicle->year ? '— ' . $vehicle->year : '' }}</p>
             </div>
-            <a href="{{ route('vehicles.edit', $vehicle) }}" class="btn btn-outline-secondary btn-sm">
+            <a href="{{ route('vehicles.edit', $vehicle) }}" class="btn-app-secondary btn-sm">
                 <i class="bi bi-pencil"></i> Editar
             </a>
         </div>
@@ -23,29 +24,47 @@
             <div class="col-md-4">
                 <div class="card p-4">
                     <h6 class="text-secondary small fw-bold text-uppercase mb-3">Datos del Vehículo</h6>
-                    <div class="mb-3">
-                        <p class="text-secondary small mb-1">Marca / Modelo</p>
-                        <p class="fw-semibold mb-0">{{ $vehicle->brand }} {{ $vehicle->model }}</p>
-                    </div>
-                    <div class="mb-3">
-                        <p class="text-secondary small mb-1">Año</p>
-                        <p class="fw-semibold mb-0">{{ $vehicle->year ?? 'N/A' }}</p>
-                    </div>
-                    <div class="mb-3">
-                        <p class="text-secondary small mb-1">Color</p>
-                        <p class="fw-semibold mb-0">{{ $vehicle->color ?? 'N/A' }}</p>
-                    </div>
-                    <div class="mb-3">
-                        <p class="text-secondary small mb-1">Odómetro</p>
-                        <p class="fw-semibold mb-0 text-primary">
-                            {{ $vehicle->odometer ? number_format($vehicle->odometer, 0, ',', '.') . ' km' : '0 km' }}</p>
-                    </div>
-                    @if($vehicle->vin_chassis)
-                        <div>
-                            <p class="text-secondary small mb-1">VIN / Chasis</p>
-                            <p class="fw-semibold mb-0 small" style="font-family: monospace;">{{ $vehicle->vin_chassis }}</p>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="info-row">
+                                <span class="info-label">Marca</span>
+                                <span class="info-value">{{ $vehicle->brand }}</span>
+                            </div>
                         </div>
-                    @endif
+                        <div class="col-6">
+                            <div class="info-row">
+                                <span class="info-label">Modelo</span>
+                                <span class="info-value">{{ $vehicle->model }}</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="info-row">
+                                <span class="info-label">Año</span>
+                                <span class="info-value">{{ $vehicle->year ?? 'N/A' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="info-row">
+                                <span class="info-label">Color</span>
+                                <span class="info-value">{{ $vehicle->color ?? 'N/A' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="info-row">
+                                <span class="info-label">Odómetro</span>
+                                <span class="info-value fw-semibold text-primary">
+                                    {{ $vehicle->odometer ? number_format($vehicle->odometer, 0, ',', '.') . ' km' : '0 km' }}</span>
+                            </div>
+                        </div>
+                        @if($vehicle->vin_chassis)
+                            <div class="col-12">
+                                <div class="info-row">
+                                    <span class="info-label">VIN / Chasis</span>
+                                    <code class="info-value" style="font-size:0.85rem;">{{ $vehicle->vin_chassis }}</code>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
 
@@ -77,7 +96,7 @@
                                 <p class="fw-semibold small mb-0">{{ $vehicle->client->phone ?? 'N/A' }}</p>
                             </div>
                             <div class="col-4">
-                                <p class="text-secondary small mb-1">Presupuestos</p>
+                                <p class="text-secondary small mb-1">Órdenes de Trabajo</p>
                                 <p class="fw-semibold small mb-0">{{ $vehicle->workOrders->count() }}</p>
                             </div>
                         </div>
@@ -88,9 +107,9 @@
 
         <div class="card">
             <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
-                <h6 class="text-secondary small fw-bold text-uppercase mb-0">Historial de Presupuestos</h6>
-                <a href="{{ route('work-orders.create') }}" class="btn btn-outline-primary btn-sm rounded-pill">
-                    <i class="bi bi-plus-lg"></i> Nuevo Presupuesto
+                <h6 class="text-secondary small fw-bold text-uppercase mb-0">Historial de OTs</h6>
+                <a href="{{ route('work-orders.create') }}" class="btn-primary-premium btn-sm">
+                    <i class="bi bi-plus-lg"></i> Nueva OT
                 </a>
             </div>
             <div class="table-responsive">
@@ -110,12 +129,7 @@
                                 <td><span class="fw-bold text-dark">#{{ $q->folio }}</span></td>
                                 <td class="text-secondary small">{{ \Carbon\Carbon::parse($q->date)->format('d/m/Y') }}</td>
                                 <td>
-                                    <span class="badge rounded-pill px-3 py-2 fw-semibold" style="font-size: 0.65rem;
-                                        @if($q->status == 'draft') background-color: #fef3c7; color: #92400e;
-                                        @elseif($q->status == 'approved') background-color: #dcfce7; color: #166534;
-                                        @elseif($q->status == 'sent') background-color: #e0f2fe; color: #075985;
-                                        @elseif($q->status == 'rejected') background-color: #fee2e2; color: #991b1b;
-                                        @else background-color: #f1f5f9; color: #475569; @endif">
+                                    <span class="status-badge status-{{ $q->status }}">
                                         {{ $q->status_label }}
                                     </span>
                                 </td>
@@ -132,7 +146,7 @@
                         @empty
                             <tr>
                                 <td colspan="5" class="text-center py-4 text-secondary small">
-                                    No hay presupuestos para este vehículo.
+                                    No hay órdenes de trabajo para este vehículo.
                                 </td>
                             </tr>
                         @endforelse

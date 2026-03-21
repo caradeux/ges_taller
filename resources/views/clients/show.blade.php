@@ -9,11 +9,13 @@
                 <a href="{{ route('clients.index') }}" class="text-decoration-none text-secondary small fw-medium">
                     <i class="bi bi-arrow-left"></i> Volver al listado
                 </a>
-                <h2 class="fw-bold mt-2 mb-0">{{ $client->name }}</h2>
-                <p class="text-secondary small mb-0">{{ $client->rut_dni }}</p>
+                <h2 class="page-title mt-2 mb-0">{{ $client->name }}</h2>
+                <p class="page-subtitle mb-0">
+                    <code style="font-size:0.85rem;font-weight:600;color:var(--text-primary);background:var(--bg-secondary);padding:0.2rem 0.5rem;border-radius:4px;">{{ $client->rut_dni }}</code>
+                </p>
             </div>
             <div class="d-flex gap-2">
-                <a href="{{ route('clients.edit', $client) }}" class="btn btn-outline-secondary btn-sm">
+                <a href="{{ route('clients.edit', $client) }}" class="btn-app-secondary btn-sm">
                     <i class="bi bi-pencil"></i> Editar
                 </a>
             </div>
@@ -42,7 +44,7 @@
                 <div class="card p-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6 class="text-secondary small fw-bold text-uppercase mb-0">Vehículos del Cliente</h6>
-                        <a href="{{ route('vehicles.create') }}" class="btn btn-outline-primary btn-sm rounded-pill">
+                        <a href="{{ route('vehicles.create') }}" class="btn-primary-premium btn-sm">
                             <i class="bi bi-plus-lg"></i> Agregar Vehículo
                         </a>
                     </div>
@@ -54,8 +56,7 @@
                                     <i class="bi bi-car-front text-primary"></i>
                                 </div>
                                 <div>
-                                    <p class="fw-bold mb-0" style="font-family: monospace; letter-spacing: 1px;">
-                                        {{ strtoupper($vehicle->license_plate) }}</p>
+                                    <span class="plate-badge mb-1">{{ strtoupper($vehicle->license_plate) }}</span>
                                     <p class="text-secondary small mb-0">{{ $vehicle->brand }} {{ $vehicle->model }}
                                         {{ $vehicle->year ? '(' . $vehicle->year . ')' : '' }}</p>
                                 </div>
@@ -103,12 +104,7 @@
                                 </td>
                                 <td class="text-secondary small">{{ \Carbon\Carbon::parse($q->date)->format('d/m/Y') }}</td>
                                 <td>
-                                    <span class="badge rounded-pill px-3 py-2 fw-semibold" style="font-size: 0.65rem;
-                                        @if($q->status == 'draft') background-color: #fef3c7; color: #92400e;
-                                        @elseif($q->status == 'approved') background-color: #dcfce7; color: #166534;
-                                        @elseif($q->status == 'sent') background-color: #e0f2fe; color: #075985;
-                                        @elseif($q->status == 'rejected') background-color: #fee2e2; color: #991b1b;
-                                        @else background-color: #f1f5f9; color: #475569; @endif">
+                                    <span class="status-badge status-{{ $q->status }}">
                                         {{ $q->status_label }}
                                     </span>
                                 </td>
@@ -125,7 +121,7 @@
                         @empty
                             <tr>
                                 <td colspan="6" class="text-center py-4 text-secondary small">
-                                    No hay presupuestos para este cliente.
+                                    No hay órdenes de trabajo para este cliente.
                                 </td>
                             </tr>
                         @endforelse
