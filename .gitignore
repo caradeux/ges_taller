@@ -35,3 +35,6 @@ database/*.sqlite-shm
 
 # Claude Code internal memory
 .claude/
+
+.mcp.json
+composer.phar
