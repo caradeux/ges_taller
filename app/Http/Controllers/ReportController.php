@@ -233,7 +233,7 @@ class ReportController extends Controller
         $fromDate = Carbon::parse($from)->startOfDay();
         $toDate   = Carbon::parse($to)->endOfDay();
 
-        $diffDays = $fromDate->diffInDays($toDate) + 1;
+        $diffDays = (int) $fromDate->diffInDays($toDate) + 1;
         $prevTo   = $fromDate->copy()->subDay();
         $prevFrom = $prevTo->copy()->subDays($diffDays - 1);
 

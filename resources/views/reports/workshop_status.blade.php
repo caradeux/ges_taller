@@ -221,7 +221,7 @@
             <div class="kanban-col-body">
                 @foreach($group['items'] as $wo)
                     @php
-                        $days = \Carbon\Carbon::parse($wo->date)->diffInDays(now());
+                        $days = (int) \Carbon\Carbon::parse($wo->date)->diffInDays(now());
                         $daysClass = $days > 30 ? 'danger' : ($days > 14 ? 'warning' : 'ok');
                     @endphp
                     <a href="{{ route('work-orders.show', $wo) }}" class="k-card">

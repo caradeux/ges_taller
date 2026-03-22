@@ -60,7 +60,7 @@ class PartOrder extends Model
     public function getLeadTimeDaysAttribute(): ?int
     {
         if ($this->ordered_at && $this->received_at) {
-            return $this->ordered_at->diffInDays($this->received_at);
+            return (int) $this->ordered_at->diffInDays($this->received_at);
         }
 
         return null;
