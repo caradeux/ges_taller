@@ -612,7 +612,7 @@
                         <div class="d-flex justify-content-between">
                             <span class="text-muted small">Total a facturar</span>
                             <span class="fw-bold" style="color:var(--primary);">
-                                ${{ number_format($workOrder->total_authorized + round($workOrder->total_authorized * 0.19), 0, ',', '.') }}
+                                ${{ number_format($workOrder->total_amount, 0, ',', '.') }}
                             </span>
                         </div>
                     </div>
