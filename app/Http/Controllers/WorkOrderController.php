@@ -344,6 +344,17 @@ class WorkOrderController extends Controller
         return $pdf->download("Factura-OT-{$workOrder->folio}.pdf");
     }
 
+    public function downloadIntakePDF(WorkOrder $workOrder)
+    {
+        $workOrder->load(['client', 'vehicle', 'insuranceCompany']);
+        $company = Company::current();
+
+        $pdf = Pdf::loadView('work_orders.intake_pdf', compact('workOrder', 'company'));
+
+        $label = $workOrder->folio ? "Ingreso-OT-{$workOrder->folio}" : "Ingreso-OT-{$workOrder->id}";
+        return $pdf->download("{$label}.pdf");
+    }
+
     public function followUp()
     {
         $company  = Company::current();

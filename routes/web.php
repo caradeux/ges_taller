@@ -45,6 +45,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('work-orders', WorkOrderController::class);
     Route::get('work-orders/{work_order}/pdf', [WorkOrderController::class, 'downloadPDF'])->name('work-orders.pdf');
     Route::get('work-orders/{work_order}/invoice-pdf', [WorkOrderController::class, 'downloadInvoicePDF'])->name('work-orders.invoice-pdf');
+    Route::get('work-orders/{work_order}/intake-pdf', [WorkOrderController::class, 'downloadIntakePDF'])->name('work-orders.intake-pdf');
     Route::post('work-orders/{work_order}/status', [WorkOrderController::class, 'updateStatus'])->name('work-orders.status');
     Route::post('work-orders/{work_order}/items/{item}/toggle-approval', [WorkOrderController::class, 'toggleItemApproval'])->name('work-orders.toggle-approval');
 
