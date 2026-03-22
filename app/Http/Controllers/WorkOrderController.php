@@ -166,7 +166,15 @@ class WorkOrderController extends Controller
             'tags',
         ]);
 
-        return view('work_orders.show', compact('workOrder'));
+        // Vehicle history: previous OTs for the same vehicle
+        $vehicleHistory = WorkOrder::where('vehicle_id', $workOrder->vehicle_id)
+            ->where('id', '!=', $workOrder->id)
+            ->with('insuranceCompany')
+            ->orderByDesc('date')
+            ->limit(10)
+            ->get();
+
+        return view('work_orders.show', compact('workOrder', 'vehicleHistory'));
     }
 
     public function edit(WorkOrder $workOrder)
@@ -413,12 +421,20 @@ class WorkOrderController extends Controller
 
         $this->timeline->recordStatusChange($workOrder, $oldStatus, $newStatus);
 
+        // Generate WhatsApp link for client notification
+        $workOrder->loadMissing(['client', 'vehicle']);
+        $whatsappUrl = null;
+        if ($workOrder->client?->phone) {
+            $waMsg = \App\Helpers\WhatsAppHelper::buildStatusMessage($workOrder, $newStatus);
+            $whatsappUrl = \App\Helpers\WhatsAppHelper::buildUrl($workOrder->client->phone, $waMsg);
+        }
+
         $message = 'Estado actualizado a: ' . $workOrder->fresh()->status_label;
         if ($newStatus === 'invoiced' && !empty($validated['invoice_number'])) {
             $message .= ' (Factura N° ' . $validated['invoice_number'] . ')';
         }
 
-        return back()->with('success', $message);
+        return back()->with('success', $message)->with('whatsapp_url', $whatsappUrl);
     }
 
     public function toggleItemApproval(WorkOrder $workOrder, WorkOrderItem $item)

@@ -1,0 +1,19 @@
+{
+    "name": "GesTaller — Gestión de Taller",
+    "short_name": "GesTaller",
+    "description": "Sistema de gestión de taller automotriz",
+    "start_url": "/reportes/estado-taller",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#0f172a",
+    "theme_color": "#1e40af",
+    "orientation": "any",
+    "icons": [
+        {
+            "src": "/icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ]
+}

@@ -236,6 +236,12 @@
         <a href="{{ route('work-orders.edit', $workOrder) }}" class="btn-app-secondary"><i class="bi bi-pencil"></i> Editar</a>
         @endif
         <a href="{{ route('work-orders.intake-pdf', $workOrder) }}" class="btn-app-secondary"><i class="bi bi-clipboard-check"></i> Acta Ingreso</a>
+        @if($workOrder->client?->phone)
+        <a href="{{ \App\Helpers\WhatsAppHelper::buildUrl($workOrder->client->phone, 'Hola ' . $workOrder->client->name . ', respecto a su vehículo ' . ($workOrder->vehicle->license_plate ?? '') . ' (' . ($workOrder->folio ? 'OT #'.$workOrder->folio : 'OT') . ')...') }}"
+            target="_blank" class="btn btn-sm text-white" style="background:#25D366;border:none;border-radius:var(--radius-sm);padding:0.45rem 0.9rem;font-size:0.82rem;font-weight:600;">
+            <i class="bi bi-whatsapp"></i> WhatsApp
+        </a>
+        @endif
         @if($workOrder->folio)
         <a href="{{ route('work-orders.pdf', $workOrder) }}" class="btn-accent-app"><i class="bi bi-file-earmark-pdf"></i> PDF OT</a>
         @endif
@@ -514,6 +520,56 @@
 
     {{-- ═══ TIMELINE ═══ --}}
     @if($workOrder->events->count())
+    {{-- Historial del Vehículo --}}
+    @if($vehicleHistory->count())
+    <div class="card mb-4">
+        <div class="p-4" style="border-bottom:1px solid var(--border-light);">
+            <h5 class="fw-bold mb-0 ls-tight">
+                <i class="bi bi-car-front me-2" style="color:var(--accent);"></i>
+                Historial del Vehículo
+                <span class="badge bg-light text-dark border ms-2" style="font-size:0.7rem;">{{ $vehicleHistory->count() }} OT{{ $vehicleHistory->count() > 1 ? 's' : '' }} anterior{{ $vehicleHistory->count() > 1 ? 'es' : '' }}</span>
+            </h5>
+        </div>
+        <div class="p-4">
+            <div class="table-responsive">
+                <table class="table table-sm mb-0" style="font-size:0.82rem;">
+                    <thead>
+                        <tr>
+                            <th>Folio</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th>Aseguradora</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($vehicleHistory as $prevOT)
+                        <tr>
+                            <td>
+                                <a href="{{ route('work-orders.show', $prevOT) }}" class="fw-bold" style="color:var(--primary);">
+                                    {{ $prevOT->folio ? '#'.$prevOT->folio : '—' }}
+                                </a>
+                            </td>
+                            <td class="text-muted">{{ \Carbon\Carbon::parse($prevOT->date)->format('d/m/Y') }}</td>
+                            <td>
+                                <span class="badge bg-{{ $prevOT->status === 'invoiced' ? 'success' : 'secondary' }}" style="font-size:0.68rem;">
+                                    {{ $prevOT->status_label }}
+                                </span>
+                                @if($prevOT->invoice_number)
+                                    <span class="text-muted" style="font-size:0.7rem;">F° {{ $prevOT->invoice_number }}</span>
+                                @endif
+                            </td>
+                            <td class="text-muted">{{ $prevOT->insuranceCompany->name ?? 'Particular' }}</td>
+                            <td class="text-end fw-semibold">${{ number_format($prevOT->total_amount, 0, ',', '.') }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <div class="card mb-4">
         <div class="p-4" style="border-bottom:1px solid var(--border-light);">
             <h5 class="fw-bold mb-0 ls-tight"><i class="bi bi-clock-history me-2" style="color:var(--primary);"></i>Historial</h5>
@@ -634,6 +690,39 @@
 <script>
 const CSRF = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 const CLP = v => '$' + Number(v).toLocaleString('es-CL', {maximumFractionDigits: 0});
+
+// WhatsApp notification after status change
+@if(session('whatsapp_url'))
+(function() {
+    const waUrl = @json(session('whatsapp_url'));
+    const toast = document.createElement('div');
+    toast.innerHTML = `
+        <div style="position:fixed;bottom:20px;right:20px;z-index:99999;background:white;border-radius:12px;
+            box-shadow:0 8px 30px rgba(0,0,0,0.15);padding:16px 20px;max-width:340px;
+            animation:slideInRight 0.35s ease both;border-left:4px solid #25D366;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <i class="bi bi-whatsapp" style="font-size:1.3rem;color:#25D366;"></i>
+                <strong style="font-size:0.88rem;">¿Notificar al cliente?</strong>
+            </div>
+            <p style="font-size:0.78rem;color:#64748b;margin:0 0 10px;">Enviar mensaje de WhatsApp informando el cambio de estado.</p>
+            <div style="display:flex;gap:8px;">
+                <a href="${waUrl}" target="_blank"
+                    style="background:#25D366;color:white;border:none;border-radius:8px;padding:6px 16px;
+                    font-size:0.82rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+                    <i class="bi bi-whatsapp"></i> Enviar WhatsApp
+                </a>
+                <button onclick="this.closest('div[style*=fixed]').remove()"
+                    style="background:#f1f5f9;border:none;border-radius:8px;padding:6px 14px;
+                    font-size:0.82rem;color:#64748b;cursor:pointer;">
+                    Omitir
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 15000);
+})();
+@endif
 
 document.querySelectorAll('.toggle-approval').forEach(cb => {
     cb.addEventListener('change', function() {
