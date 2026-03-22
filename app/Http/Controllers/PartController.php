@@ -58,6 +58,18 @@ class PartController extends Controller
         return back()->with('success', 'Pieza eliminada.');
     }
 
+    public function quickStore(Request $request)
+    {
+        $validated = $request->validate([
+            'name'     => 'required|string|max:255',
+            'category' => 'required|string|max:100',
+        ]);
+
+        $part = Part::create(array_merge($validated, ['active' => true]));
+
+        return response()->json($part);
+    }
+
     public function search(Request $request)
     {
         $q = $request->input('q', '');

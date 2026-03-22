@@ -652,6 +652,52 @@
     </div>
 </div>
 
+{{-- Modal: Nueva Pieza rápida --}}
+<div class="modal fade" id="modalNewPart" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content border-0" style="border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);">
+            <div class="modal-header border-0 pb-0 pt-4 px-4">
+                <h6 class="fw-bold mb-0 ls-tight">
+                    <i class="bi bi-wrench-adjustable me-2" style="color:var(--primary);"></i>Nueva Pieza
+                </h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formNewPart">
+                <div class="modal-body px-4 py-3">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre <span class="text-danger">*</span></label>
+                        <input type="text" name="name" id="newPartName" class="form-control" required autofocus>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label">Categoría <span class="text-danger">*</span></label>
+                        <input type="text" name="category" class="form-control" required placeholder="Ej: Carrocería"
+                            list="partCategorySuggestions">
+                        <datalist id="partCategorySuggestions">
+                            <option value="Carrocería">
+                            <option value="Vidrios">
+                            <option value="Luces">
+                            <option value="Espejos Y Manillas">
+                            <option value="Molduras Y Accesorios">
+                            <option value="Estructura Y Chasis">
+                            <option value="Interior">
+                            <option value="Mecánica">
+                            <option value="Suspensión">
+                            <option value="Ruedas">
+                            <option value="Eléctrico Y Sensores">
+                        </datalist>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
+                    <button type="button" class="btn-app-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-primary-premium">
+                        <i class="bi bi-check-lg"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('scripts')
@@ -788,7 +834,9 @@ function buildUnOptions(selectedId = null) {
     ).join('');
 }
 
-// ── Autocomplete para descripcion de items (catalogo servicios) ──
+// ── Autocomplete para descripcion de items (catalogo partes) ──
+let _activeDescInput = null;
+
 function initDescAC(input) {
     const wrap = input.closest('.ac-wrap');
     const ul   = document.createElement('ul');
@@ -805,7 +853,6 @@ function initDescAC(input) {
             .then(r => r.json())
             .then(items => {
                 ul.innerHTML = '';
-                if (!items.length) { ul.style.display = 'none'; return; }
                 items.forEach(si => {
                     const li = document.createElement('li');
                     li.innerHTML = si.name;
@@ -817,6 +864,18 @@ function initDescAC(input) {
                     });
                     ul.appendChild(li);
                 });
+                // Opción para crear nueva pieza
+                const liNew = document.createElement('li');
+                liNew.innerHTML = `<i class="bi bi-plus-circle text-primary"></i> <strong>Crear pieza:</strong> "${q}"`;
+                liNew.style.color = 'var(--primary)';
+                liNew.addEventListener('mousedown', e => {
+                    e.preventDefault();
+                    ul.style.display = 'none';
+                    _activeDescInput = input;
+                    document.getElementById('newPartName').value = q;
+                    new bootstrap.Modal(document.getElementById('modalNewPart')).show();
+                });
+                ul.appendChild(liNew);
                 ul.style.display = 'block';
             })
             .catch(() => ul.style.display = 'none');
@@ -998,6 +1057,19 @@ document.getElementById('formNewLiquidator').addEventListener('submit', function
         addOption('liquidator_id', json.id, json.name);
         this.reset();
         closeModal('modalNewLiquidator');
+    });
+});
+
+// ── Pieza creada desde modal
+document.getElementById('formNewPart').addEventListener('submit', function (e) {
+    e.preventDefault();
+    quickPost('{{ route("parts.quickStore") }}', Object.fromEntries(new FormData(this)), json => {
+        if (_activeDescInput) {
+            _activeDescInput.value = json.name;
+            _activeDescInput = null;
+        }
+        this.reset();
+        closeModal('modalNewPart');
     });
 });
 </script>

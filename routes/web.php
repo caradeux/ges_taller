@@ -102,6 +102,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Parts catalog (partes y piezas)
     Route::resource('parts', PartController::class)->except(['show', 'create', 'edit']);
+    Route::post('parts/quick', [PartController::class, 'quickStore'])->name('parts.quickStore');
     Route::get('api/parts/search', [PartController::class, 'search'])->name('parts.search');
 
     // SLA / Control de Tiempos
