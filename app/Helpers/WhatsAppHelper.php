@@ -25,7 +25,11 @@ class WhatsAppHelper
         $folio    = $workOrder->folio ? "OT N° {$workOrder->folio}" : '';
         $company  = \App\Models\Company::current();
         $taller   = $company->name ?? 'Nuestro taller';
-        $phone    = $company->phone ?? '';
+
+        // Use branch phone if available, fallback to company phone
+        $branch = $workOrder->branch_id ? \App\Models\Branch::find($workOrder->branch_id) : null;
+        $phone  = $branch?->phone ?? $company->phone ?? '';
+
         $total    = '$' . number_format($workOrder->total_amount, 0, ',', '.');
         $saludo   = self::saludo();
 
