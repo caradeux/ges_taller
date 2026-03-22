@@ -37,6 +37,7 @@
                             <option value="">Seleccionar...</option>
                             <option value="mano_obra" {{ old('type') === 'mano_obra' ? 'selected' : '' }}>Mano de Obra</option>
                             <option value="repuesto"  {{ old('type') === 'repuesto'  ? 'selected' : '' }}>Repuesto</option>
+                            <option value="producto"  {{ old('type') === 'producto'  ? 'selected' : '' }}>Producto</option>
                         </select>
                         @error('type')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>

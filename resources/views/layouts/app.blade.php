@@ -883,8 +883,94 @@
         }
 
         @keyframes fadeSlideUp {
-            from { opacity: 0; margin-top: 8px; }
-            to   { opacity: 1; margin-top: 0; }
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Staggered children animation */
+        .animate-in .card,
+        .animate-in .stat-card {
+            animation: fadeSlideUp 0.4s ease both;
+        }
+        .animate-in .card:nth-child(1), .animate-in .stat-card:nth-child(1) { animation-delay: 0.05s; }
+        .animate-in .card:nth-child(2), .animate-in .stat-card:nth-child(2) { animation-delay: 0.1s; }
+        .animate-in .card:nth-child(3), .animate-in .stat-card:nth-child(3) { animation-delay: 0.15s; }
+        .animate-in .card:nth-child(4), .animate-in .stat-card:nth-child(4) { animation-delay: 0.2s; }
+        .animate-in .card:nth-child(5), .animate-in .stat-card:nth-child(5) { animation-delay: 0.25s; }
+        .animate-in .card:nth-child(6), .animate-in .stat-card:nth-child(6) { animation-delay: 0.3s; }
+
+        /* Card hover lift effect */
+        .card {
+            transition: transform 0.22s ease, box-shadow 0.22s ease !important;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08) !important;
+        }
+
+        /* Table row hover highlight */
+        .table tbody tr {
+            transition: background-color 0.15s ease, transform 0.15s ease;
+        }
+        .table tbody tr:hover {
+            background-color: #f8faff !important;
+        }
+
+        /* Button press effect */
+        .btn-primary-premium:active,
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        /* Badge pulse for alerts */
+        .badge-pulse {
+            animation: badgePulse 2s ease-in-out infinite;
+        }
+        @keyframes badgePulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Smooth page transitions for nav links */
+        .main-content {
+            transition: opacity 0.2s ease;
+        }
+
+        /* Status badge glow */
+        .status-badge {
+            transition: all 0.2s ease;
+        }
+        .status-badge:hover {
+            filter: brightness(1.1);
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+
+        /* Sidebar link hover animation */
+        .sidebar .nav-link {
+            transition: all 0.2s ease, padding-left 0.2s ease;
+        }
+        .sidebar .nav-link:hover:not(.active) {
+            padding-left: calc(1rem + 4px);
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* Toast/alert slide in */
+        .alert {
+            animation: slideInRight 0.35s ease both;
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Number counter animation helper */
+        .count-up {
+            transition: all 0.6s ease;
+        }
+
+        /* Smooth modal backdrop */
+        .modal.fade .modal-dialog {
+            transition: transform 0.25s ease, opacity 0.25s ease;
         }
 
         /* ─── Utilities ──────────────────────────────────────── */

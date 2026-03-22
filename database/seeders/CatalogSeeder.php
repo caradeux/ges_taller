@@ -154,6 +154,28 @@ class CatalogSeeder extends Seeder
             ['code' => 'MEC-004', 'description' => 'Recarga Aire Acondicionado', 'type' => 'mano_obra', 'default_price' => 45000],
             ['code' => 'MEC-005', 'description' => 'Revisión Pre-Entrega', 'type' => 'mano_obra', 'default_price' => 15000],
             ['code' => 'MEC-006', 'description' => 'Grúa / Transporte De Vehículo', 'type' => 'mano_obra', 'default_price' => 65000],
+
+            // ─── Productos ──────────────────────────────────────────
+            ['code' => 'VP-001', 'description' => 'Cera Líquida Premium 500ml', 'type' => 'producto', 'default_price' => 12000],
+            ['code' => 'VP-002', 'description' => 'Shampoo Automotriz 1L', 'type' => 'producto', 'default_price' => 8000],
+            ['code' => 'VP-003', 'description' => 'Silicona Para Tablero 400ml', 'type' => 'producto', 'default_price' => 6500],
+            ['code' => 'VP-004', 'description' => 'Limpia Vidrios 500ml', 'type' => 'producto', 'default_price' => 4500],
+            ['code' => 'VP-005', 'description' => 'Desengrasante Motor 500ml', 'type' => 'producto', 'default_price' => 7000],
+            ['code' => 'VP-006', 'description' => 'Renovador De Plásticos 300ml', 'type' => 'producto', 'default_price' => 9500],
+            ['code' => 'VP-007', 'description' => 'Ambientador Auto Premium', 'type' => 'producto', 'default_price' => 5000],
+            ['code' => 'VP-008', 'description' => 'Paño Microfibra (Pack 3)', 'type' => 'producto', 'default_price' => 8500],
+            ['code' => 'VP-009', 'description' => 'Coating Cerámico DIY', 'type' => 'producto', 'default_price' => 35000],
+            ['code' => 'VP-010', 'description' => 'Kit Limpieza Interior Completo', 'type' => 'producto', 'default_price' => 25000],
+            ['code' => 'VP-011', 'description' => 'Spray Anticorrosivo 400ml', 'type' => 'producto', 'default_price' => 8000],
+            ['code' => 'VP-012', 'description' => 'Líquido De Frenos DOT4 500ml', 'type' => 'producto', 'default_price' => 7500],
+            ['code' => 'VP-013', 'description' => 'Aceite Motor 5W-30 1L', 'type' => 'producto', 'default_price' => 12000],
+            ['code' => 'VP-014', 'description' => 'Refrigerante Anticongelante 1L', 'type' => 'producto', 'default_price' => 6000],
+            ['code' => 'VP-015', 'description' => 'Limpia Tapicería Espuma 400ml', 'type' => 'producto', 'default_price' => 7000],
+            ['code' => 'VP-016', 'description' => 'Pulimento Para Faros Kit', 'type' => 'producto', 'default_price' => 15000],
+            ['code' => 'VP-017', 'description' => 'Pegamento Espejo Retrovisor', 'type' => 'producto', 'default_price' => 4000],
+            ['code' => 'VP-018', 'description' => 'Betún Para Neumáticos 500ml', 'type' => 'producto', 'default_price' => 6500],
+            ['code' => 'VP-019', 'description' => 'Film PPF Protector (Metro)', 'type' => 'producto', 'default_price' => 65000],
+            ['code' => 'VP-020', 'description' => 'Lámina Polarizado (Metro)', 'type' => 'producto', 'default_price' => 35000],
         ];
 
         foreach ($items as $item) {

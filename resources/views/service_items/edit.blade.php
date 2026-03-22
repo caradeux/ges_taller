@@ -36,6 +36,7 @@
                         <select name="type" class="form-select @error('type') is-invalid @enderror" required>
                             <option value="mano_obra" {{ old('type', $serviceItem->type) === 'mano_obra' ? 'selected' : '' }}>Mano de Obra</option>
                             <option value="repuesto"  {{ old('type', $serviceItem->type) === 'repuesto'  ? 'selected' : '' }}>Repuesto</option>
+                            <option value="producto"  {{ old('type', $serviceItem->type) === 'producto'  ? 'selected' : '' }}>Producto</option>
                         </select>
                         @error('type')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>

@@ -37,7 +37,7 @@ class ServiceItemController extends Controller
         $validated = $request->validate([
             'code'          => 'nullable|string|max:50|unique:service_items,code',
             'description'   => 'required|string|max:255',
-            'type'          => 'required|in:repuesto,mano_obra',
+            'type'          => 'required|in:repuesto,mano_obra,producto',
             'default_price' => 'required|numeric|min:0',
         ]);
 
@@ -56,7 +56,7 @@ class ServiceItemController extends Controller
         $validated = $request->validate([
             'code'          => 'nullable|string|max:50|unique:service_items,code,' . $serviceItem->id,
             'description'   => 'required|string|max:255',
-            'type'          => 'required|in:repuesto,mano_obra',
+            'type'          => 'required|in:repuesto,mano_obra,producto',
             'default_price' => 'required|numeric|min:0',
             'active'        => 'boolean',
         ]);

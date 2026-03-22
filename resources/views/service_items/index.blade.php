@@ -29,6 +29,7 @@
                         <option value="">Todos</option>
                         <option value="repuesto"  {{ request('type') === 'repuesto'  ? 'selected' : '' }}>Repuesto</option>
                         <option value="mano_obra" {{ request('type') === 'mano_obra' ? 'selected' : '' }}>Mano de Obra</option>
+                        <option value="producto"  {{ request('type') === 'producto'  ? 'selected' : '' }}>Producto</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary rounded-pill px-4">Filtrar</button>
@@ -60,6 +61,8 @@
                         <td>
                             @if($item->type === 'repuesto')
                                 <span class="badge bg-primary-subtle text-primary rounded-pill px-3">Repuesto</span>
+                            @elseif($item->type === 'producto')
+                                <span class="badge bg-success-subtle text-success rounded-pill px-3">Producto</span>
                             @else
                                 <span class="badge bg-warning-subtle text-warning rounded-pill px-3">Mano de Obra</span>
                             @endif
