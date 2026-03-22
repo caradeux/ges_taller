@@ -695,32 +695,53 @@ const CLP = v => '$' + Number(v).toLocaleString('es-CL', {maximumFractionDigits:
 @if(session('whatsapp_url'))
 (function() {
     const waUrl = @json(session('whatsapp_url'));
+    const clientId = @json($workOrder->client_id);
+    const storageKey = 'wa_auto_' + clientId;
+    const autoSend = localStorage.getItem(storageKey) === '1';
+
+    if (autoSend) {
+        // Client already opted in — send directly
+        window.open(waUrl, '_blank');
+        return;
+    }
+
+    // First time for this client — ask
     const toast = document.createElement('div');
     toast.innerHTML = `
-        <div style="position:fixed;bottom:20px;right:20px;z-index:99999;background:white;border-radius:12px;
-            box-shadow:0 8px 30px rgba(0,0,0,0.15);padding:16px 20px;max-width:340px;
+        <div id="waToast" style="position:fixed;bottom:20px;right:20px;z-index:99999;background:white;border-radius:12px;
+            box-shadow:0 8px 30px rgba(0,0,0,0.15);padding:16px 20px;max-width:360px;
             animation:slideInRight 0.35s ease both;border-left:4px solid #25D366;">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
                 <i class="bi bi-whatsapp" style="font-size:1.3rem;color:#25D366;"></i>
-                <strong style="font-size:0.88rem;">¿Notificar al cliente?</strong>
+                <strong style="font-size:0.88rem;">Notificar al cliente por WhatsApp</strong>
             </div>
-            <p style="font-size:0.78rem;color:#64748b;margin:0 0 10px;">Enviar mensaje de WhatsApp informando el cambio de estado.</p>
+            <p style="font-size:0.78rem;color:#64748b;margin:0 0 10px;">Si acepta, los proximos cambios de estado se enviaran automaticamente para este cliente.</p>
             <div style="display:flex;gap:8px;">
-                <a href="${waUrl}" target="_blank"
+                <a id="waSendBtn" href="${waUrl}" target="_blank"
                     style="background:#25D366;color:white;border:none;border-radius:8px;padding:6px 16px;
                     font-size:0.82rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
-                    <i class="bi bi-whatsapp"></i> Enviar WhatsApp
+                    <i class="bi bi-whatsapp"></i> Si, enviar
                 </a>
-                <button onclick="this.closest('div[style*=fixed]').remove()"
+                <button id="waSkipBtn"
                     style="background:#f1f5f9;border:none;border-radius:8px;padding:6px 14px;
                     font-size:0.82rem;color:#64748b;cursor:pointer;">
-                    Omitir
+                    No, omitir
                 </button>
             </div>
         </div>
     `;
     document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 15000);
+
+    document.getElementById('waSendBtn').addEventListener('click', function() {
+        localStorage.setItem(storageKey, '1');
+        setTimeout(() => toast.remove(), 500);
+    });
+
+    document.getElementById('waSkipBtn').addEventListener('click', function() {
+        toast.remove();
+    });
+
+    setTimeout(() => toast.remove(), 20000);
 })();
 @endif
 
