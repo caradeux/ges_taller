@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\PartOrder;
 use App\Models\Vehicle;
 use App\Models\WorkOrder;
 use App\Models\WorkOrderItem;
@@ -182,6 +183,89 @@ class SampleDataSeeder extends Seeder
             [$pint->id, 'Puerta Trasera Derecha — Pintura', 85000, 0, 0],
             [$dm->id, 'Puerta Trasera Derecha — D/M', 25000, 0, 0],
         ]);
+
+        // ── Pedidos de Repuestos ────────────────────────────────
+        // OT5 (waiting_parts): tiene items tipo Cambio que necesitan repuestos
+        $wo5Items = WorkOrderItem::where('work_order_id', 5)
+            ->whereHas('unType', fn($q) => $q->where('code', 'C'))
+            ->get();
+
+        if ($wo5Items->count()) {
+            // Parabrisas: pedido hace 6 días, aún no llega
+            PartOrder::create([
+                'work_order_item_id' => $wo5Items->first()->id,
+                'supplier'           => 'Vidrios Chile SpA',
+                'part_number'        => 'VPC-4520-FW',
+                'description'        => 'Parabrisas laminado original Mazda CX-5 2020',
+                'cost'               => 120000,
+                'ordered_at'         => Carbon::now()->subDays(6),
+                'received_at'        => null,
+                'notes'              => 'Proveedor confirmó despacho para el viernes',
+            ]);
+        }
+
+        // OT4 (in_repair): repuestos ya recibidos
+        $wo4Items = WorkOrderItem::where('work_order_id', 4)
+            ->whereHas('unType', fn($q) => $q->where('code', 'C'))
+            ->get();
+
+        foreach ($wo4Items as $i => $item) {
+            $suppliers = ['Repuestos Automotriz del Pacífico', 'Derco Repuestos', 'SsangYong Parts Chile'];
+            $partNumbers = ['CHV-RJ-2023-GR', 'HL-KR-R01-2023'];
+            $descs = ['Rejilla delantera original Chevrolet Tracker 2023', 'Faro delantero derecho LED Chevrolet Tracker 2023'];
+            $costs = [35000, 90000];
+            $orderedDays = [10, 8];
+            $receivedDays = [3, 2];
+
+            if ($i < 2) {
+                PartOrder::create([
+                    'work_order_item_id' => $item->id,
+                    'supplier'           => $suppliers[$i],
+                    'part_number'        => $partNumbers[$i],
+                    'description'        => $descs[$i],
+                    'cost'               => $costs[$i],
+                    'ordered_at'         => Carbon::now()->subDays($orderedDays[$i]),
+                    'received_at'        => Carbon::now()->subDays($receivedDays[$i]),
+                    'notes'              => 'Recibido en buenas condiciones',
+                ]);
+            }
+        }
+
+        // OT2 facturada: repuestos recibidos (para reporte de días de espera)
+        $wo2Items = WorkOrderItem::where('work_order_id', 2)
+            ->whereHas('unType', fn($q) => $q->where('code', 'C'))
+            ->get();
+
+        if ($wo2Items->count()) {
+            PartOrder::create([
+                'work_order_item_id' => $wo2Items->first()->id,
+                'supplier'           => 'Hyundai Repuestos Oficial',
+                'part_number'        => 'HYU-MRR-LH-2021',
+                'description'        => 'Espejo retrovisor izquierdo eléctrico Toyota Corolla',
+                'cost'               => 45000,
+                'ordered_at'         => Carbon::now()->subDays(40),
+                'received_at'        => Carbon::now()->subDays(33),
+                'notes'              => 'Importado desde Corea, 7 días de espera',
+            ]);
+        }
+
+        // OT8 completada: repuestos recibidos
+        $wo8Items = WorkOrderItem::where('work_order_id', 8)
+            ->whereHas('unType', fn($q) => $q->where('code', 'C'))
+            ->get();
+
+        if ($wo8Items->count()) {
+            PartOrder::create([
+                'work_order_item_id' => $wo8Items->first()->id,
+                'supplier'           => 'AutoParts Valparaíso',
+                'part_number'        => 'FRD-TL-RH-2021',
+                'description'        => 'Faro trasero derecho Ford Ranger 2021',
+                'cost'               => 55000,
+                'ordered_at'         => Carbon::now()->subDays(20),
+                'received_at'        => Carbon::now()->subDays(15),
+                'notes'              => 'Alternativo de buena calidad',
+            ]);
+        }
 
         // Set folio counter
         Company::current()->update(['folio_counter' => $folio + 1, 'ot_folio_counter' => $folio + 1]);
