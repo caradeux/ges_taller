@@ -243,7 +243,7 @@
                         @endif
                         <div class="k-footer">
                             <span class="k-amount">${{ number_format($wo->total_amount, 0, ',', '.') }}</span>
-                            <span class="k-days {{ $daysClass }}">{{ $days }}d</span>
+                            <span class="k-days {{ $daysClass }}"><i class="bi bi-clock"></i> {{ $days }} día{{ $days != 1 ? 's' : '' }}</span>
                         </div>
                     </a>
                 @endforeach
