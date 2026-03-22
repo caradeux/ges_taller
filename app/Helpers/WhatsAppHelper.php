@@ -8,26 +8,72 @@ class WhatsAppHelper
 {
     public static function buildStatusMessage(WorkOrder $workOrder, string $newStatus): string
     {
-        $workOrder->loadMissing(['client', 'vehicle']);
+        $workOrder->loadMissing(['client', 'vehicle', 'insuranceCompany']);
 
-        $clientName = $workOrder->client->name ?? 'Cliente';
-        $plate      = $workOrder->vehicle->license_plate ?? '';
-        $brand      = $workOrder->vehicle->brand ?? '';
-        $model      = $workOrder->vehicle->model ?? '';
-        $folio      = $workOrder->folio ? "OT #{$workOrder->folio}" : 'Su orden de trabajo';
-        $company    = \App\Models\Company::current()->name ?? 'GesTaller';
+        $nombre   = explode(' ', $workOrder->client->name ?? 'Cliente')[0];
+        $plate    = $workOrder->vehicle->license_plate ?? '';
+        $auto     = trim(($workOrder->vehicle->brand ?? '') . ' ' . ($workOrder->vehicle->model ?? ''));
+        $year     = $workOrder->vehicle->year ?? '';
+        $folio    = $workOrder->folio ? "OT N° {$workOrder->folio}" : '';
+        $company  = \App\Models\Company::current();
+        $taller   = $company->name ?? 'GesTaller';
+        $phone    = $company->phone ?? '';
+        $total    = '$' . number_format($workOrder->total_amount, 0, ',', '.');
+
+        $header = "🔧 *{$taller}*\n━━━━━━━━━━━━━━━━━━━━\n\n";
+        $vehiculo = "🚗 *{$plate}* — {$auto} {$year}";
+        $ref = $folio ? "\n📋 {$folio}" : '';
+        $firma = "\n\n━━━━━━━━━━━━━━━━━━━━\n📞 {$taller}" . ($phone ? " · {$phone}" : '') . "\n_Mensaje automático — no responder a este número_";
 
         $messages = [
-            'budget_sent'   => "Hola {$clientName}, le informamos que el presupuesto de su vehículo {$plate} ({$brand} {$model}) ha sido enviado. {$folio}. Quedamos atentos a su aprobación.\n\n{$company}",
-            'approved'      => "Hola {$clientName}, su presupuesto para el vehículo {$plate} ({$brand} {$model}) ha sido aprobado. Comenzaremos con los trabajos a la brevedad. {$folio}.\n\n{$company}",
-            'waiting_parts' => "Hola {$clientName}, le informamos que su vehículo {$plate} está en espera de repuestos. Le avisaremos cuando lleguen para continuar con la reparación. {$folio}.\n\n{$company}",
-            'in_repair'     => "Hola {$clientName}, su vehículo {$plate} ({$brand} {$model}) se encuentra en reparación. Le mantendremos informado del avance. {$folio}.\n\n{$company}",
-            'completed'     => "Hola {$clientName}, nos complace informarle que los trabajos en su vehículo {$plate} ({$brand} {$model}) han sido completados. Puede coordinar el retiro. {$folio}.\n\n{$company}",
-            'delivered'     => "Hola {$clientName}, su vehículo {$plate} ({$brand} {$model}) ha sido entregado exitosamente. Gracias por confiar en {$company}. {$folio}.",
-            'invoiced'      => "Hola {$clientName}, su vehículo {$plate} ({$brand} {$model}) ha sido facturado. {$folio}. Gracias por su preferencia.\n\n{$company}",
+            'budget_sent' => $header
+                . "Estimado/a *{$nombre}*, le informamos que hemos preparado el presupuesto para su vehículo:\n\n"
+                . "{$vehiculo}{$ref}\n\n"
+                . "💰 *Monto presupuestado: {$total}*\n\n"
+                . "Quedamos atentos a su aprobación para comenzar con los trabajos de reparación. Si tiene alguna consulta sobre el detalle del presupuesto, no dude en contactarnos."
+                . $firma,
+
+            'approved' => $header
+                . "Estimado/a *{$nombre}*, le confirmamos que el presupuesto de su vehículo ha sido *aprobado* ✅\n\n"
+                . "{$vehiculo}{$ref}\n\n"
+                . "Nuestro equipo comenzará con los trabajos a la brevedad. Le mantendremos informado/a sobre el avance de la reparación."
+                . $firma,
+
+            'waiting_parts' => $header
+                . "Estimado/a *{$nombre}*, le informamos que su vehículo se encuentra en *espera de repuestos* 📦\n\n"
+                . "{$vehiculo}{$ref}\n\n"
+                . "Ya realizamos el pedido de las piezas necesarias. Una vez que lleguen, continuaremos de inmediato con la reparación. Le notificaremos cuando retomemos los trabajos."
+                . $firma,
+
+            'in_repair' => $header
+                . "Estimado/a *{$nombre}*, le informamos que su vehículo se encuentra *en reparación* 🔧\n\n"
+                . "{$vehiculo}{$ref}\n\n"
+                . "Nuestro equipo está trabajando en su vehículo. Le notificaremos una vez que los trabajos estén finalizados."
+                . $firma,
+
+            'completed' => $header
+                . "Estimado/a *{$nombre}*, nos complace informarle que los trabajos en su vehículo han sido *completados exitosamente* ✅🎉\n\n"
+                . "{$vehiculo}{$ref}\n\n"
+                . "Su vehículo se encuentra listo para ser retirado. Por favor contáctenos para *coordinar la fecha y hora de entrega*.\n\n"
+                . "⏰ Horario de atención: Lunes a Viernes 9:00 - 18:00"
+                . $firma,
+
+            'delivered' => $header
+                . "Estimado/a *{$nombre}*, confirmamos la *entrega exitosa* de su vehículo 🚗✅\n\n"
+                . "{$vehiculo}{$ref}\n\n"
+                . "Agradecemos su confianza en *{$taller}*. Si nota cualquier detalle o tiene alguna consulta posterior, no dude en contactarnos.\n\n"
+                . "⭐ Su opinión es importante para nosotros."
+                . $firma,
+
+            'invoiced' => $header
+                . "Estimado/a *{$nombre}*, le informamos que su orden de trabajo ha sido *facturada* 🧾\n\n"
+                . "{$vehiculo}{$ref}\n"
+                . "💰 *Total: {$total}*\n\n"
+                . "Gracias por su preferencia. Fue un gusto atenderle en *{$taller}*."
+                . $firma,
         ];
 
-        return $messages[$newStatus] ?? "Hola {$clientName}, le informamos que el estado de su vehículo {$plate} ha sido actualizado. {$folio}.\n\n{$company}";
+        return $messages[$newStatus] ?? $header . "Estimado/a *{$nombre}*, le informamos que el estado de su vehículo ha sido actualizado.\n\n{$vehiculo}{$ref}" . $firma;
     }
 
     public static function buildUrl(string $phone, string $message): string

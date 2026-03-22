@@ -237,7 +237,7 @@
         @endif
         <a href="{{ route('work-orders.intake-pdf', $workOrder) }}" class="btn-app-secondary"><i class="bi bi-clipboard-check"></i> Acta Ingreso</a>
         @if($workOrder->client?->phone)
-        <a href="{{ \App\Helpers\WhatsAppHelper::buildUrl($workOrder->client->phone, 'Hola ' . $workOrder->client->name . ', respecto a su vehículo ' . ($workOrder->vehicle->license_plate ?? '') . ' (' . ($workOrder->folio ? 'OT #'.$workOrder->folio : 'OT') . ')...') }}"
+        <a href="{{ \App\Helpers\WhatsAppHelper::buildUrl($workOrder->client->phone, \App\Helpers\WhatsAppHelper::buildStatusMessage($workOrder, $workOrder->status)) }}"
             target="_blank" class="btn btn-sm text-white" style="background:#25D366;border:none;border-radius:var(--radius-sm);padding:0.45rem 0.9rem;font-size:0.82rem;font-weight:600;">
             <i class="bi bi-whatsapp"></i> WhatsApp
         </a>
