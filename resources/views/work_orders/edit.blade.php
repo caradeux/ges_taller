@@ -770,7 +770,7 @@ document.getElementById('workOrderForm').addEventListener('submit', function (e)
 });
 
 // ── Tabla de items ─────────────────────────────────────────────
-const UN_TYPES = @json($unTypes->map(fn($u) => ['id' => $u->id, 'code' => $u->code, 'name' => $u->name]));
+const UN_TYPES = @json($unTypes->map(fn($u) => ['id' => $u->id, 'code' => $u->code, 'name' => $u->name, 'category' => $u->category]));
 
 function buildUnOptions(selectedId = null) {
     return UN_TYPES.map(u =>
@@ -778,8 +778,17 @@ function buildUnOptions(selectedId = null) {
     ).join('');
 }
 
-// ── Autocomplete para descripcion de items (catalogo partes) ──
+// ── Autocomplete para descripcion de items (catalogo partes/servicios) ──
 let _activeDescInput = null;
+const PARTS_URL   = '{{ route("parts.search") }}';
+const SERVICE_URL = '{{ route("service-items.search") }}';
+
+function getUnCategory(row) {
+    const sel = row.querySelector('.un-sel');
+    const selectedId = parseInt(sel?.value);
+    const un = UN_TYPES.find(u => u.id === selectedId);
+    return un?.category || 'repair';
+}
 
 function initDescAC(input) {
     const wrap = input.closest('.ac-wrap');
@@ -793,32 +802,43 @@ function initDescAC(input) {
         if (q.length < 2) { ul.style.display = 'none'; return; }
         clearTimeout(timer);
         timer = setTimeout(() => {
-            fetch(`{{ route('parts.search') }}?q=${encodeURIComponent(q)}`, { headers: { 'Accept': 'application/json' } })
+            const row = input.closest('tr');
+            const isService = getUnCategory(row) === 'service';
+            const url = isService ? SERVICE_URL : PARTS_URL;
+
+            fetch(`${url}?q=${encodeURIComponent(q)}`, { headers: { 'Accept': 'application/json' } })
             .then(r => r.json())
             .then(items => {
                 ul.innerHTML = '';
                 items.forEach(si => {
                     const li = document.createElement('li');
-                    li.innerHTML = si.name;
+                    const label = si.name || si.description;
+                    li.innerHTML = label + (isService && si.default_price ? ` <span class="text-muted" style="font-size:.75rem">$${Number(si.default_price).toLocaleString('es-CL')}</span>` : '');
                     li.addEventListener('mousedown', e => {
                         e.preventDefault();
-                        input.value = si.name;
+                        input.value = label;
                         ul.style.display = 'none';
+                        if (isService && si.default_price) {
+                            const pw = row.querySelector('.price-workshop');
+                            if (pw && !pw.value) pw.value = si.default_price;
+                        }
                         recalc();
                     });
                     ul.appendChild(li);
                 });
-                const liNew = document.createElement('li');
-                liNew.innerHTML = `<i class="bi bi-plus-circle text-primary"></i> <strong>Crear pieza:</strong> "${q}"`;
-                liNew.style.color = 'var(--primary)';
-                liNew.addEventListener('mousedown', e => {
-                    e.preventDefault();
-                    ul.style.display = 'none';
-                    _activeDescInput = input;
-                    document.getElementById('newPartName').value = q;
-                    new bootstrap.Modal(document.getElementById('modalNewPart')).show();
-                });
-                ul.appendChild(liNew);
+                if (!isService) {
+                    const liNew = document.createElement('li');
+                    liNew.innerHTML = `<i class="bi bi-plus-circle text-primary"></i> <strong>Crear pieza:</strong> "${q}"`;
+                    liNew.style.color = 'var(--primary)';
+                    liNew.addEventListener('mousedown', e => {
+                        e.preventDefault();
+                        ul.style.display = 'none';
+                        _activeDescInput = input;
+                        document.getElementById('newPartName').value = q;
+                        new bootstrap.Modal(document.getElementById('modalNewPart')).show();
+                    });
+                    ul.appendChild(liNew);
+                }
                 ul.style.display = 'block';
             })
             .catch(() => ul.style.display = 'none');

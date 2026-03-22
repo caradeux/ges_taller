@@ -9,11 +9,12 @@ class UnType extends Model
     protected $fillable = ['code', 'name', 'category', 'sort_order', 'active'];
 
     public static array $categories = [
-        'repair' => 'Reparación',
-        'paint'  => 'Pintura',
-        'dm'     => 'Desmontaje/Montaje',
-        'parts'  => 'Repuesto',
-        'other'  => 'Otros',
+        'repair'  => 'Reparación',
+        'paint'   => 'Pintura',
+        'dm'      => 'Desmontaje/Montaje',
+        'parts'   => 'Repuesto',
+        'other'   => 'Otros',
+        'service' => 'Servicio',
     ];
 
     public function getCategoryLabelAttribute(): string
