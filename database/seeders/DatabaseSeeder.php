@@ -28,5 +28,6 @@ class DatabaseSeeder extends Seeder
         );
 
         $this->call(SampleDataSeeder::class);
+        $this->call(CatalogSeeder::class);
     }
 }

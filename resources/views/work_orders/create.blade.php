@@ -785,6 +785,68 @@ function buildUnOptions(selectedId = null) {
     ).join('');
 }
 
+// ── Autocomplete para descripcion de items (catalogo servicios) ──
+function initDescAC(input) {
+    const wrap = input.closest('.ac-wrap');
+    const ul   = document.createElement('ul');
+    ul.className = 'ac-dropdown';
+    wrap.appendChild(ul);
+    let timer;
+
+    input.addEventListener('input', () => {
+        const q = input.value.trim();
+        if (q.length < 2) { ul.style.display = 'none'; return; }
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            fetch(`{{ route('service-items.search') }}?q=${encodeURIComponent(q)}`, { headers: { 'Accept': 'application/json' } })
+            .then(r => r.json())
+            .then(items => {
+                ul.innerHTML = '';
+                if (!items.length) { ul.style.display = 'none'; return; }
+                items.forEach(si => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>${si.code || ''}</strong> ${si.description}` +
+                        (si.default_price ? ` <span class="text-muted" style="font-size:.75rem">$${Number(si.default_price).toLocaleString('es-CL')}</span>` : '');
+                    li.addEventListener('mousedown', e => {
+                        e.preventDefault();
+                        input.value = si.description;
+                        ul.style.display = 'none';
+                        const row = input.closest('tr');
+                        if (si.default_price) {
+                            const pw = row.querySelector('.price-workshop');
+                            if (pw && !pw.value) pw.value = si.default_price;
+                        }
+                        // Seleccionar tipo UN si coincide
+                        if (si.type) {
+                            const unSel = row.querySelector('.un-sel');
+                            const matchOpt = [...unSel.options].find(o => {
+                                const code = o.textContent.split('—')[0].trim().toLowerCase();
+                                return code === (si.type || '').toLowerCase();
+                            });
+                            if (matchOpt) unSel.value = matchOpt.value;
+                        }
+                        recalc();
+                    });
+                    ul.appendChild(li);
+                });
+                ul.style.display = 'block';
+            })
+            .catch(() => ul.style.display = 'none');
+        }, 250);
+    });
+
+    input.addEventListener('blur', () => setTimeout(() => ul.style.display = 'none', 180));
+    input.addEventListener('keydown', e => {
+        const lis    = [...ul.querySelectorAll('li')];
+        const active = ul.querySelector('li.ac-active');
+        const idx    = active ? lis.indexOf(active) : -1;
+        if (e.key === 'ArrowDown')  { e.preventDefault(); active?.classList.remove('ac-active'); (lis[idx + 1] ?? lis[0])?.classList.add('ac-active'); }
+        if (e.key === 'ArrowUp')    { e.preventDefault(); active?.classList.remove('ac-active'); (lis[idx - 1] ?? lis[lis.length - 1])?.classList.add('ac-active'); }
+        if (e.key === 'Enter' && active) { e.preventDefault(); active.dispatchEvent(new MouseEvent('mousedown')); }
+        if (e.key === 'Escape')     { ul.style.display = 'none'; }
+    });
+}
+
 let rowIdx = 0;
 
 function addRow(data = {}) {
@@ -804,9 +866,11 @@ function addRow(data = {}) {
                 ${buildUnOptions(unId)}
             </select>
         </td>
-        <td>
-            <input type="text" name="items[${i}][description]" class="form-control form-control-sm"
-                value="${desc}" placeholder="Descripcion del trabajo o repuesto…" required>
+        <td style="position:relative;">
+            <div class="ac-wrap">
+                <input type="text" name="items[${i}][description]" class="form-control form-control-sm desc-input"
+                    value="${desc}" placeholder="Descripcion del trabajo o repuesto…" required autocomplete="off">
+            </div>
         </td>
         <td>
             <input type="number" name="items[${i}][price_workshop]" class="form-control form-control-sm price-inp price-workshop"
@@ -841,8 +905,9 @@ function addRow(data = {}) {
     tr.querySelector('.chk-approved').addEventListener('change', recalc);
     tr.querySelector('.rm-row').addEventListener('click', () => { tr.remove(); recalc(); });
     document.getElementById('itemsBody').appendChild(tr);
+    initDescAC(tr.querySelector('.desc-input'));
     recalc();
-    tr.querySelector('input[type="text"]').focus();
+    tr.querySelector('.desc-input').focus();
 }
 
 function recalc() {
