@@ -200,8 +200,8 @@
                             @endphp
                             <tr>
                                 <td class="fw-semibold">{{ $wo->folio_display ?? '-' }}</td>
-                                <td>{{ $wo->client }}</td>
-                                <td class="text-secondary small">{{ $wo->vehicle }}</td>
+                                <td>{{ $wo->client->name ?? '-' }}</td>
+                                <td class="text-secondary small">{{ $wo->vehicle->license_plate ?? '-' }} {{ $wo->vehicle->brand ?? '' }} {{ $wo->vehicle->model ?? '' }}</td>
                                 <td class="text-end fw-bold" style="color: var(--primary);">
                                     ${{ number_format($wo->total_authorized, 0, ',', '.') }}
                                 </td>
