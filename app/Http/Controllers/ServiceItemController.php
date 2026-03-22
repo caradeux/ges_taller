@@ -3,10 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\ServiceItem;
+use App\Models\ServiceItemType;
 use Illuminate\Http\Request;
 
 class ServiceItemController extends Controller
 {
+    private function getTypes()
+    {
+        return ServiceItemType::where('active', true)->orderBy('name')->get();
+    }
+
+    private function typeValidationRule(): string
+    {
+        $slugs = ServiceItemType::where('active', true)->pluck('slug')->implode(',');
+        return 'required|in:' . $slugs;
+    }
+
     public function index(Request $request)
     {
         $query = ServiceItem::query();
@@ -23,13 +35,15 @@ class ServiceItemController extends Controller
         }
 
         $items = $query->orderBy('description')->paginate(20)->withQueryString();
+        $types = $this->getTypes();
 
-        return view('service_items.index', compact('items'));
+        return view('service_items.index', compact('items', 'types'));
     }
 
     public function create()
     {
-        return view('service_items.create');
+        $types = $this->getTypes();
+        return view('service_items.create', compact('types'));
     }
 
     public function store(Request $request)
@@ -37,7 +51,7 @@ class ServiceItemController extends Controller
         $validated = $request->validate([
             'code'          => 'nullable|string|max:50|unique:service_items,code',
             'description'   => 'required|string|max:255',
-            'type'          => 'required|in:repuesto,mano_obra,producto',
+            'type'          => $this->typeValidationRule(),
             'default_price' => 'required|numeric|min:0',
         ]);
 
@@ -48,7 +62,8 @@ class ServiceItemController extends Controller
 
     public function edit(ServiceItem $serviceItem)
     {
-        return view('service_items.edit', compact('serviceItem'));
+        $types = $this->getTypes();
+        return view('service_items.edit', compact('serviceItem', 'types'));
     }
 
     public function update(Request $request, ServiceItem $serviceItem)
@@ -56,7 +71,7 @@ class ServiceItemController extends Controller
         $validated = $request->validate([
             'code'          => 'nullable|string|max:50|unique:service_items,code,' . $serviceItem->id,
             'description'   => 'required|string|max:255',
-            'type'          => 'required|in:repuesto,mano_obra,producto',
+            'type'          => $this->typeValidationRule(),
             'default_price' => 'required|numeric|min:0',
             'active'        => 'boolean',
         ]);
@@ -66,6 +81,22 @@ class ServiceItemController extends Controller
         ]));
 
         return redirect()->route('service-items.index')->with('success', 'Ítem actualizado exitosamente.');
+    }
+
+    public function storeType(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:100|unique:service_item_types,name',
+        ]);
+
+        $slug = \Illuminate\Support\Str::slug($validated['name'], '_');
+        $type = ServiceItemType::create(['name' => $validated['name'], 'slug' => $slug]);
+
+        if ($request->wantsJson()) {
+            return response()->json($type);
+        }
+
+        return redirect()->route('service-items.index')->with('success', 'Tipo "' . $type->name . '" creado.');
     }
 
     public function destroy(ServiceItem $serviceItem)

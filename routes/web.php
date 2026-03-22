@@ -98,6 +98,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Service items catalog
     Route::resource('service-items', ServiceItemController::class)->except(['show']);
+    Route::post('service-items/types', [ServiceItemController::class, 'storeType'])->name('service-items.store-type');
     Route::get('api/service-items/search', [ServiceItemController::class, 'search'])->name('service-items.search');
 
     // Parts catalog (partes y piezas)

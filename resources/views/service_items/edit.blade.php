@@ -34,9 +34,9 @@
                     <div class="col-sm-6">
                         <label class="form-label fw-semibold">Tipo</label>
                         <select name="type" class="form-select @error('type') is-invalid @enderror" required>
-                            <option value="mano_obra" {{ old('type', $serviceItem->type) === 'mano_obra' ? 'selected' : '' }}>Mano de Obra</option>
-                            <option value="repuesto"  {{ old('type', $serviceItem->type) === 'repuesto'  ? 'selected' : '' }}>Repuesto</option>
-                            <option value="producto"  {{ old('type', $serviceItem->type) === 'producto'  ? 'selected' : '' }}>Producto</option>
+                            @foreach($types as $t)
+                            <option value="{{ $t->slug }}" {{ old('type', $serviceItem->type) === $t->slug ? 'selected' : '' }}>{{ $t->name }}</option>
+                            @endforeach
                         </select>
                         @error('type')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>

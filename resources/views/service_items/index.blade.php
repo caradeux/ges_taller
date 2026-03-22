@@ -9,9 +9,14 @@
             <h2 class="outfit fw-bold mb-1">Catálogo de Servicios</h2>
             <p class="text-muted mb-0">Ítems frecuentes para autocompletar presupuestos</p>
         </div>
-        <a href="{{ route('service-items.create') }}" class="btn-primary-premium">
-            <i class="bi bi-plus-circle-fill"></i> Nuevo Ítem
-        </a>
+        <div class="d-flex gap-2">
+            <button class="btn-app-secondary" data-bs-toggle="modal" data-bs-target="#modalNewType">
+                <i class="bi bi-tag"></i> Nuevo Tipo
+            </button>
+            <a href="{{ route('service-items.create') }}" class="btn-primary-premium">
+                <i class="bi bi-plus-circle-fill"></i> Nuevo Ítem
+            </a>
+        </div>
     </div>
 
     {{-- Filters --}}
@@ -27,9 +32,9 @@
                     <label class="form-label fw-semibold small mb-1">Tipo</label>
                     <select name="type" class="form-select">
                         <option value="">Todos</option>
-                        <option value="repuesto"  {{ request('type') === 'repuesto'  ? 'selected' : '' }}>Repuesto</option>
-                        <option value="mano_obra" {{ request('type') === 'mano_obra' ? 'selected' : '' }}>Mano de Obra</option>
-                        <option value="producto"  {{ request('type') === 'producto'  ? 'selected' : '' }}>Producto</option>
+                        @foreach($types as $t)
+                        <option value="{{ $t->slug }}" {{ request('type') === $t->slug ? 'selected' : '' }}>{{ $t->name }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary rounded-pill px-4">Filtrar</button>
@@ -59,13 +64,7 @@
                         <td><span class="badge bg-light text-muted border font-monospace">{{ $item->code ?? '—' }}</span></td>
                         <td class="fw-semibold">{{ $item->description }}</td>
                         <td>
-                            @if($item->type === 'repuesto')
-                                <span class="badge bg-primary-subtle text-primary rounded-pill px-3">Repuesto</span>
-                            @elseif($item->type === 'producto')
-                                <span class="badge bg-success-subtle text-success rounded-pill px-3">Producto</span>
-                            @else
-                                <span class="badge bg-warning-subtle text-warning rounded-pill px-3">Mano de Obra</span>
-                            @endif
+                            <span class="badge bg-light text-dark border rounded-pill px-3">{{ $types->firstWhere('slug', $item->type)?->name ?? $item->type }}</span>
                         </td>
                         <td class="text-end fw-semibold">$ {{ number_format($item->default_price, 0, ',', '.') }}</td>
                         <td>
@@ -104,6 +103,46 @@
             {{ $items->links() }}
         </div>
         @endif
+    </div>
+</div>
+
+{{-- Modal: Nuevo Tipo --}}
+<div class="modal fade" id="modalNewType" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content border-0" style="border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);">
+            <form action="{{ route('service-items.store-type') }}" method="POST">
+                @csrf
+                <div class="modal-header border-0 pb-0 pt-4 px-4">
+                    <h6 class="fw-bold mb-0 ls-tight">
+                        <i class="bi bi-tag me-2" style="color:var(--primary);"></i>Nuevo Tipo
+                    </h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body px-4 py-3">
+                    <div class="mb-2">
+                        <label class="form-label">Nombre del tipo <span class="text-danger">*</span></label>
+                        <input type="text" name="name" class="form-control" required autofocus
+                            placeholder="Ej: Insumo, Herramienta, Accesorio...">
+                    </div>
+                    @if($types->count())
+                    <div class="mt-2">
+                        <small class="text-muted">Tipos existentes:</small>
+                        <div class="d-flex flex-wrap gap-1 mt-1">
+                            @foreach($types as $t)
+                            <span class="badge bg-light text-dark border" style="font-size:0.72rem;">{{ $t->name }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
+                    <button type="button" class="btn-app-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-primary-premium">
+                        <i class="bi bi-check-lg"></i> Crear Tipo
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 @endsection
