@@ -164,7 +164,7 @@
             {{-- ═══════════════════════════════════════════ --}}
             {{-- Columna Izquierda                          --}}
             {{-- ═══════════════════════════════════════════ --}}
-            <div class="col-lg-4 d-flex flex-column gap-3">
+            <div class="col-lg-3 d-flex flex-column gap-3">
 
                 {{-- Card 1: Expediente ── --}}
                 <div class="card p-4">
@@ -386,7 +386,7 @@
             {{-- ═══════════════════════════════════════════ --}}
             {{-- Columna Derecha: Tabla de Items            --}}
             {{-- ═══════════════════════════════════════════ --}}
-            <div class="col-lg-8">
+            <div class="col-lg-9">
                 <div class="card">
 
                     {{-- Card header --}}
