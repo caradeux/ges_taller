@@ -1226,6 +1226,10 @@
                     href="{{ route('reports.profitability') }}" style="padding-left: 2.5rem; font-size: 0.82rem;">
                     <i class="bi bi-cash-coin"></i> Rentabilidad
                 </a>
+                <a class="nav-link {{ request()->routeIs('reports.workshop') ? 'active' : '' }}"
+                    href="{{ route('reports.workshop') }}" style="padding-left: 2.5rem; font-size: 0.82rem;">
+                    <i class="bi bi-car-front"></i> Estado Taller
+                </a>
                 <a class="nav-link {{ request()->routeIs('reports.billing') ? 'active' : '' }}"
                     href="{{ route('reports.billing') }}" style="padding-left: 2.5rem; font-size: 0.82rem;">
                     <i class="bi bi-receipt-cutoff"></i> Facturación

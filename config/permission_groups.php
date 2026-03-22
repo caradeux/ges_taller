@@ -87,7 +87,7 @@ return [
         'icon'   => 'bi-graph-up-arrow',
         'routes' => [
             'reports.index', 'reports.pdf', 'reports.insurance',
-            'reports.profitability', 'reports.parts', 'reports.billing',
+            'reports.profitability', 'reports.parts', 'reports.billing', 'reports.workshop',
         ],
     ],
 

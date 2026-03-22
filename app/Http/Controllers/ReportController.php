@@ -105,6 +105,59 @@ class ReportController extends Controller
         return view('reports.profitability', compact('workOrders', 'totals', 'from', 'to', 'branchId', 'branches'));
     }
 
+    public function workshopStatus(Request $request)
+    {
+        $branchId = $this->resolveBranchId($request);
+        $branches = \App\Models\Branch::where('active', true)->orderBy('name')->get();
+
+        $activeStatuses = ['intake', 'budget_sent', 'approved', 'waiting_parts', 'in_repair', 'completed', 'delivered'];
+
+        $workOrders = WorkOrder::whereIn('status', $activeStatuses)
+            ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
+            ->with(['client', 'vehicle', 'insuranceCompany', 'tags'])
+            ->orderByRaw("FIELD(status, 'waiting_parts','in_repair','approved','intake','budget_sent','completed','delivered')")
+            ->orderBy('date')
+            ->get();
+
+        $statusLabels = [
+            'intake'        => 'Ingreso',
+            'budget_sent'   => 'Presupuesto Enviado',
+            'approved'      => 'Aprobado',
+            'waiting_parts' => 'Esperando Repuestos',
+            'in_repair'     => 'En Reparación',
+            'completed'     => 'Completado',
+            'delivered'     => 'Entregado',
+        ];
+
+        $statusColors = [
+            'intake'        => '#6b7280',
+            'budget_sent'   => '#2563eb',
+            'approved'      => '#16a34a',
+            'waiting_parts' => '#d97706',
+            'in_repair'     => '#7c3aed',
+            'completed'     => '#0891b2',
+            'delivered'     => '#059669',
+        ];
+
+        $byStatus = [];
+        foreach ($activeStatuses as $s) {
+            $items = $workOrders->where('status', $s);
+            $byStatus[$s] = [
+                'label' => $statusLabels[$s],
+                'color' => $statusColors[$s],
+                'count' => $items->count(),
+                'items' => $items,
+            ];
+        }
+
+        $totalActive = $workOrders->count();
+        $totalAmount = $workOrders->sum('total_amount');
+
+        return view('reports.workshop_status', compact(
+            'byStatus', 'totalActive', 'totalAmount', 'branchId', 'branches'
+        ));
+    }
+
     public function billingReport(Request $request)
     {
         $from     = $request->input('from', now()->startOfYear()->toDateString());
