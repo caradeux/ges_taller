@@ -84,6 +84,9 @@
         box-shadow: 0 4px 12px rgba(0,0,0,.1);
         max-height: 210px; overflow-y: auto; list-style: none; padding: 0; margin: 0;
     }
+    /* Allow autocomplete dropdown to overflow table-responsive */
+    .table-responsive { overflow: visible !important; }
+    .items-table td { overflow: visible; }
     .ac-dropdown li {
         padding: 0.5rem 0.875rem; cursor: pointer; font-size: 0.84rem;
         border-bottom: 1px solid #f0f0f0;
