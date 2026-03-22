@@ -11,6 +11,7 @@ use App\Models\InsuranceCompany;
 use App\Models\Liquidator;
 use App\Models\Tag;
 use App\Models\UnType;
+use App\Helpers\TextHelper;
 use App\Services\WorkOrderTimelineService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -286,7 +287,7 @@ class WorkOrderController extends Controller
             $rows[] = [
                 'work_order_id'    => $workOrder->id,
                 'un_type_id'       => $item['un_type_id'],
-                'description'      => $item['description'],
+                'description'      => TextHelper::toTitleCase($item['description']),
                 'price_workshop'   => $pw,
                 'price_authorized' => $pa,
                 'price_real'       => $pr,

@@ -1128,9 +1128,21 @@
                     href="{{ route('insurance-companies.index') }}">
                     <i class="bi bi-shield-fill-check"></i> Aseguradoras
                 </a>
-                <a class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}"
+                <a class="nav-link {{ request()->routeIs('reports.index') ? 'active' : '' }}"
                     href="{{ route('reports.index') }}">
                     <i class="bi bi-graph-up-arrow"></i> Reportes
+                </a>
+                <a class="nav-link {{ request()->routeIs('reports.insurance') ? 'active' : '' }}"
+                    href="{{ route('reports.insurance') }}" style="padding-left: 2.5rem; font-size: 0.82rem;">
+                    <i class="bi bi-shield-check"></i> Aseguradoras
+                </a>
+                <a class="nav-link {{ request()->routeIs('reports.profitability') ? 'active' : '' }}"
+                    href="{{ route('reports.profitability') }}" style="padding-left: 2.5rem; font-size: 0.82rem;">
+                    <i class="bi bi-cash-coin"></i> Rentabilidad
+                </a>
+                <a class="nav-link {{ request()->routeIs('reports.parts') ? 'active' : '' }}"
+                    href="{{ route('reports.parts') }}" style="padding-left: 2.5rem; font-size: 0.82rem;">
+                    <i class="bi bi-box-seam"></i> Repuestos
                 </a>
                 @endif
 

@@ -59,7 +59,7 @@ class ReportController extends Controller
             ->groupBy('insurance_company_id')
             ->with('insuranceCompany')
             ->get()
-            ->map(fn($row) => [
+            ->map(fn($row) => (object) [
                 'name'             => $row->insuranceCompany?->name ?? 'Sin Aseguradora',
                 'count'            => $row->count,
                 'total_authorized' => $row->total_authorized,
