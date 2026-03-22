@@ -238,7 +238,6 @@
         <a href="{{ route('work-orders.intake-pdf', $workOrder) }}" class="btn-app-secondary"><i class="bi bi-clipboard-check"></i> Acta Ingreso</a>
         @if($workOrder->folio)
         <a href="{{ route('work-orders.pdf', $workOrder) }}" class="btn-accent-app"><i class="bi bi-file-earmark-pdf"></i> PDF OT</a>
-        <a href="{{ route('work-orders.invoice-pdf', $workOrder) }}" class="btn-app-secondary"><i class="bi bi-file-earmark-text"></i> Factura</a>
         @endif
     </div>
 
