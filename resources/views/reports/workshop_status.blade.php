@@ -4,146 +4,178 @@
 
 @section('styles')
 <style>
-    .ws-header {
-        background: linear-gradient(135deg, #0f172a, #1e293b);
-        border-radius: 1rem;
-        padding: 1.5rem 2rem;
-        color: white;
-        margin-bottom: 1.5rem;
-    }
-    .ws-header h2 { font-weight: 800; letter-spacing: -0.03em; margin: 0; }
-    .ws-header .ws-sub { opacity: 0.7; font-size: 0.85rem; }
-
-    .ws-summary {
+    .ws-top {
         display: flex;
-        gap: 1.5rem;
-        margin-top: 1rem;
-    }
-    .ws-summary-item {
-        text-align: center;
-    }
-    .ws-summary-item .ws-num {
-        font-size: 2rem;
-        font-weight: 800;
-        line-height: 1;
-    }
-    .ws-summary-item .ws-label {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        opacity: 0.7;
-    }
-
-    .status-section {
-        margin-bottom: 1.25rem;
-    }
-    .status-section-header {
-        display: flex;
+        justify-content: space-between;
         align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 0.75rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid #e5e7eb;
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
+        gap: 1rem;
     }
-    .status-dot {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        flex-shrink: 0;
+    .ws-top h2 { font-weight: 800; letter-spacing: -0.03em; margin: 0; }
+
+    /* ── Kanban Board ── */
+    .kanban {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        padding-bottom: 1rem;
+        min-height: 65vh;
     }
-    .status-section-title {
-        font-weight: 700;
-        font-size: 0.9rem;
-        color: #1e293b;
+    .kanban-col {
+        min-width: 220px;
+        max-width: 260px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
     }
-    .status-section-count {
-        background: #f1f5f9;
-        color: #475569;
+    .kanban-col-header {
+        padding: 10px 14px;
+        border-radius: 10px 10px 0 0;
+        color: white;
         font-weight: 700;
         font-size: 0.78rem;
-        padding: 2px 10px;
-        border-radius: 99px;
-    }
-
-    .vehicle-card {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 0.75rem;
-        padding: 1rem 1.25rem;
-        margin-bottom: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        transition: all 0.2s ease;
-        text-decoration: none;
-        color: inherit;
-    }
-    .vehicle-card:hover {
-        border-color: var(--primary-border);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-        transform: translateX(4px);
-    }
-
-    .vc-plate {
-        background: #1e293b;
-        color: white;
-        font-weight: 700;
-        font-size: 0.82rem;
-        padding: 4px 12px;
-        border-radius: 6px;
+        text-transform: uppercase;
         letter-spacing: 0.05em;
-        font-family: monospace;
-        flex-shrink: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
-    .vc-info { flex: 1; min-width: 0; }
-    .vc-model { font-weight: 600; font-size: 0.88rem; color: #1e293b; }
-    .vc-client { font-size: 0.78rem; color: #64748b; }
-    .vc-meta {
-        text-align: right;
-        flex-shrink: 0;
-    }
-    .vc-folio {
-        font-weight: 700;
-        font-size: 0.82rem;
-        color: var(--primary);
-    }
-    .vc-date { font-size: 0.72rem; color: #94a3b8; }
-    .vc-amount { font-weight: 700; font-size: 0.82rem; color: #1e293b; }
-    .vc-days {
-        font-size: 0.68rem;
-        font-weight: 600;
-        padding: 2px 8px;
+    .kanban-col-header .count {
+        background: rgba(255,255,255,0.25);
+        padding: 1px 8px;
         border-radius: 99px;
+        font-size: 0.72rem;
     }
-    .vc-days.warning { background: #fef3c7; color: #92400e; }
-    .vc-days.danger  { background: #fee2e2; color: #991b1b; }
-    .vc-days.ok      { background: #f0fdf4; color: #166534; }
-
-    .vc-tags { display: flex; gap: 4px; margin-top: 4px; }
-    .vc-tag {
-        font-size: 0.65rem;
-        padding: 1px 6px;
-        border-radius: 4px;
-        font-weight: 600;
+    .kanban-col-body {
+        background: #f1f5f9;
+        border-radius: 0 0 10px 10px;
+        padding: 8px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-height: 80px;
     }
-
-    .empty-status {
-        text-align: center;
-        padding: 1rem;
+    .kanban-col-body:empty::after {
+        content: 'Sin vehículos';
         color: #94a3b8;
-        font-size: 0.82rem;
+        font-size: 0.78rem;
+        text-align: center;
+        padding: 1.5rem 0;
         font-style: italic;
     }
 
-    .status-bar {
-        display: flex;
-        height: 8px;
-        border-radius: 99px;
-        overflow: hidden;
-        margin-top: 1rem;
+    /* ── Vehicle Card ── */
+    .k-card {
+        background: white;
+        border-radius: 8px;
+        padding: 10px 12px;
+        border: 1px solid #e2e8f0;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        transition: all 0.15s ease;
+        position: relative;
     }
-    .status-bar-segment {
-        transition: width 0.5s ease;
+    .k-card:hover {
+        border-color: var(--primary-border);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        transform: translateY(-2px);
+    }
+    .k-plate {
+        font-family: monospace;
+        font-weight: 700;
+        font-size: 0.88rem;
+        color: #1e293b;
+        letter-spacing: 0.04em;
+    }
+    .k-model {
+        font-size: 0.72rem;
+        color: #64748b;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .k-client {
+        font-size: 0.72rem;
+        color: #475569;
+        font-weight: 500;
+        margin-top: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .k-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 6px;
+        padding-top: 6px;
+        border-top: 1px solid #f1f5f9;
+    }
+    .k-amount {
+        font-weight: 700;
+        font-size: 0.78rem;
+        color: #1e293b;
+    }
+    .k-days {
+        font-size: 0.65rem;
+        font-weight: 600;
+        padding: 1px 6px;
+        border-radius: 99px;
+    }
+    .k-days.ok      { background: #dcfce7; color: #166534; }
+    .k-days.warning  { background: #fef3c7; color: #92400e; }
+    .k-days.danger   { background: #fee2e2; color: #991b1b; }
+
+    .k-tags {
+        display: flex;
+        gap: 3px;
+        flex-wrap: wrap;
+        margin-top: 4px;
+    }
+    .k-tag {
+        font-size: 0.58rem;
+        padding: 0px 5px;
+        border-radius: 3px;
+        font-weight: 600;
+    }
+    .k-insurance {
+        font-size: 0.62rem;
+        color: #6366f1;
+        font-weight: 600;
+    }
+    .k-folio {
+        font-size: 0.65rem;
+        color: var(--primary);
+        font-weight: 600;
+    }
+
+    /* ── Summary strip ── */
+    .summary-strip {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
+    }
+    .ss-card {
+        background: white;
+        border-radius: 10px;
+        padding: 12px 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        text-align: center;
+        flex: 1;
+        min-width: 120px;
+    }
+    .ss-num { font-size: 1.75rem; font-weight: 800; line-height: 1; }
+    .ss-label { font-size: 0.68rem; color: #64748b; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+
+    @media (max-width: 992px) {
+        .kanban { flex-direction: column; }
+        .kanban-col { max-width: 100%; min-width: 100%; }
+        .kanban-col-body { flex-direction: row; flex-wrap: wrap; }
+        .k-card { min-width: 200px; flex: 1; }
     }
 </style>
 @endsection
@@ -151,106 +183,80 @@
 @section('content')
 <div class="animate-in">
 
-    {{-- Header --}}
-    <div class="ws-header">
-        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-            <div>
-                <h2><i class="bi bi-speedometer2 me-2"></i>Estado del Taller</h2>
-                <div class="ws-sub">Vista en tiempo real de todos los vehículos en el taller</div>
-
-                <div class="ws-summary">
-                    <div class="ws-summary-item">
-                        <div class="ws-num">{{ $totalActive }}</div>
-                        <div class="ws-label">Vehículos</div>
-                    </div>
-                    @foreach($byStatus as $key => $group)
-                        @if($group['count'] > 0)
-                        <div class="ws-summary-item">
-                            <div class="ws-num" style="color: {{ $group['color'] }};">{{ $group['count'] }}</div>
-                            <div class="ws-label">{{ $group['label'] }}</div>
-                        </div>
-                        @endif
-                    @endforeach
-                </div>
-
-                @if($totalActive > 0)
-                <div class="status-bar">
-                    @foreach($byStatus as $key => $group)
-                        @if($group['count'] > 0)
-                        <div class="status-bar-segment" style="width: {{ ($group['count'] / $totalActive) * 100 }}%; background: {{ $group['color'] }};"
-                            title="{{ $group['label'] }}: {{ $group['count'] }}"></div>
-                        @endif
-                    @endforeach
-                </div>
-                @endif
-            </div>
-
-            @if(auth()->user()->role === 'admin')
-            <form method="GET" class="d-flex gap-2 align-items-end">
-                <div>
-                    <label class="form-label text-white" style="font-size:0.72rem; opacity:0.7;">Sucursal</label>
-                    <select name="branch_id" class="form-select form-select-sm" style="min-width:150px;" onchange="this.form.submit()">
-                        <option value="">Todas</option>
-                        @foreach($branches as $b)
-                        <option value="{{ $b->id }}" {{ $branchId == $b->id ? 'selected' : '' }}>{{ $b->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </form>
-            @endif
+    <div class="ws-top">
+        <div>
+            <h2><i class="bi bi-speedometer2 me-2" style="color:var(--primary);"></i>Estado del Taller</h2>
+            <p class="text-muted mb-0">{{ $totalActive }} vehículo{{ $totalActive != 1 ? 's' : '' }} activo{{ $totalActive != 1 ? 's' : '' }} · Monto total: ${{ number_format($totalAmount, 0, ',', '.') }}</p>
         </div>
+        @if(auth()->user()->role === 'admin')
+        <form method="GET">
+            <select name="branch_id" class="form-select form-select-sm" style="min-width:160px;" onchange="this.form.submit()">
+                <option value="">Todas las sucursales</option>
+                @foreach($branches as $b)
+                <option value="{{ $b->id }}" {{ $branchId == $b->id ? 'selected' : '' }}>{{ $b->name }}</option>
+                @endforeach
+            </select>
+        </form>
+        @endif
     </div>
 
-    {{-- Secciones por estado --}}
-    @foreach($byStatus as $key => $group)
-        @if($group['count'] > 0)
-        <div class="status-section">
-            <div class="status-section-header">
-                <div class="status-dot" style="background: {{ $group['color'] }};"></div>
-                <span class="status-section-title">{{ $group['label'] }}</span>
-                <span class="status-section-count">{{ $group['count'] }}</span>
-            </div>
+    {{-- Resumen rápido --}}
+    <div class="summary-strip">
+        @foreach($byStatus as $key => $group)
+        <div class="ss-card" style="border-top: 3px solid {{ $group['color'] }};">
+            <div class="ss-num" style="color: {{ $group['color'] }};">{{ $group['count'] }}</div>
+            <div class="ss-label">{{ $group['label'] }}</div>
+        </div>
+        @endforeach
+    </div>
 
-            @foreach($group['items'] as $wo)
-                @php
-                    $days = \Carbon\Carbon::parse($wo->date)->diffInDays(now());
-                    $daysClass = $days > 30 ? 'danger' : ($days > 14 ? 'warning' : 'ok');
-                @endphp
-                <a href="{{ route('work-orders.show', $wo) }}" class="vehicle-card" style="border-left: 4px solid {{ $group['color'] }};">
-                    <div class="vc-plate">{{ $wo->vehicle->license_plate ?? '—' }}</div>
-                    <div class="vc-info">
-                        <div class="vc-model">{{ $wo->vehicle->brand ?? '' }} {{ $wo->vehicle->model ?? '' }} {{ $wo->vehicle->year ?? '' }}</div>
-                        <div class="vc-client">
-                            <i class="bi bi-person-fill"></i> {{ $wo->client->name ?? '—' }}
-                            @if($wo->insuranceCompany)
-                                · <i class="bi bi-shield-check"></i> {{ $wo->insuranceCompany->name }}
-                            @endif
+    {{-- Tablero Kanban --}}
+    <div class="kanban">
+        @foreach($byStatus as $key => $group)
+        <div class="kanban-col">
+            <div class="kanban-col-header" style="background: {{ $group['color'] }};">
+                {{ $group['label'] }}
+                <span class="count">{{ $group['count'] }}</span>
+            </div>
+            <div class="kanban-col-body">
+                @foreach($group['items'] as $wo)
+                    @php
+                        $days = \Carbon\Carbon::parse($wo->date)->diffInDays(now());
+                        $daysClass = $days > 30 ? 'danger' : ($days > 14 ? 'warning' : 'ok');
+                    @endphp
+                    <a href="{{ route('work-orders.show', $wo) }}" class="k-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="k-plate">{{ $wo->vehicle->license_plate ?? '—' }}</div>
+                            <span class="k-folio">{{ $wo->folio ? '#'.$wo->folio : '' }}</span>
                         </div>
+                        <div class="k-model">{{ $wo->vehicle->brand ?? '' }} {{ $wo->vehicle->model ?? '' }} {{ $wo->vehicle->year ?? '' }}</div>
+                        <div class="k-client"><i class="bi bi-person-fill"></i> {{ $wo->client->name ?? '—' }}</div>
+                        @if($wo->insuranceCompany)
+                        <div class="k-insurance"><i class="bi bi-shield-check"></i> {{ $wo->insuranceCompany->name }}</div>
+                        @endif
                         @if($wo->tags->count())
-                        <div class="vc-tags">
+                        <div class="k-tags">
                             @foreach($wo->tags as $tag)
-                            <span class="vc-tag" style="background: {{ $tag->color }}20; color: {{ $tag->color }};">{{ $tag->name }}</span>
+                            <span class="k-tag" style="background: {{ $tag->color }}20; color: {{ $tag->color }};">{{ $tag->name }}</span>
                             @endforeach
                         </div>
                         @endif
-                    </div>
-                    <div class="vc-meta">
-                        <div class="vc-folio">{{ $wo->folio ? '#'.$wo->folio : 'Sin Folio' }}</div>
-                        <div class="vc-amount">${{ number_format($wo->total_amount, 0, ',', '.') }}</div>
-                        <div class="vc-days {{ $daysClass }}">{{ $days }}d en taller</div>
-                        <div class="vc-date">{{ \Carbon\Carbon::parse($wo->date)->format('d/m/Y') }}</div>
-                    </div>
-                </a>
-            @endforeach
+                        <div class="k-footer">
+                            <span class="k-amount">${{ number_format($wo->total_amount, 0, ',', '.') }}</span>
+                            <span class="k-days {{ $daysClass }}">{{ $days }}d</span>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
         </div>
-        @endif
-    @endforeach
+        @endforeach
+    </div>
 
     @if($totalActive === 0)
     <div class="card p-5 text-center">
         <i class="bi bi-check-circle" style="font-size:3rem; color:#16a34a;"></i>
         <h5 class="mt-3 fw-bold">Taller vacío</h5>
-        <p class="text-muted">No hay vehículos activos en el taller en este momento.</p>
+        <p class="text-muted">No hay vehículos activos en el taller.</p>
     </div>
     @endif
 
