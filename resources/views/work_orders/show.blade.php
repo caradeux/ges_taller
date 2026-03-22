@@ -160,6 +160,11 @@
                 </a>
                 <div class="ot-folio">
                     {{ $workOrder->folio ? 'OT #'.$workOrder->folio : 'OT — Sin Folio' }}
+                    @if($workOrder->invoice_number)
+                        <span style="font-size:0.65em; opacity:0.8; margin-left:0.5rem;">
+                            <i class="bi bi-receipt"></i> Factura N° {{ $workOrder->invoice_number }}
+                        </span>
+                    @endif
                 </div>
                 <div class="ot-meta">
                     <i class="bi bi-calendar3"></i> {{ \Carbon\Carbon::parse($workOrder->date)->isoFormat('D [de] MMMM [de] YYYY') }}
@@ -222,10 +227,9 @@
                 <button type="submit" class="btn-accent-app"><i class="bi bi-truck"></i> Entregar</button>
             </form>
         @elseif($workOrder->status == 'delivered')
-            <form action="{{ route('work-orders.status', $workOrder) }}" method="POST">
-                @csrf <input type="hidden" name="status" value="invoiced">
-                <button type="submit" class="btn-primary-premium"><i class="bi bi-receipt"></i> Facturar</button>
-            </form>
+            <button type="button" class="btn-primary-premium" data-bs-toggle="modal" data-bs-target="#modalInvoice">
+                <i class="bi bi-receipt"></i> Facturar
+            </button>
         @endif
 
         @if($workOrder->status != 'invoiced')
@@ -583,6 +587,47 @@
         </div>
     </div>
 </div>
+
+{{-- Modal: Facturar con N° de factura --}}
+<div class="modal fade" id="modalInvoice" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content border-0" style="border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);">
+            <form action="{{ route('work-orders.status', $workOrder) }}" method="POST">
+                @csrf
+                <input type="hidden" name="status" value="invoiced">
+                <div class="modal-header border-0 pb-0 pt-4 px-4">
+                    <h6 class="fw-bold mb-0 ls-tight">
+                        <i class="bi bi-receipt me-2" style="color:var(--primary);"></i>Facturar OT #{{ $workOrder->folio }}
+                    </h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body px-4 py-3">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">N° de Factura <span class="text-danger">*</span></label>
+                        <input type="text" name="invoice_number" class="form-control" required autofocus
+                            placeholder="Ej: 001234">
+                        <small class="text-muted">Ingrese el número de la factura emitida</small>
+                    </div>
+                    <div class="p-3 rounded" style="background:var(--primary-light);">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted small">Total a facturar</span>
+                            <span class="fw-bold" style="color:var(--primary);">
+                                ${{ number_format($workOrder->total_authorized + round($workOrder->total_authorized * 0.19), 0, ',', '.') }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
+                    <button type="button" class="btn-app-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-primary-premium">
+                        <i class="bi bi-check-lg"></i> Confirmar Factura
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('scripts')

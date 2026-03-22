@@ -8,6 +8,7 @@ class WorkOrder extends Model
 {
     protected $fillable = [
         'folio',
+        'invoice_number',
         'branch_id',
         'claim_number',
         'intake_number',

@@ -372,7 +372,8 @@ class WorkOrderController extends Controller
     public function updateStatus(Request $request, WorkOrder $workOrder)
     {
         $validated = $request->validate([
-            'status' => 'required|in:intake,budget_sent,approved,waiting_parts,in_repair,completed,delivered,invoiced',
+            'status'         => 'required|in:intake,budget_sent,approved,waiting_parts,in_repair,completed,delivered,invoiced',
+            'invoice_number' => 'nullable|string|max:50',
         ]);
 
         $oldStatus = $workOrder->status;
@@ -390,13 +391,23 @@ class WorkOrderController extends Controller
             } catch (\Exception $e) {
                 return back()->with('error', 'Error al asignar folio: ' . $e->getMessage());
             }
+        } elseif ($newStatus === 'invoiced') {
+            $workOrder->update([
+                'status'         => $newStatus,
+                'invoice_number' => $validated['invoice_number'] ?? null,
+            ]);
         } else {
             $workOrder->update(['status' => $newStatus]);
         }
 
         $this->timeline->recordStatusChange($workOrder, $oldStatus, $newStatus);
 
-        return back()->with('success', 'Estado actualizado a: ' . $workOrder->fresh()->status_label);
+        $message = 'Estado actualizado a: ' . $workOrder->fresh()->status_label;
+        if ($newStatus === 'invoiced' && !empty($validated['invoice_number'])) {
+            $message .= ' (Factura N° ' . $validated['invoice_number'] . ')';
+        }
+
+        return back()->with('success', $message);
     }
 
     public function toggleItemApproval(WorkOrder $workOrder, WorkOrderItem $item)
