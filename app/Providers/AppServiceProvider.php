@@ -18,13 +18,15 @@ class AppServiceProvider extends ServiceProvider
         // Use Bootstrap 5 pagination globally
         Paginator::useBootstrapFive();
 
-        // Share branches list with the main layout for the admin branch switcher
+        // Share branches list with the main layout for the admin branch switcher (cached per request)
         View::composer('layouts.app', function ($view) {
-            if (auth()->check() && auth()->user()->role === 'admin') {
-                $view->with('branches', \App\Models\Branch::where('active', true)->orderBy('name')->get());
-            } else {
-                $view->with('branches', collect());
+            static $branches = null;
+            if ($branches === null) {
+                $branches = auth()->check() && auth()->user()->role === 'admin'
+                    ? \App\Models\Branch::where('active', true)->orderBy('name')->get()
+                    : collect();
             }
+            $view->with('branches', $branches);
         });
     }
 }
