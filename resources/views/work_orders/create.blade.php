@@ -808,7 +808,7 @@ function initDescAC(input) {
                 if (!items.length) { ul.style.display = 'none'; return; }
                 items.forEach(si => {
                     const li = document.createElement('li');
-                    li.innerHTML = `${si.name} <span class="text-muted" style="font-size:.75rem">${si.category}</span>`;
+                    li.innerHTML = si.name;
                     li.addEventListener('mousedown', e => {
                         e.preventDefault();
                         input.value = si.name;
