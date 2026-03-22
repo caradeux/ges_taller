@@ -33,68 +33,68 @@ class WhatsAppHelper
         $total    = '$' . number_format($workOrder->total_amount, 0, ',', '.');
         $saludo   = self::saludo();
 
-        $vehiculo = "🚗 *{$plate}* — {$auto} {$year}";
-        $ref = $folio ? "\n📋 {$folio}" : '';
-        $firma = "\n\nQuedamos a su disposición para cualquier consulta."
+        $vehiculo = "Vehiculo: *{$plate}* - {$auto} {$year}";
+        $ref = $folio ? "\nReferencia: {$folio}" : '';
+        $firma = "\n\nQuedamos a su disposicion para cualquier consulta."
             . "\n\nSaludos cordiales,\n*{$taller}*"
-            . ($phone ? "\n📞 {$phone}" : '');
+            . ($phone ? "\nTel: {$phone}" : '');
 
         $messages = [
             'budget_sent' =>
-                "{$saludo} *{$nombre}* 👋\n\n"
-                . "Le informamos que hemos preparado el presupuesto de reparación para su vehículo:\n\n"
+                "{$saludo} *{$nombre}*,\n\n"
+                . "Le saluda *{$taller}*. Le informamos que hemos preparado el presupuesto de reparacion para su vehiculo:\n\n"
                 . "{$vehiculo}{$ref}\n\n"
-                . "💰 *Monto presupuestado: {$total}*\n\n"
-                . "Quedamos atentos a su aprobación para dar inicio a los trabajos. Si tiene alguna consulta sobre el detalle, no dude en escribirnos."
+                . "Monto presupuestado: *{$total}*\n\n"
+                . "Quedamos atentos a su aprobacion para dar inicio a los trabajos. Si tiene alguna consulta sobre el detalle, no dude en escribirnos."
                 . $firma,
 
             'approved' =>
-                "{$saludo} *{$nombre}* 👋\n\n"
-                . "Le confirmamos que el presupuesto de su vehículo ha sido *aprobado* ✅\n\n"
+                "{$saludo} *{$nombre}*,\n\n"
+                . "Le saluda *{$taller}*. Le confirmamos que el presupuesto de su vehiculo ha sido *aprobado*.\n\n"
                 . "{$vehiculo}{$ref}\n\n"
-                . "Nuestro equipo comenzará con los trabajos de reparación a la brevedad. Le mantendremos informado/a sobre cada avance."
+                . "Nuestro equipo comenzara con los trabajos de reparacion a la brevedad. Le mantendremos informado/a sobre cada avance."
                 . $firma,
 
             'waiting_parts' =>
-                "{$saludo} *{$nombre}* 👋\n\n"
-                . "Le informamos que su vehículo se encuentra actualmente en *espera de repuestos* 📦\n\n"
+                "{$saludo} *{$nombre}*,\n\n"
+                . "Le saluda *{$taller}*. Le informamos que su vehiculo se encuentra actualmente en *espera de repuestos*.\n\n"
                 . "{$vehiculo}{$ref}\n\n"
-                . "Ya realizamos el pedido de las piezas necesarias para su reparación. Una vez que lleguen, retomaremos los trabajos de inmediato y le notificaremos."
+                . "Ya realizamos el pedido de las piezas necesarias para su reparacion. Una vez que lleguen, retomaremos los trabajos de inmediato y le notificaremos."
                 . $firma,
 
             'in_repair' =>
-                "{$saludo} *{$nombre}* 👋\n\n"
-                . "Le informamos que su vehículo ya se encuentra *en proceso de reparación* 🔧\n\n"
+                "{$saludo} *{$nombre}*,\n\n"
+                . "Le saluda *{$taller}*. Le informamos que su vehiculo ya se encuentra *en proceso de reparacion*.\n\n"
                 . "{$vehiculo}{$ref}\n\n"
-                . "Nuestro equipo técnico está trabajando para dejarlo en óptimas condiciones. Le avisaremos una vez que los trabajos estén finalizados."
+                . "Nuestro equipo tecnico esta trabajando para dejarlo en optimas condiciones. Le avisaremos una vez que los trabajos esten finalizados."
                 . $firma,
 
             'completed' =>
-                "{$saludo} *{$nombre}* 👋\n\n"
-                . "Nos complace informarle que los trabajos en su vehículo han sido *completados exitosamente* ✅🎉\n\n"
+                "{$saludo} *{$nombre}*,\n\n"
+                . "Le saluda *{$taller}*. Nos complace informarle que los trabajos en su vehiculo han sido *completados exitosamente*.\n\n"
                 . "{$vehiculo}{$ref}\n\n"
-                . "Su vehículo se encuentra listo para ser retirado. Por favor contáctenos para *coordinar la fecha y hora de entrega* que más le acomode.\n\n"
-                . "⏰ Nuestro horario de atención es de Lunes a Viernes, de 9:00 a 18:00 hrs."
+                . "Su vehiculo se encuentra listo para ser retirado. Por favor contactenos para *coordinar la fecha y hora de entrega* que mas le acomode.\n\n"
+                . "Horario de atencion: Lunes a Viernes, 9:00 a 18:00 hrs."
                 . $firma,
 
             'delivered' =>
-                "{$saludo} *{$nombre}* 👋\n\n"
-                . "Confirmamos la *entrega exitosa* de su vehículo 🚗✅\n\n"
+                "{$saludo} *{$nombre}*,\n\n"
+                . "Le saluda *{$taller}*. Confirmamos la *entrega exitosa* de su vehiculo.\n\n"
                 . "{$vehiculo}{$ref}\n\n"
-                . "Agradecemos enormemente su confianza. Si en los próximos días nota cualquier detalle relacionado con la reparación, no dude en contactarnos.\n\n"
-                . "⭐ Su opinión es muy importante para nosotros. ¡Fue un gusto atenderle!"
+                . "Agradecemos enormemente su confianza. Si en los proximos dias nota cualquier detalle relacionado con la reparacion, no dude en contactarnos.\n\n"
+                . "Su opinion es muy importante para nosotros. Fue un gusto atenderle."
                 . $firma,
 
             'invoiced' =>
-                "{$saludo} *{$nombre}* 👋\n\n"
-                . "Le informamos que su orden de trabajo ha sido *facturada* 🧾\n\n"
+                "{$saludo} *{$nombre}*,\n\n"
+                . "Le saluda *{$taller}*. Le informamos que su orden de trabajo ha sido *facturada*.\n\n"
                 . "{$vehiculo}{$ref}\n"
-                . "💰 *Total facturado: {$total}*\n\n"
+                . "Total facturado: *{$total}*\n\n"
                 . "Muchas gracias por su preferencia. Fue un gusto atenderle y esperamos poder servirle nuevamente en el futuro."
                 . $firma,
         ];
 
-        return $messages[$newStatus] ?? "{$saludo} *{$nombre}* 👋\n\nLe informamos que el estado de su vehículo ha sido actualizado.\n\n{$vehiculo}{$ref}" . $firma;
+        return $messages[$newStatus] ?? "{$saludo} *{$nombre}*,\n\nLe saluda *{$taller}*. Le informamos que el estado de su vehiculo ha sido actualizado.\n\n{$vehiculo}{$ref}" . $firma;
     }
 
     public static function buildUrl(string $phone, string $message): string
