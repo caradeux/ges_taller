@@ -82,9 +82,9 @@
                                     <i class="bi bi-pencil text-primary"></i>
                                 </a>
                                 <form method="POST" action="{{ route('service-items.destroy', $item) }}"
-                                    onsubmit="return confirm('¿Eliminar {{ addslashes($item->description) }}?')">
+                                    >
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-light rounded-pill px-3" title="Eliminar">
+                                    <button data-confirm="¿Estás seguro de eliminar este registro?" type="submit" class="btn btn-sm btn-light rounded-pill px-3" title="Eliminar">
                                         <i class="bi bi-trash text-danger"></i>
                                     </button>
                                 </form>

@@ -186,9 +186,9 @@
                     </button>
                     @if(!$role->is_system)
                     <form action="{{ route('roles.destroy', $role) }}" method="POST"
-                          onsubmit="return confirm('¿Eliminar el rol «{{ $role->label }}»? Esta acción no se puede deshacer.')">
+                          >
                         @csrf @method('DELETE')
-                        <button type="submit" class="btn btn-outline-danger rounded-pill px-3" title="Eliminar rol">
+                        <button data-confirm="¿Estás seguro de eliminar este registro?" type="submit" class="btn btn-outline-danger rounded-pill px-3" title="Eliminar rol">
                             <i class="bi bi-trash"></i>
                         </button>
                     </form>

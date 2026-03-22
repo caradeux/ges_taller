@@ -68,9 +68,9 @@
                                     <i class="bi bi-pencil text-primary"></i>
                                 </button>
                                 <form method="POST" action="{{ route('liquidators.destroy', $liquidator) }}"
-                                    onsubmit="return confirm('¿Eliminar a {{ addslashes($liquidator->name) }}?')">
+                                    >
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-light rounded-pill px-3" title="Eliminar">
+                                    <button data-confirm="¿Estás seguro de eliminar este registro?" type="submit" class="btn btn-sm btn-light rounded-pill px-3" title="Eliminar">
                                         <i class="bi bi-trash text-danger"></i>
                                     </button>
                                 </form>

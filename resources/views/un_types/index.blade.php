@@ -95,9 +95,9 @@
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <form method="POST" action="{{ route('un-types.destroy', $ut) }}"
-                                            onsubmit="return confirm('¿Eliminar tipo {{ addslashes($ut->code) }}?')">
+                                            >
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="dropdown-item text-danger">
+                                            <button data-confirm="¿Estás seguro de eliminar este registro?" type="submit" class="dropdown-item text-danger">
                                                 <i class="bi bi-trash me-2"></i>Eliminar
                                             </button>
                                         </form>

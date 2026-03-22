@@ -111,9 +111,9 @@
                                         <li><hr class="dropdown-divider my-1"></li>
                                         <li>
                                             <form action="{{ route('vehicles.destroy', $vehicle) }}" method="POST"
-                                                onsubmit="return confirm('¿Estás seguro de eliminar este vehículo?')">
+                                                >
                                                 @csrf @method('DELETE')
-                                                <button type="submit" class="dropdown-item text-danger">
+                                                <button data-confirm="¿Estás seguro de eliminar este registro?" type="submit" class="dropdown-item text-danger">
                                                     <i class="bi bi-trash me-2"></i> Eliminar
                                                 </button>
                                             </form>

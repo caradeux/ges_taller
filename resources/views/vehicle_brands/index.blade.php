@@ -29,9 +29,9 @@
                                 <i class="bi bi-pencil text-primary small"></i>
                             </button>
                             <form method="POST" action="{{ route('vehicle-brands.destroy', $brand) }}"
-                                onsubmit="return confirm('¿Eliminar marca {{ addslashes($brand->name) }} y todos sus modelos?')">
+                                >
                                 @csrf @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-light rounded-pill px-2" title="Eliminar marca">
+                                <button data-confirm="¿Estás seguro de eliminar este registro?" type="submit" class="btn btn-sm btn-light rounded-pill px-2" title="Eliminar marca">
                                     <i class="bi bi-trash text-danger small"></i>
                                 </button>
                             </form>
@@ -45,8 +45,8 @@
                             <span class="small">{{ $model->name }}</span>
                             <form method="POST" action="{{ route('vehicle-brands.models.destroy', [$brand, $model]) }}">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-link p-0 text-danger" title="Eliminar modelo"
-                                    onclick="return confirm('¿Eliminar {{ addslashes($model->name) }}?')">
+                                <button data-confirm="¿Estás seguro de eliminar este registro?" type="submit" class="btn btn-sm btn-link p-0 text-danger" title="Eliminar modelo"
+                                    data-confirm="¿Eliminar {{ addslashes($model->name) }}?">
                                     <i class="bi bi-x-circle"></i>
                                 </button>
                             </form>

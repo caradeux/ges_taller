@@ -181,9 +181,9 @@
                                     @endif
                                     <li><hr class="dropdown-divider my-1"></li>
                                     <li>
-                                        <form action="{{ route('work-orders.destroy', $wo) }}" method="POST" onsubmit="return confirm('Eliminar OT {{ $wo->folio_display }}?')">
+                                        <form action="{{ route('work-orders.destroy', $wo) }}" method="POST" >
                                             @csrf @method('DELETE')
-                                            <button class="dropdown-item text-danger"><i class="bi bi-trash me-2"></i>Eliminar</button>
+                                            <button data-confirm="¿Estás seguro de eliminar este registro?" class="dropdown-item text-danger"><i class="bi bi-trash me-2"></i>Eliminar</button>
                                         </form>
                                     </li>
                                 </ul>

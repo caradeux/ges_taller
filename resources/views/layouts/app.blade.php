@@ -1495,6 +1495,75 @@
         50%       { opacity: 0.65; transform: scale(1.04); }
     }
     </style>
+
+    {{-- Modal de confirmación reutilizable --}}
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content border-0" style="border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);overflow:hidden;">
+                <div class="text-center pt-4 pb-2 px-4" style="background:linear-gradient(135deg,#fef2f2,#fee2e2);">
+                    <div style="width:56px;height:56px;border-radius:50%;background:#fee2e2;border:3px solid #fca5a5;display:inline-flex;align-items:center;justify-content:center;margin-bottom:0.75rem;">
+                        <i class="bi bi-exclamation-triangle-fill" style="font-size:1.5rem;color:#dc2626;"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1" style="color:#991b1b;">Confirmar Eliminación</h6>
+                </div>
+                <div class="modal-body text-center px-4 py-3">
+                    <p class="mb-0 text-secondary" id="confirmDeleteMessage">¿Estás seguro de eliminar este registro?</p>
+                    <p class="mb-0 mt-2" style="font-size:0.78rem;color:#9ca3af;"><i class="bi bi-info-circle"></i> Esta acción no se puede deshacer</p>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-0 d-flex gap-2 justify-content-center">
+                    <button type="button" class="btn-app-secondary flex-fill" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn flex-fill fw-600" id="confirmDeleteBtn"
+                        style="background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border:none;border-radius:var(--radius-sm);padding:0.55rem 1rem;font-size:0.845rem;">
+                        <i class="bi bi-trash3"></i> Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        let pendingForm = null;
+        const modal = document.getElementById('confirmDeleteModal');
+        const msgEl = document.getElementById('confirmDeleteMessage');
+        const btnEl = document.getElementById('confirmDeleteBtn');
+        const bsModal = new bootstrap.Modal(modal);
+
+        document.addEventListener('click', function(e) {
+            const trigger = e.target.closest('[data-confirm]');
+            if (!trigger) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const message = trigger.getAttribute('data-confirm');
+            msgEl.textContent = message || '¿Estás seguro de eliminar este registro?';
+
+            const form = trigger.closest('form');
+            if (form) {
+                pendingForm = form;
+            } else if (trigger.tagName === 'A') {
+                pendingForm = trigger;
+            }
+
+            bsModal.show();
+        });
+
+        btnEl.addEventListener('click', function() {
+            bsModal.hide();
+            if (pendingForm) {
+                if (pendingForm.tagName === 'FORM') {
+                    pendingForm.submit();
+                } else {
+                    window.location.href = pendingForm.href;
+                }
+                pendingForm = null;
+            }
+        });
+    })();
+    </script>
 </body>
 
 </html>

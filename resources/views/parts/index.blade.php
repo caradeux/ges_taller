@@ -71,9 +71,9 @@
                                 <i class="bi bi-pencil"></i>
                             </button>
                             <form action="{{ route('parts.destroy', $part) }}" method="POST" class="d-inline"
-                                onsubmit="return confirm('¿Eliminar esta pieza?')">
+                                >
                                 @csrf @method('DELETE')
-                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash3"></i></button>
+                                <button data-confirm="¿Estás seguro de eliminar este registro?" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash3"></i></button>
                             </form>
                         </td>
                     </tr>

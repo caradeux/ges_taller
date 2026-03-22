@@ -48,9 +48,9 @@
                                 <i class="bi bi-pencil"></i>
                             </button>
                             <form action="{{ route('tags.destroy', $tag) }}" method="POST" class="d-inline"
-                                onsubmit="return confirm('¿Eliminar la etiqueta {{ $tag->name }}?')">
+                                >
                                 @csrf @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <button data-confirm="¿Estás seguro de eliminar este registro?" type="submit" class="btn btn-sm btn-outline-danger">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </form>

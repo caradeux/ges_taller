@@ -60,9 +60,9 @@
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form method="POST" action="{{ route('branches.destroy', $branch) }}"
-                                        onsubmit="return confirm('¿Eliminar sucursal {{ addslashes($branch->name) }}?')">
+                                        >
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="dropdown-item text-danger">
+                                        <button data-confirm="¿Estás seguro de eliminar este registro?" type="submit" class="dropdown-item text-danger">
                                             <i class="bi bi-trash me-2"></i>Eliminar
                                         </button>
                                     </form>

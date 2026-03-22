@@ -193,7 +193,7 @@
                                         <input type="hidden" name="status" value="rejected">
                                         <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2"
                                             style="font-size:0.7rem;" title="Rechazar"
-                                            onclick="return confirm('¿Rechazar cotización ({{ $q->folio_display }})?')">
+                                            data-confirm="¿Rechazar cotización ({{ $q->folio_display }})?">
                                             <i class="bi bi-x-lg"></i>
                                         </button>
                                     </form>

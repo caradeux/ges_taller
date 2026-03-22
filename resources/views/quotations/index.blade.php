@@ -119,9 +119,9 @@
                                         <li><hr class="dropdown-divider my-1"></li>
                                         <li>
                                             <form action="{{ route('quotations.destroy', $q) }}" method="POST"
-                                                onsubmit="return confirm('¿Eliminar la cotización ({{ $q->folio_display }})?')">
+                                                >
                                                 @csrf @method('DELETE')
-                                                <button type="submit" class="dropdown-item text-danger">
+                                                <button data-confirm="¿Estás seguro de eliminar este registro?" type="submit" class="dropdown-item text-danger">
                                                     <i class="bi bi-trash me-2"></i> Eliminar
                                                 </button>
                                             </form>

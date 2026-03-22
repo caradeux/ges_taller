@@ -14,7 +14,7 @@
             <form action="{{ route('holidays.seed') }}" method="POST" class="d-inline">
                 @csrf
                 <input type="hidden" name="year" value="{{ $year }}">
-                <button type="submit" class="btn-app-secondary" onclick="return confirm('¿Cargar feriados legales de Chile para {{ $year }}?')">
+                <button type="submit" class="btn-app-secondary" data-confirm="¿Cargar feriados legales de Chile para {{ $year }}?">
                     <i class="bi bi-calendar-plus"></i> Cargar Feriados {{ $year }}
                 </button>
             </form>
@@ -66,9 +66,9 @@
                         </td>
                         <td class="text-end">
                             <form action="{{ route('holidays.destroy', $holiday) }}" method="POST" class="d-inline"
-                                onsubmit="return confirm('¿Eliminar este feriado?')">
+                                >
                                 @csrf @method('DELETE')
-                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                <button data-confirm="¿Estás seguro de eliminar este registro?" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                             </form>
                         </td>
                     </tr>

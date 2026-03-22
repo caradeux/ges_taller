@@ -491,7 +491,7 @@
                                 <form action="{{ route('part-orders.received', $po) }}" method="POST" class="d-inline">
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-outline-success rounded-pill" title="Marcar recibido"
-                                        onclick="return confirm('¿Marcar repuesto como recibido?')">
+                                        data-confirm="¿Marcar repuesto como recibido?">
                                         <i class="bi bi-check-lg"></i> Recibido
                                     </button>
                                 </form>
