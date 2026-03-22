@@ -1226,6 +1226,10 @@
                     href="{{ route('reports.profitability') }}" style="padding-left: 2.5rem; font-size: 0.82rem;">
                     <i class="bi bi-cash-coin"></i> Rentabilidad
                 </a>
+                <a class="nav-link {{ request()->routeIs('reports.billing') ? 'active' : '' }}"
+                    href="{{ route('reports.billing') }}" style="padding-left: 2.5rem; font-size: 0.82rem;">
+                    <i class="bi bi-receipt-cutoff"></i> Facturación
+                </a>
                 <a class="nav-link {{ request()->routeIs('reports.parts') ? 'active' : '' }}"
                     href="{{ route('reports.parts') }}" style="padding-left: 2.5rem; font-size: 0.82rem;">
                     <i class="bi bi-box-seam"></i> Repuestos

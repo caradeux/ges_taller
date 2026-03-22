@@ -105,6 +105,38 @@ class ReportController extends Controller
         return view('reports.profitability', compact('workOrders', 'totals', 'from', 'to', 'branchId', 'branches'));
     }
 
+    public function billingReport(Request $request)
+    {
+        $from     = $request->input('from', now()->startOfYear()->toDateString());
+        $to       = $request->input('to', now()->toDateString());
+        $branchId = $this->resolveBranchId($request);
+        $branches = \App\Models\Branch::where('active', true)->orderBy('name')->get();
+        $statusFilter = $request->input('status', '');
+
+        $query = WorkOrder::whereBetween('date', [$from, $to])
+            ->when($branchId, fn($q) => $q->where('branch_id', $branchId))
+            ->with(['client', 'vehicle', 'insuranceCompany']);
+
+        if ($statusFilter) {
+            $query->where('status', $statusFilter);
+        }
+
+        $workOrders = $query->orderByDesc('date')->get();
+
+        $summary = [
+            'total'           => $workOrders->count(),
+            'invoiced'        => $workOrders->where('status', 'invoiced')->count(),
+            'pending'         => $workOrders->whereNotIn('status', ['invoiced'])->count(),
+            'total_workshop'  => $workOrders->sum('total_workshop'),
+            'total_authorized'=> $workOrders->sum('total_authorized'),
+            'total_amount'    => $workOrders->sum('total_amount'),
+            'total_invoiced'  => $workOrders->where('status', 'invoiced')->sum('total_amount'),
+            'total_pending'   => $workOrders->whereNotIn('status', ['invoiced'])->sum('total_amount'),
+        ];
+
+        return view('reports.billing', compact('workOrders', 'summary', 'from', 'to', 'branchId', 'branches', 'statusFilter'));
+    }
+
     public function partsReport(Request $request)
     {
         $from     = $request->input('from', now()->startOfYear()->toDateString());

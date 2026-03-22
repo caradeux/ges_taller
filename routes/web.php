@@ -76,6 +76,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('reportes/pdf', [ReportController::class, 'pdf'])->name('reports.pdf');
     Route::get('reportes/aseguradoras', [ReportController::class, 'insuranceReport'])->name('reports.insurance');
     Route::get('reportes/rentabilidad', [ReportController::class, 'profitabilityReport'])->name('reports.profitability');
+    Route::get('reportes/facturacion', [ReportController::class, 'billingReport'])->name('reports.billing');
     Route::get('reportes/repuestos', [ReportController::class, 'partsReport'])->name('reports.parts');
 
     // Branches management (admin only)
