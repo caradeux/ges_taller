@@ -770,7 +770,12 @@ document.getElementById('workOrderForm').addEventListener('submit', function (e)
 });
 
 // ── Tabla de items ─────────────────────────────────────────────
-const UN_TYPES = @json($unTypes->map(fn($u) => ['id' => $u->id, 'code' => $u->code, 'name' => $u->name, 'category' => $u->category]));
+@php
+    $unTypesJson = $unTypes->map(function($u) {
+        return ['id' => $u->id, 'code' => $u->code, 'name' => $u->name, 'category' => $u->category];
+    });
+@endphp
+const UN_TYPES = @json($unTypesJson);
 
 function buildUnOptions(selectedId = null) {
     return UN_TYPES.map(u =>
