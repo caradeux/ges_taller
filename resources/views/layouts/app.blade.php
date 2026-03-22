@@ -1173,6 +1173,10 @@
                     href="{{ route('un-types.index') }}">
                     <i class="bi bi-list-check"></i> Tipos de UN
                 </a>
+                <a class="nav-link {{ request()->routeIs('parts.*') ? 'active' : '' }}"
+                    href="{{ route('parts.index') }}">
+                    <i class="bi bi-wrench-adjustable"></i> Partes y Piezas
+                </a>
                 <a class="nav-link {{ request()->routeIs('service-items.*') ? 'active' : '' }}"
                     href="{{ route('service-items.index') }}">
                     <i class="bi bi-gear-wide-connected"></i> Catálogo Servicios

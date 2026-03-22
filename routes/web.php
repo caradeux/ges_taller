@@ -18,6 +18,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\BranchSwitchController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UnTypeController;
+use App\Http\Controllers\PartController;
 use Illuminate\Support\Facades\Route;
 
 // Auth Routes
@@ -98,6 +99,10 @@ Route::middleware(['auth'])->group(function () {
     // Service items catalog
     Route::resource('service-items', ServiceItemController::class)->except(['show']);
     Route::get('api/service-items/search', [ServiceItemController::class, 'search'])->name('service-items.search');
+
+    // Parts catalog (partes y piezas)
+    Route::resource('parts', PartController::class)->except(['show', 'create', 'edit']);
+    Route::get('api/parts/search', [PartController::class, 'search'])->name('parts.search');
 
     // SLA / Control de Tiempos
     Route::get('sla', [\App\Http\Controllers\SlaController::class, 'index'])->name('sla.index');

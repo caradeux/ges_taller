@@ -29,12 +29,30 @@ class WorkOrderTimelineService
         return $event;
     }
 
+    private static function statusLabel(string $status): string
+    {
+        return match ($status) {
+            'intake'        => 'Ingreso',
+            'budget_sent'   => 'Presupuesto Enviado',
+            'approved'      => 'Aprobado',
+            'waiting_parts' => 'Esperando Repuestos',
+            'in_repair'     => 'En Reparación',
+            'completed'     => 'Completado',
+            'delivered'     => 'Entregado',
+            'invoiced'      => 'Facturado',
+            default         => $status,
+        };
+    }
+
     public function recordStatusChange(WorkOrder $workOrder, string $oldStatus, string $newStatus): WorkOrderEvent
     {
+        $oldLabel = self::statusLabel($oldStatus);
+        $newLabel = self::statusLabel($newStatus);
+
         $event = $this->record(
             $workOrder,
             'status_change',
-            "Estado cambiado de {$oldStatus} a {$newStatus}",
+            "Estado cambiado de {$oldLabel} a {$newLabel}",
             ['old_status' => $oldStatus, 'new_status' => $newStatus],
         );
 

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Models\Part;
 use App\Models\ServiceItem;
 use App\Models\VehicleBrand;
 use App\Models\VehicleModel;
@@ -11,8 +12,108 @@ class CatalogSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->seedParts();
         $this->seedServiceItems();
         $this->seedVehicleBrands();
+    }
+
+    private function seedParts(): void
+    {
+        if (Part::exists()) {
+            return;
+        }
+
+        $parts = [
+            // Carrocería
+            'Carrocería' => [
+                'Parachoques Delantero', 'Parachoques Trasero', 'Guardafango Delantero Izquierdo',
+                'Guardafango Delantero Derecho', 'Guardafango Trasero Izquierdo', 'Guardafango Trasero Derecho',
+                'Capó', 'Maleta / Portalón', 'Techo', 'Puerta Delantera Izquierda', 'Puerta Delantera Derecha',
+                'Puerta Trasera Izquierda', 'Puerta Trasera Derecha', 'Panel Lateral Izquierdo',
+                'Panel Lateral Derecho', 'Zócalo / Estribo Izquierdo', 'Zócalo / Estribo Derecho',
+                'Pilar A Izquierdo', 'Pilar A Derecho', 'Pilar B Izquierdo', 'Pilar B Derecho',
+                'Pilar C Izquierdo', 'Pilar C Derecho', 'Marco De Puerta', 'Piso / Bandeja',
+                'Travesaño Delantero', 'Travesaño Trasero', 'Rejilla Delantera', 'Spoiler Delantero',
+                'Spoiler Trasero', 'Difusor Trasero', 'Paso De Rueda Delantero', 'Paso De Rueda Trasero',
+            ],
+            // Vidrios
+            'Vidrios' => [
+                'Parabrisas', 'Vidrio Trasero (Luneta)', 'Vidrio Puerta Delantera Izquierda',
+                'Vidrio Puerta Delantera Derecha', 'Vidrio Puerta Trasera Izquierda',
+                'Vidrio Puerta Trasera Derecha', 'Vidrio Lateral Fijo (Costado)',
+                'Vidrio De Techo (Sunroof)', 'Vidrio Triangular De Puerta',
+            ],
+            // Luces
+            'Luces' => [
+                'Faro Delantero Izquierdo', 'Faro Delantero Derecho', 'Faro Trasero Izquierdo',
+                'Faro Trasero Derecho', 'Neblinero Delantero Izquierdo', 'Neblinero Delantero Derecho',
+                'Neblinero Trasero', 'Luz De Retroceso', 'Tercera Luz De Freno',
+                'Luz De Patente', 'Luz Diurna (DRL) Izquierda', 'Luz Diurna (DRL) Derecha',
+                'Intermitente Lateral', 'Luz De Espejo Retrovisor',
+            ],
+            // Espejos y manillas
+            'Espejos Y Manillas' => [
+                'Espejo Retrovisor Izquierdo', 'Espejo Retrovisor Derecho', 'Espejo Interior',
+                'Manilla Exterior Delantera Izquierda', 'Manilla Exterior Delantera Derecha',
+                'Manilla Exterior Trasera Izquierda', 'Manilla Exterior Trasera Derecha',
+                'Manilla Interior Puerta',
+            ],
+            // Molduras y accesorios
+            'Molduras Y Accesorios' => [
+                'Moldura Lateral De Puerta', 'Moldura De Parachoques', 'Moldura De Guardafango',
+                'Emblema / Logo Marca', 'Emblema Modelo', 'Pisadera / Estribo Lateral',
+                'Barra De Techo', 'Antena', 'Deflector De Aire (Visera)',
+                'Protector De Carter', 'Guardabarros (Mudflap)',
+            ],
+            // Estructura y chasis
+            'Estructura Y Chasis' => [
+                'Chasis / Larguero', 'Subchasis Delantero (Cuna Motor)', 'Subchasis Trasero',
+                'Soporte De Radiador (Frente)', 'Soporte De Motor', 'Soporte De Caja',
+                'Barra Estabilizadora Delantera', 'Barra Estabilizadora Trasera',
+            ],
+            // Interior
+            'Interior' => [
+                'Tapizado Puerta Delantera', 'Tapizado Puerta Trasera', 'Tablero / Dashboard',
+                'Consola Central', 'Guantera', 'Volante', 'Palanca De Cambios',
+                'Asiento Delantero', 'Asiento Trasero', 'Cinturón De Seguridad',
+                'Airbag Frontal', 'Airbag Lateral', 'Airbag De Cortina',
+                'Cielo Interior (Headliner)', 'Alfombra De Piso', 'Parasol',
+            ],
+            // Mecánica
+            'Mecánica' => [
+                'Radiador', 'Condensador A/C', 'Intercooler', 'Compresor A/C',
+                'Alternador', 'Motor De Partida', 'Batería', 'Bomba De Agua',
+                'Bomba De Dirección', 'Cremallera De Dirección', 'Caja De Cambios',
+                'Embrague (Kit Completo)', 'Amortiguador Delantero', 'Amortiguador Trasero',
+                'Disco De Freno Delantero', 'Disco De Freno Trasero', 'Pastillas De Freno',
+                'Catalizador', 'Tubo De Escape', 'Silenciador',
+            ],
+            // Suspensión
+            'Suspensión' => [
+                'Brazo De Suspensión Inferior', 'Brazo De Suspensión Superior',
+                'Rótula De Suspensión', 'Terminal De Dirección', 'Bujes De Suspensión',
+                'Espiral / Resorte Delantero', 'Espiral / Resorte Trasero',
+                'Bieleta Estabilizadora',
+            ],
+            // Ruedas
+            'Ruedas' => [
+                'Llanta De Aleación', 'Llanta De Acero', 'Neumático',
+                'Tapa Centro De Llanta', 'Perno De Rueda', 'Tuerca De Seguridad',
+            ],
+            // Eléctrico
+            'Eléctrico Y Sensores' => [
+                'Sensor De Estacionamiento', 'Cámara De Retroceso', 'Cámara Delantera',
+                'Sensor ADAS / Radar Frontal', 'Sensor De Punto Ciego',
+                'Motor Alzavidrio', 'Motor Limpia Parabrisas', 'Bocina / Claxon',
+                'Radio / Sistema Multimedia', 'Parlante / Altavoz',
+            ],
+        ];
+
+        foreach ($parts as $category => $names) {
+            foreach ($names as $name) {
+                Part::create(['name' => $name, 'category' => $category, 'active' => true]);
+            }
+        }
     }
 
     private function seedServiceItems(): void
@@ -22,101 +123,37 @@ class CatalogSeeder extends Seeder
         }
 
         $items = [
-            // ─── Reparación de carrocería ───────────────────────────
-            ['code' => 'REP-001', 'description' => 'Reparación Parachoques Delantero', 'type' => 'mano_obra', 'default_price' => 85000],
-            ['code' => 'REP-002', 'description' => 'Reparación Parachoques Trasero', 'type' => 'mano_obra', 'default_price' => 85000],
-            ['code' => 'REP-003', 'description' => 'Reparación Guardafango Delantero', 'type' => 'mano_obra', 'default_price' => 65000],
-            ['code' => 'REP-004', 'description' => 'Reparación Guardafango Trasero', 'type' => 'mano_obra', 'default_price' => 65000],
-            ['code' => 'REP-005', 'description' => 'Reparación Puerta Delantera', 'type' => 'mano_obra', 'default_price' => 95000],
-            ['code' => 'REP-006', 'description' => 'Reparación Puerta Trasera', 'type' => 'mano_obra', 'default_price' => 95000],
-            ['code' => 'REP-007', 'description' => 'Reparación Capó', 'type' => 'mano_obra', 'default_price' => 110000],
-            ['code' => 'REP-008', 'description' => 'Reparación Maleta / Portalón', 'type' => 'mano_obra', 'default_price' => 95000],
-            ['code' => 'REP-009', 'description' => 'Reparación Techo', 'type' => 'mano_obra', 'default_price' => 120000],
-            ['code' => 'REP-010', 'description' => 'Reparación Zócalo / Estribo', 'type' => 'mano_obra', 'default_price' => 55000],
-            ['code' => 'REP-011', 'description' => 'Reparación Panel Lateral', 'type' => 'mano_obra', 'default_price' => 90000],
-            ['code' => 'REP-012', 'description' => 'Reparación Marco De Puerta', 'type' => 'mano_obra', 'default_price' => 75000],
-            ['code' => 'REP-013', 'description' => 'Reparación Pilar A', 'type' => 'mano_obra', 'default_price' => 80000],
-            ['code' => 'REP-014', 'description' => 'Reparación Pilar B', 'type' => 'mano_obra', 'default_price' => 85000],
-            ['code' => 'REP-015', 'description' => 'Reparación Pilar C', 'type' => 'mano_obra', 'default_price' => 80000],
-            ['code' => 'REP-016', 'description' => 'Enderezado De Chasis', 'type' => 'mano_obra', 'default_price' => 250000],
-            ['code' => 'REP-017', 'description' => 'Reparación Piso / Bandeja', 'type' => 'mano_obra', 'default_price' => 95000],
+            // ─── Servicios de detailing ─────────────────────────────
+            ['code' => 'DET-001', 'description' => 'Lavado Exterior Completo', 'type' => 'mano_obra', 'default_price' => 15000],
+            ['code' => 'DET-002', 'description' => 'Lavado Interior Y Exterior', 'type' => 'mano_obra', 'default_price' => 25000],
+            ['code' => 'DET-003', 'description' => 'Detailing Completo (Interior + Exterior)', 'type' => 'mano_obra', 'default_price' => 120000],
+            ['code' => 'DET-004', 'description' => 'Pulido Y Abrillantado De Pintura', 'type' => 'mano_obra', 'default_price' => 85000],
+            ['code' => 'DET-005', 'description' => 'Encerado Premium', 'type' => 'mano_obra', 'default_price' => 45000],
+            ['code' => 'DET-006', 'description' => 'Tratamiento Cerámico', 'type' => 'mano_obra', 'default_price' => 250000],
+            ['code' => 'DET-007', 'description' => 'Limpieza De Tapicería', 'type' => 'mano_obra', 'default_price' => 55000],
+            ['code' => 'DET-008', 'description' => 'Limpieza De Motor', 'type' => 'mano_obra', 'default_price' => 35000],
+            ['code' => 'DET-009', 'description' => 'Restauración De Faros', 'type' => 'mano_obra', 'default_price' => 25000],
+            ['code' => 'DET-010', 'description' => 'Descontaminado De Pintura', 'type' => 'mano_obra', 'default_price' => 45000],
 
-            // ─── Pintura ────────────────────────────────────────────
-            ['code' => 'PINT-001', 'description' => 'Pintura Parachoques Delantero', 'type' => 'mano_obra', 'default_price' => 95000],
-            ['code' => 'PINT-002', 'description' => 'Pintura Parachoques Trasero', 'type' => 'mano_obra', 'default_price' => 95000],
-            ['code' => 'PINT-003', 'description' => 'Pintura Guardafango Delantero', 'type' => 'mano_obra', 'default_price' => 67800],
-            ['code' => 'PINT-004', 'description' => 'Pintura Guardafango Trasero', 'type' => 'mano_obra', 'default_price' => 67800],
-            ['code' => 'PINT-005', 'description' => 'Pintura Puerta Delantera', 'type' => 'mano_obra', 'default_price' => 85000],
-            ['code' => 'PINT-006', 'description' => 'Pintura Puerta Trasera', 'type' => 'mano_obra', 'default_price' => 85000],
-            ['code' => 'PINT-007', 'description' => 'Pintura Capó', 'type' => 'mano_obra', 'default_price' => 120000],
-            ['code' => 'PINT-008', 'description' => 'Pintura Maleta / Portalón', 'type' => 'mano_obra', 'default_price' => 95000],
-            ['code' => 'PINT-009', 'description' => 'Pintura Techo', 'type' => 'mano_obra', 'default_price' => 150000],
-            ['code' => 'PINT-010', 'description' => 'Pintura Zócalo / Estribo', 'type' => 'mano_obra', 'default_price' => 45000],
-            ['code' => 'PINT-011', 'description' => 'Pintura Panel Lateral', 'type' => 'mano_obra', 'default_price' => 95000],
-            ['code' => 'PINT-012', 'description' => 'Difuminado / Empalme De Color', 'type' => 'mano_obra', 'default_price' => 35000],
-            ['code' => 'PINT-013', 'description' => 'Pintura Espejo Retrovisor', 'type' => 'mano_obra', 'default_price' => 25000],
-            ['code' => 'PINT-014', 'description' => 'Pintura Completa Vehículo', 'type' => 'mano_obra', 'default_price' => 850000],
+            // ─── Productos y materiales ─────────────────────────────
+            ['code' => 'PROD-001', 'description' => 'Material De Pintura Base', 'type' => 'repuesto', 'default_price' => 35000],
+            ['code' => 'PROD-002', 'description' => 'Material De Preparación', 'type' => 'repuesto', 'default_price' => 25000],
+            ['code' => 'PROD-003', 'description' => 'Barniz / Clear Coat', 'type' => 'repuesto', 'default_price' => 28000],
+            ['code' => 'PROD-004', 'description' => 'Masilla Poliéster', 'type' => 'repuesto', 'default_price' => 12000],
+            ['code' => 'PROD-005', 'description' => 'Primer / Anticorrosivo', 'type' => 'repuesto', 'default_price' => 15000],
+            ['code' => 'PROD-006', 'description' => 'Lija Y Abrasivos', 'type' => 'repuesto', 'default_price' => 8000],
+            ['code' => 'PROD-007', 'description' => 'Cinta De Enmascarar', 'type' => 'repuesto', 'default_price' => 5000],
+            ['code' => 'PROD-008', 'description' => 'Adhesivo Estructural', 'type' => 'repuesto', 'default_price' => 18000],
+            ['code' => 'PROD-009', 'description' => 'Sellador De Costura', 'type' => 'repuesto', 'default_price' => 12000],
+            ['code' => 'PROD-010', 'description' => 'Film Protector PPF (Por Metro)', 'type' => 'repuesto', 'default_price' => 65000],
 
-            // ─── Desmontar / Montar ─────────────────────────────────
-            ['code' => 'DM-001', 'description' => 'D/M Parachoques Delantero', 'type' => 'mano_obra', 'default_price' => 16000],
-            ['code' => 'DM-002', 'description' => 'D/M Parachoques Trasero', 'type' => 'mano_obra', 'default_price' => 16000],
-            ['code' => 'DM-003', 'description' => 'D/M Guardafango', 'type' => 'mano_obra', 'default_price' => 12000],
-            ['code' => 'DM-004', 'description' => 'D/M Puerta Completa', 'type' => 'mano_obra', 'default_price' => 25000],
-            ['code' => 'DM-005', 'description' => 'D/M Capó', 'type' => 'mano_obra', 'default_price' => 15000],
-            ['code' => 'DM-006', 'description' => 'D/M Maleta / Portalón', 'type' => 'mano_obra', 'default_price' => 18000],
-            ['code' => 'DM-007', 'description' => 'D/M Vidrio Parabrisas', 'type' => 'mano_obra', 'default_price' => 35000],
-            ['code' => 'DM-008', 'description' => 'D/M Vidrio Trasero', 'type' => 'mano_obra', 'default_price' => 30000],
-            ['code' => 'DM-009', 'description' => 'D/M Faro Delantero', 'type' => 'mano_obra', 'default_price' => 12000],
-            ['code' => 'DM-010', 'description' => 'D/M Faro Trasero', 'type' => 'mano_obra', 'default_price' => 10000],
-            ['code' => 'DM-011', 'description' => 'D/M Espejo Retrovisor', 'type' => 'mano_obra', 'default_price' => 8000],
-            ['code' => 'DM-012', 'description' => 'D/M Molduras Y Emblemas', 'type' => 'mano_obra', 'default_price' => 10000],
-            ['code' => 'DM-013', 'description' => 'D/M Manilla De Puerta', 'type' => 'mano_obra', 'default_price' => 8000],
-            ['code' => 'DM-014', 'description' => 'D/M Tapizado Interior Puerta', 'type' => 'mano_obra', 'default_price' => 12000],
-            ['code' => 'DM-015', 'description' => 'D/M Sistema Eléctrico Puerta', 'type' => 'mano_obra', 'default_price' => 18000],
-
-            // ─── Repuestos / Cambio ─────────────────────────────────
-            ['code' => 'CAM-001', 'description' => 'Cambio Parachoques Delantero', 'type' => 'repuesto', 'default_price' => 180000],
-            ['code' => 'CAM-002', 'description' => 'Cambio Parachoques Trasero', 'type' => 'repuesto', 'default_price' => 180000],
-            ['code' => 'CAM-003', 'description' => 'Cambio Guardafango Delantero', 'type' => 'repuesto', 'default_price' => 120000],
-            ['code' => 'CAM-004', 'description' => 'Cambio Guardafango Trasero', 'type' => 'repuesto', 'default_price' => 120000],
-            ['code' => 'CAM-005', 'description' => 'Cambio Capó', 'type' => 'repuesto', 'default_price' => 250000],
-            ['code' => 'CAM-006', 'description' => 'Cambio Faro Delantero', 'type' => 'repuesto', 'default_price' => 150000],
-            ['code' => 'CAM-007', 'description' => 'Cambio Faro Trasero', 'type' => 'repuesto', 'default_price' => 95000],
-            ['code' => 'CAM-008', 'description' => 'Cambio Espejo Retrovisor', 'type' => 'repuesto', 'default_price' => 85000],
-            ['code' => 'CAM-009', 'description' => 'Cambio Vidrio Parabrisas', 'type' => 'repuesto', 'default_price' => 180000],
-            ['code' => 'CAM-010', 'description' => 'Cambio Vidrio Puerta', 'type' => 'repuesto', 'default_price' => 95000],
-            ['code' => 'CAM-011', 'description' => 'Cambio Vidrio Trasero', 'type' => 'repuesto', 'default_price' => 150000],
-            ['code' => 'CAM-012', 'description' => 'Cambio Moldura De Puerta', 'type' => 'repuesto', 'default_price' => 35000],
-            ['code' => 'CAM-013', 'description' => 'Cambio Manilla Exterior', 'type' => 'repuesto', 'default_price' => 25000],
-            ['code' => 'CAM-014', 'description' => 'Cambio Rejilla Delantera', 'type' => 'repuesto', 'default_price' => 65000],
-            ['code' => 'CAM-015', 'description' => 'Cambio Neblinero', 'type' => 'repuesto', 'default_price' => 45000],
-            ['code' => 'CAM-016', 'description' => 'Cambio Pisadera / Estribo', 'type' => 'repuesto', 'default_price' => 75000],
-            ['code' => 'CAM-017', 'description' => 'Cambio Emblema / Logo', 'type' => 'repuesto', 'default_price' => 15000],
-            ['code' => 'CAM-018', 'description' => 'Cambio Bisagra De Puerta', 'type' => 'repuesto', 'default_price' => 30000],
-            ['code' => 'CAM-019', 'description' => 'Cambio Cerradura De Puerta', 'type' => 'repuesto', 'default_price' => 45000],
-            ['code' => 'CAM-020', 'description' => 'Cambio Amortiguador Capó', 'type' => 'repuesto', 'default_price' => 18000],
-
-            // ─── Materiales ─────────────────────────────────────────
-            ['code' => 'MAT-001', 'description' => 'Material De Pintura Base', 'type' => 'repuesto', 'default_price' => 35000],
-            ['code' => 'MAT-002', 'description' => 'Material De Preparación', 'type' => 'repuesto', 'default_price' => 25000],
-            ['code' => 'MAT-003', 'description' => 'Material De Barniz', 'type' => 'repuesto', 'default_price' => 28000],
-            ['code' => 'MAT-004', 'description' => 'Masilla Poliéster', 'type' => 'repuesto', 'default_price' => 12000],
-            ['code' => 'MAT-005', 'description' => 'Primer / Anticorrosivo', 'type' => 'repuesto', 'default_price' => 15000],
-            ['code' => 'MAT-006', 'description' => 'Lija Y Abrasivos', 'type' => 'repuesto', 'default_price' => 8000],
-            ['code' => 'MAT-007', 'description' => 'Cinta De Enmascarar', 'type' => 'repuesto', 'default_price' => 5000],
-            ['code' => 'MAT-008', 'description' => 'Adhesivo Estructural', 'type' => 'repuesto', 'default_price' => 18000],
-            ['code' => 'MAT-009', 'description' => 'Sellador De Costura', 'type' => 'repuesto', 'default_price' => 12000],
-            ['code' => 'MAT-010', 'description' => 'Pulido Y Abrillantado', 'type' => 'mano_obra', 'default_price' => 45000],
-
-            // ─── Mecánica general ───────────────────────────────────
+            // ─── Servicios mecánicos ────────────────────────────────
             ['code' => 'MEC-001', 'description' => 'Alineación Y Balanceo', 'type' => 'mano_obra', 'default_price' => 35000],
-            ['code' => 'MEC-002', 'description' => 'Diagnóstico Electrónico', 'type' => 'mano_obra', 'default_price' => 25000],
+            ['code' => 'MEC-002', 'description' => 'Diagnóstico Electrónico (Scanner)', 'type' => 'mano_obra', 'default_price' => 25000],
             ['code' => 'MEC-003', 'description' => 'Calibración Sensores ADAS', 'type' => 'mano_obra', 'default_price' => 85000],
             ['code' => 'MEC-004', 'description' => 'Recarga Aire Acondicionado', 'type' => 'mano_obra', 'default_price' => 45000],
-            ['code' => 'MEC-005', 'description' => 'Cambio Radiador', 'type' => 'repuesto', 'default_price' => 180000],
-            ['code' => 'MEC-006', 'description' => 'Cambio Condensador A/C', 'type' => 'repuesto', 'default_price' => 150000],
-            ['code' => 'MEC-007', 'description' => 'Reparación Sistema Eléctrico', 'type' => 'mano_obra', 'default_price' => 55000],
-            ['code' => 'MEC-008', 'description' => 'Cambio Airbag', 'type' => 'repuesto', 'default_price' => 350000],
+            ['code' => 'MEC-005', 'description' => 'Revisión Pre-Entrega', 'type' => 'mano_obra', 'default_price' => 15000],
+            ['code' => 'MEC-006', 'description' => 'Grúa / Transporte De Vehículo', 'type' => 'mano_obra', 'default_price' => 65000],
         ];
 
         foreach ($items as $item) {

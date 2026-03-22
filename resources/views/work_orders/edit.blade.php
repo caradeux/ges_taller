@@ -742,32 +742,18 @@ function initDescAC(input) {
         if (q.length < 2) { ul.style.display = 'none'; return; }
         clearTimeout(timer);
         timer = setTimeout(() => {
-            fetch(`{{ route('service-items.search') }}?q=${encodeURIComponent(q)}`, { headers: { 'Accept': 'application/json' } })
+            fetch(`{{ route('parts.search') }}?q=${encodeURIComponent(q)}`, { headers: { 'Accept': 'application/json' } })
             .then(r => r.json())
             .then(items => {
                 ul.innerHTML = '';
                 if (!items.length) { ul.style.display = 'none'; return; }
                 items.forEach(si => {
                     const li = document.createElement('li');
-                    li.innerHTML = `<strong>${si.code || ''}</strong> ${si.description}` +
-                        (si.default_price ? ` <span class="text-muted" style="font-size:.75rem">$${Number(si.default_price).toLocaleString('es-CL')}</span>` : '');
+                    li.innerHTML = `${si.name} <span class="text-muted" style="font-size:.75rem">${si.category}</span>`;
                     li.addEventListener('mousedown', e => {
                         e.preventDefault();
-                        input.value = si.description;
+                        input.value = si.name;
                         ul.style.display = 'none';
-                        const row = input.closest('tr');
-                        if (si.default_price) {
-                            const pw = row.querySelector('.price-workshop');
-                            if (pw && !pw.value) pw.value = si.default_price;
-                        }
-                        if (si.type) {
-                            const unSel = row.querySelector('.un-sel');
-                            const matchOpt = [...unSel.options].find(o => {
-                                const code = o.textContent.split('—')[0].trim().toLowerCase();
-                                return code === (si.type || '').toLowerCase();
-                            });
-                            if (matchOpt) unSel.value = matchOpt.value;
-                        }
                         recalc();
                     });
                     ul.appendChild(li);
