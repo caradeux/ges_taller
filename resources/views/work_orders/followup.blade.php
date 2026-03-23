@@ -119,7 +119,7 @@
                                         <a href="tel:{{ $wo->client->phone }}" class="client-phone text-decoration-none">
                                             <i class="bi bi-telephone-fill me-1"></i>{{ $wo->client->phone }}
                                         </a>
-                                        <a href="{{ $waUrl }}" target="_blank" rel="noopener"
+                                        <a href="{{ $waUrl }}" target="whatsapp_send" rel="noopener"
                                            style="display:inline-flex;align-items:center;gap:4px;background:#25D366;color:#fff;border-radius:6px;padding:2px 8px;font-size:0.72rem;font-weight:700;text-decoration:none;">
                                             <i class="bi bi-whatsapp"></i> WhatsApp
                                         </a>

@@ -238,7 +238,7 @@
         <a href="{{ route('work-orders.intake-pdf', $workOrder) }}" class="btn-app-secondary"><i class="bi bi-clipboard-check"></i> Acta Ingreso</a>
         @if($workOrder->client?->phone)
         <a href="{{ \App\Helpers\WhatsAppHelper::buildUrl($workOrder->client->phone, \App\Helpers\WhatsAppHelper::buildStatusMessage($workOrder, $workOrder->status)) }}"
-            target="_blank" class="btn btn-sm text-white" style="background:#25D366;border:none;border-radius:var(--radius-sm);padding:0.45rem 0.9rem;font-size:0.82rem;font-weight:600;">
+            target="whatsapp_send" class="btn btn-sm text-white" style="background:#25D366;border:none;border-radius:var(--radius-sm);padding:0.45rem 0.9rem;font-size:0.82rem;font-weight:600;">
             <i class="bi bi-whatsapp"></i> WhatsApp
         </a>
         @endif
@@ -706,7 +706,7 @@ const CLP = v => '$' + Number(v).toLocaleString('es-CL', {maximumFractionDigits:
                 <strong style="font-size:0.88rem;">Notificar al cliente por WhatsApp</strong>
             </div>
             <div style="display:flex;gap:8px;">
-                <a id="waSendBtn" href="${waUrl}" target="_blank"
+                <a id="waSendBtn" href="${waUrl}" target="whatsapp_send"
                     style="background:#25D366;color:white;border:none;border-radius:8px;padding:6px 16px;
                     font-size:0.82rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
                     <i class="bi bi-whatsapp"></i> Enviar
