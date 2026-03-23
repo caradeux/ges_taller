@@ -9,23 +9,43 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // 1. Drop foreign keys that reference quotations
-        Schema::table('quotation_items', function (Blueprint $table) {
-            $table->dropForeign(['quotation_id']);
-        });
+        // Helper to drop all FKs from a table
+        $dropAllForeignKeys = function (string $tableName) {
+            $fks = DB::select("SELECT CONSTRAINT_NAME FROM information_schema.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND CONSTRAINT_TYPE = 'FOREIGN KEY'", [$tableName]);
+            if (! empty($fks)) {
+                Schema::table($tableName, function (Blueprint $table) use ($fks) {
+                    foreach ($fks as $fk) {
+                        $table->dropForeign($fk->CONSTRAINT_NAME);
+                    }
+                });
+            }
+        };
+
+        // 1. Drop foreign keys from quotation_items (if table still exists)
+        if (Schema::hasTable('quotation_items')) {
+            $dropAllForeignKeys('quotation_items');
+        }
 
         // 2. Rename quotations → work_orders
-        Schema::rename('quotations', 'work_orders');
+        if (Schema::hasTable('quotations') && ! Schema::hasTable('work_orders')) {
+            Schema::rename('quotations', 'work_orders');
+        }
 
-        // 3. Add new columns to work_orders
+        // 3. Add new columns to work_orders (if not already added)
         Schema::table('work_orders', function (Blueprint $table) {
-            $table->decimal('total_workshop', 15, 2)->default(0)->after('total_amount');
-            $table->decimal('total_authorized', 15, 2)->default(0)->after('total_workshop');
-            $table->decimal('total_real_cost', 15, 2)->default(0)->after('total_authorized');
+            if (! Schema::hasColumn('work_orders', 'total_workshop')) {
+                $table->decimal('total_workshop', 15, 2)->default(0)->after('total_amount');
+            }
+            if (! Schema::hasColumn('work_orders', 'total_authorized')) {
+                $table->decimal('total_authorized', 15, 2)->default(0)->after('total_workshop');
+            }
+            if (! Schema::hasColumn('work_orders', 'total_real_cost')) {
+                $table->decimal('total_real_cost', 15, 2)->default(0)->after('total_authorized');
+            }
         });
 
         // 4. Migrate status values and total_workshop
-        DB::statement("UPDATE work_orders SET total_workshop = total_amount");
+        DB::statement("UPDATE work_orders SET total_workshop = total_amount WHERE total_workshop = 0");
         DB::statement("UPDATE work_orders SET status = 'intake' WHERE status = 'draft'");
         DB::statement("UPDATE work_orders SET status = 'budget_sent' WHERE status = 'sent'");
         DB::statement("UPDATE work_orders SET status = 'completed' WHERE status = 'finished'");
@@ -35,24 +55,41 @@ return new class extends Migration
         DB::statement("ALTER TABLE work_orders MODIFY COLUMN status ENUM('intake','budget_sent','approved','waiting_parts','in_repair','completed','delivered','invoiced') NOT NULL DEFAULT 'intake'");
 
         // 6. Rename quotation_items → work_order_items
-        Schema::rename('quotation_items', 'work_order_items');
+        if (Schema::hasTable('quotation_items') && ! Schema::hasTable('work_order_items')) {
+            Schema::rename('quotation_items', 'work_order_items');
+        }
 
-        // 7. Modify work_order_items
+        // 7. Modify work_order_items columns
+        if (Schema::hasColumn('work_order_items', 'quotation_id')) {
+            Schema::table('work_order_items', function (Blueprint $table) {
+                $table->renameColumn('quotation_id', 'work_order_id');
+            });
+        }
+        if (Schema::hasColumn('work_order_items', 'price') && ! Schema::hasColumn('work_order_items', 'price_workshop')) {
+            Schema::table('work_order_items', function (Blueprint $table) {
+                $table->renameColumn('price', 'price_workshop');
+            });
+        }
+
         Schema::table('work_order_items', function (Blueprint $table) {
-            $table->renameColumn('quotation_id', 'work_order_id');
-            $table->renameColumn('price', 'price_workshop');
+            if (! Schema::hasColumn('work_order_items', 'price_authorized')) {
+                $table->decimal('price_authorized', 15, 2)->default(0)->after('price_workshop');
+            }
+            if (! Schema::hasColumn('work_order_items', 'price_real')) {
+                $table->decimal('price_real', 15, 2)->default(0)->after('price_authorized');
+            }
+            if (! Schema::hasColumn('work_order_items', 'is_approved')) {
+                $table->boolean('is_approved')->default(true)->after('price_real');
+            }
         });
 
-        Schema::table('work_order_items', function (Blueprint $table) {
-            $table->decimal('price_authorized', 15, 2)->default(0)->after('price_workshop');
-            $table->decimal('price_real', 15, 2)->default(0)->after('price_authorized');
-            $table->boolean('is_approved')->default(true)->after('price_real');
-        });
-
-        // 8. Re-add foreign key
-        Schema::table('work_order_items', function (Blueprint $table) {
-            $table->foreign('work_order_id')->references('id')->on('work_orders')->onDelete('cascade');
-        });
+        // 8. Re-add foreign key (if not already present)
+        $existingFks = DB::select("SELECT CONSTRAINT_NAME FROM information_schema.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'work_order_items' AND CONSTRAINT_TYPE = 'FOREIGN KEY'");
+        if (empty($existingFks)) {
+            Schema::table('work_order_items', function (Blueprint $table) {
+                $table->foreign('work_order_id')->references('id')->on('work_orders')->onDelete('cascade');
+            });
+        }
     }
 
     public function down(): void
