@@ -13,12 +13,12 @@ if [ -z "$APP_KEY" ]; then
     php artisan key:generate --force
 fi
 
-# Run migrations
+# Run migrations (don't crash if they fail - app can still serve)
 echo "Running migrations..."
-php artisan migrate --force
+php artisan migrate --force || echo "WARNING: Migrations failed, continuing anyway..."
 
 # Seed only if no users exist yet
-php artisan db:seed --force
+php artisan db:seed --force || echo "WARNING: Seeding failed, continuing anyway..."
 
 # Cache for production
 echo "Caching config..."
