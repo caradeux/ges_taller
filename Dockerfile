@@ -16,8 +16,9 @@ RUN apk add --no-cache \
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
  && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip opcache
 
-# Composer (installed directly to avoid pulling a separate image)
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
+# Composer
+RUN curl -sS https://getcomposer.org/download/latest-stable/composer.phar -o /usr/bin/composer \
+ && chmod +x /usr/bin/composer
 
 WORKDIR /var/www/html
 
