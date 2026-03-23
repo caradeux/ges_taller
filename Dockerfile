@@ -1,6 +1,6 @@
 FROM php:8.2-fpm-alpine
 
-# System dependencies
+# System dependencies + build tools
 RUN apk add --no-cache \
     nginx \
     supervisor \
@@ -9,7 +9,8 @@ RUN apk add --no-cache \
     freetype-dev \
     libjpeg-turbo-dev \
     oniguruma-dev \
-    zip unzip git curl bash
+    zip unzip git curl bash \
+    $PHPIZE_DEPS
 
 # PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
