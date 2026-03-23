@@ -22,9 +22,27 @@ class SampleDataSeeder extends Seeder
 
     public function run(): void
     {
-        // Skip if sample OTs already exist (idempotent)
-        if (WorkOrder::where('folio', '1421')->exists()) {
+        // Skip if full sample data already loaded (check last OT folio)
+        if (WorkOrder::where('folio', str_pad(1428, 4, '0', STR_PAD_LEFT))->exists()) {
             return;
+        }
+
+        // Clean up partial sample data from previous failed runs
+        $sampleFolios = collect(range(1421, 1428))->map(fn($f) => str_pad($f, 4, '0', STR_PAD_LEFT));
+        $existingOtIds = WorkOrder::whereIn('folio', $sampleFolios)->pluck('id');
+        if ($existingOtIds->isNotEmpty()) {
+            WorkOrderEvent::whereIn('work_order_id', $existingOtIds)->delete();
+            WorkOrderItem::whereIn('work_order_id', $existingOtIds)->delete();
+            WorkOrder::whereIn('id', $existingOtIds)->delete();
+        }
+        // Also clean OTs without folio from sample data
+        $sampleVehiclePlates = ['GFGR60','ABCD12','RRTT55','BBCC33','FFGG77','HHKK99','LLMM44','PPQQ88','SSTT22','XXZZ66'];
+        $sampleVehicleIds = Vehicle::whereIn('license_plate', $sampleVehiclePlates)->pluck('id');
+        $noFolioOtIds = WorkOrder::whereNull('folio')->whereIn('vehicle_id', $sampleVehicleIds)->pluck('id');
+        if ($noFolioOtIds->isNotEmpty()) {
+            WorkOrderEvent::whereIn('work_order_id', $noFolioOtIds)->delete();
+            WorkOrderItem::whereIn('work_order_id', $noFolioOtIds)->delete();
+            WorkOrder::whereIn('id', $noFolioOtIds)->delete();
         }
 
         $rep  = UnType::where('code', 'REP')->first();
