@@ -44,14 +44,17 @@ return new class extends Migration
             }
         });
 
-        // 4. Migrate status values and total_workshop
+        // 4. Change status column to new enum FIRST (must happen before UPDATEs)
+        DB::statement("ALTER TABLE work_orders MODIFY COLUMN status ENUM('draft','sent','approved','rejected','finished','invoiced','intake','budget_sent','waiting_parts','in_repair','completed','delivered') NOT NULL DEFAULT 'intake'");
+
+        // 5. Migrate status values and total_workshop
         DB::statement("UPDATE work_orders SET total_workshop = total_amount WHERE total_workshop = 0");
         DB::statement("UPDATE work_orders SET status = 'intake' WHERE status = 'draft'");
         DB::statement("UPDATE work_orders SET status = 'budget_sent' WHERE status = 'sent'");
         DB::statement("UPDATE work_orders SET status = 'completed' WHERE status = 'finished'");
         DB::statement("UPDATE work_orders SET status = 'intake' WHERE status = 'rejected'");
 
-        // 5. Change status column to new enum
+        // 6. Narrow enum to only new values
         DB::statement("ALTER TABLE work_orders MODIFY COLUMN status ENUM('intake','budget_sent','approved','waiting_parts','in_repair','completed','delivered','invoiced') NOT NULL DEFAULT 'intake'");
 
         // 6. Rename quotation_items → work_order_items
