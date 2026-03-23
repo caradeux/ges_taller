@@ -695,17 +695,7 @@ const CLP = v => '$' + Number(v).toLocaleString('es-CL', {maximumFractionDigits:
 @if(session('whatsapp_url'))
 (function() {
     const waUrl = @json(session('whatsapp_url'));
-    const clientId = @json($workOrder->client_id);
-    const storageKey = 'wa_auto_' + clientId;
-    const autoSend = localStorage.getItem(storageKey) === '1';
 
-    if (autoSend) {
-        // Client already opted in — send directly
-        window.open(waUrl, '_blank');
-        return;
-    }
-
-    // First time for this client — ask
     const toast = document.createElement('div');
     toast.innerHTML = `
         <div id="waToast" style="position:fixed;bottom:20px;right:20px;z-index:99999;background:white;border-radius:12px;
@@ -715,17 +705,16 @@ const CLP = v => '$' + Number(v).toLocaleString('es-CL', {maximumFractionDigits:
                 <i class="bi bi-whatsapp" style="font-size:1.3rem;color:#25D366;"></i>
                 <strong style="font-size:0.88rem;">Notificar al cliente por WhatsApp</strong>
             </div>
-            <p style="font-size:0.78rem;color:#64748b;margin:0 0 10px;">Si acepta, los proximos cambios de estado se enviaran automaticamente para este cliente.</p>
             <div style="display:flex;gap:8px;">
                 <a id="waSendBtn" href="${waUrl}" target="_blank"
                     style="background:#25D366;color:white;border:none;border-radius:8px;padding:6px 16px;
                     font-size:0.82rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
-                    <i class="bi bi-whatsapp"></i> Si, enviar
+                    <i class="bi bi-whatsapp"></i> Enviar
                 </a>
                 <button id="waSkipBtn"
                     style="background:#f1f5f9;border:none;border-radius:8px;padding:6px 14px;
                     font-size:0.82rem;color:#64748b;cursor:pointer;">
-                    No, omitir
+                    Omitir
                 </button>
             </div>
         </div>
@@ -733,7 +722,6 @@ const CLP = v => '$' + Number(v).toLocaleString('es-CL', {maximumFractionDigits:
     document.body.appendChild(toast);
 
     document.getElementById('waSendBtn').addEventListener('click', function() {
-        localStorage.setItem(storageKey, '1');
         setTimeout(() => toast.remove(), 500);
     });
 
@@ -741,7 +729,7 @@ const CLP = v => '$' + Number(v).toLocaleString('es-CL', {maximumFractionDigits:
         toast.remove();
     });
 
-    setTimeout(() => toast.remove(), 20000);
+    setTimeout(() => toast.remove(), 15000);
 })();
 @endif
 
