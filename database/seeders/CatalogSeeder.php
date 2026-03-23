@@ -19,10 +19,6 @@ class CatalogSeeder extends Seeder
 
     private function seedParts(): void
     {
-        if (Part::exists()) {
-            return;
-        }
-
         $parts = [
             // Carrocería
             'Carrocería' => [
@@ -111,17 +107,13 @@ class CatalogSeeder extends Seeder
 
         foreach ($parts as $category => $names) {
             foreach ($names as $name) {
-                Part::create(['name' => $name, 'category' => $category, 'active' => true]);
+                Part::firstOrCreate(['name' => $name, 'category' => $category], ['active' => true]);
             }
         }
     }
 
     private function seedServiceItems(): void
     {
-        if (ServiceItem::exists()) {
-            return;
-        }
-
         $items = [
             // ─── Servicios de detailing ─────────────────────────────
             ['code' => 'DET-001', 'description' => 'Lavado Exterior Completo', 'type' => 'mano_obra', 'default_price' => 15000],
@@ -179,16 +171,12 @@ class CatalogSeeder extends Seeder
         ];
 
         foreach ($items as $item) {
-            ServiceItem::create(array_merge($item, ['active' => true]));
+            ServiceItem::firstOrCreate(['code' => $item['code']], array_merge($item, ['active' => true]));
         }
     }
 
     private function seedVehicleBrands(): void
     {
-        if (VehicleBrand::exists()) {
-            return;
-        }
-
         $brands = [
             'Chevrolet' => ['Spark', 'Sail', 'Onix', 'Tracker', 'Equinox', 'Orlando', 'Captiva', 'Traverse', 'Silverado', 'N300', 'N400'],
             'Hyundai'   => ['Accent', 'Elantra', 'Sonata', 'i10', 'i20', 'i30', 'Tucson', 'Santa Fe', 'Kona', 'Creta', 'Venue', 'Staria', 'Ioniq 5'],
@@ -223,9 +211,9 @@ class CatalogSeeder extends Seeder
         ];
 
         foreach ($brands as $brandName => $models) {
-            $brand = VehicleBrand::create(['name' => $brandName]);
+            $brand = VehicleBrand::firstOrCreate(['name' => $brandName]);
             foreach ($models as $modelName) {
-                VehicleModel::create([
+                VehicleModel::firstOrCreate([
                     'vehicle_brand_id' => $brand->id,
                     'name' => $modelName,
                 ]);
