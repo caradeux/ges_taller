@@ -12,7 +12,7 @@ RUN apk add --no-cache \
     zip unzip git curl bash \
     $PHPIZE_DEPS
 
-# PHP extensions (including Redis for caching/sessions)
+# PHP extensions + Redis
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
  && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip opcache \
  && pecl install redis && docker-php-ext-enable redis
